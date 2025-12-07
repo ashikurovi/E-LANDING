@@ -1,28 +1,42 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
-
-const STRAPI_URL = process.env.STRAPI_URL;
+import { getApiUrl, API_CONFIG } from "@/lib/api-config";
 
 export async function POST(req: Request) {
   try {
-    const { full_name, phone_number, email, password } = await req.json();
-    console.log(full_name, phone_number, email, password);
-    const response = await axios.post(`${STRAPI_URL}/api/auth/local/register`, {
-      full_name,
-      phone_number,
-      email,
-      password,
-    });
+    const { name, email, phone, password } = await req.json();
 
-    return NextResponse.json(response.data, { status: 201 });
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    } else {
-      return NextResponse.json(
-        { error: "An unknown error occurred" },
-        { status: 400 }
-      );
-    }
+    // Use public registration endpoint with companyId from config
+    const userResponse = await axios.post(
+      getApiUrl("/users/register"),
+      {
+        name,
+        email,
+        phone: phone || undefined,
+        password,
+        role: "customer",
+        companyId: API_CONFIG.companyId,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return NextResponse.json(
+      {
+        user: userResponse.data.data,
+        message: userResponse.data.message || "User registered successfully"
+      },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    console.error("Registration error:", error);
+    const errorMessage = error.response?.data?.message || error.message || "An unknown error occurred";
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: error.response?.status || 400 }
+    );
   }
 }

@@ -1,13 +1,27 @@
 // middleware.ts
-import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default withAuth({
-  pages: {
-    signIn: "/login", // Redirect unauthenticated users to login page
-  },
-});
+export function middleware(request: NextRequest) {
+  // Check for auth token in cookies or headers
+  const token = request.cookies.get("auth_token")?.value ||
+    request.headers.get("authorization")?.replace("Bearer ", "");
 
-// Apply middleware to protected routes
+  // Protected routes
+  const protectedPaths = ["/my-account", "/checkout"];
+  const isProtectedPath = protectedPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  if (isProtectedPath && !token) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
+
 export const config = {
-  matcher: ["/dashboard", "/products", "/settings"], // Protect these routes
+  matcher: ["/my-account/:path*", "/checkout/:path*"],
 };

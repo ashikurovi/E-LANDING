@@ -1,33 +1,35 @@
 import EmblaCarousel from "@/components/shared/EmblaCarouel";
-import client from "@/lib/apollo-client";
-import { GET_BANNERS } from "@/lib/queries";
+import { getBanners } from "@/lib/api-services";
 import Image from "next/image";
 import React from "react";
 
-interface BannerProps {
-  documentId: string;
-  slug: string;
-  banner_image: {
-    url: string;
-    documentId: string;
-  };
-}
 const HeroCarousel: React.FC = async () => {
-  const { data } = await client.query({ query: GET_BANNERS });
+  let banners: any[] = [];
+
+  try {
+    banners = await getBanners('COMP-000001');
+  } catch (error) {
+    console.error("Failed to load banners:", error);
+    // banners will remain empty array
+  }
+
+  if (banners.length === 0) {
+    return null;
+  }
 
   return (
     <section className="max-w-7xl mx-auto">
       <EmblaCarousel dotButtons autoplay>
-        {data.banners.map((banner: BannerProps) => (
+        {banners.map((banner) => (
           <div
-            key={banner.documentId}
+            key={banner.id || banner.slug}
             className="[flex:0_0_100%] w-full h-full"
           >
             <Image
-              src={banner.banner_image.url}
-              alt="Banner Image"
-              width={1280} // Ensure width is provided
-              height={500} // Ensure height is provided
+              src={banner.bannerImage || banner.image?.url || "/images/logo.png"}
+              alt={banner.name || "Banner Image"}
+              width={1280}
+              height={500}
               className="sm:aspect-[16/5] aspect-[16/7] "
             />
           </div>

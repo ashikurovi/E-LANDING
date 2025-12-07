@@ -4,9 +4,7 @@ import Header from "@/components/Header";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { theme } from "@/theme/antd";
-import ApolloClientProvider from "@/utils/ApolloClientProvider";
 import { hindSiliguriFonts } from "@/utils/customFonts";
-import UserSessionProvider from "@/utils/UserSessionProvider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "animate.css";
 import { ConfigProvider } from "antd";
@@ -25,28 +23,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <UserSessionProvider>
-      <ConfigProvider theme={theme}>
-        <html lang="en">
-          <body
-            className={`${hindSiliguriFonts.variable} font-hindSiliguri antialiased`}
-          >
-            <AuthProvider>
-              <Toaster />
-              <ApolloClientProvider>
-                <CartProvider>
-                  <AntdRegistry>
-                    <Header />
-                    {children}
-                    <Footer />
-                    <BottomNav />
-                  </AntdRegistry>
-                </CartProvider>
-              </ApolloClientProvider>
-            </AuthProvider>
-          </body>
-        </html>
-      </ConfigProvider>
-    </UserSessionProvider>
+    <ConfigProvider theme={theme}>
+      <html lang="en">
+        <body
+          className={`${hindSiliguriFonts.variable} font-hindSiliguri antialiased`}
+        >
+          <AuthProvider>
+            <Toaster />
+            <CartProvider>
+              <AntdRegistry>
+                <Header />
+                {children}
+                <Footer />
+                <BottomNav />
+              </AntdRegistry>
+            </CartProvider>
+          </AuthProvider>
+        </body>
+      </html>
+    </ConfigProvider>
   );
 }

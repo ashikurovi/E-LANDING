@@ -1,91 +1,55 @@
 "use client";
 
-import Product from "@/app/products/[id]/page";
-import { ApolloQueryResult, gql, useQuery } from "@apollo/client";
 import axios from "axios";
-import { createContext, ReactNode, useContext } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-
-// GraphQL Query to fetch cart data
-const GET_CART = gql`
-  query Carts($filters: CartFiltersInput) {
-    carts(filters: $filters) {
-      documentId
-      slug
-      cart_products {
-        id
-        price
-        size
-        product_quantity
-        slug
-        product {
-          documentId
-          title
-          images {
-            name
-            url
-          }
-        }
-      }
-    }
-  }
-`;
-
-// GraphQL Mutation to delete a cart item
-// const DELETE_CART_ITEM = gql`
-//   mutation Mutation($documentId: ID!) {
-//     deleteCart(documentId: $documentId) {
-//       documentId
-//     }
-//   }
-// `;
+import { getApiUrl, getApiHeaders } from "@/lib/api-config";
 
 // Define TypeScript interfaces
-interface Image {
-  name: string;
+interface ProductImage {
   url: string;
+  alt?: string;
+  isPrimary?: boolean;
 }
 
 interface Product {
-  documentId: string;
-  title: string;
-  images: Image[];
+  id: number;
+  name: string;
+  sku: string;
+  price: number;
+  discountPrice?: number;
+  images?: ProductImage[];
+  thumbnail?: string;
 }
 
 interface CartProduct {
-  id: string;
-  price: number;
-  size: string;
-  product_quantity: number;
-  slug: string;
+  id: number;
   product: Product;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
 }
 
 interface Cart {
-  documentId: string;
-  slug: string;
-  cart_products: CartProduct[];
+  items: CartProduct[];
+  totalItems: number;
+  totalPrice: number;
 }
 
 interface CartContextType {
   cart: Cart | null;
   loading: boolean;
-  refetch: () => Promise<ApolloQueryResult<{ carts: Cart[] }>>;
+  refetch: () => Promise<void>;
   updateCartItem: (
-    documentId: string,
-    slug: string,
+    cartItemId: number,
     quantity: number
   ) => Promise<void>;
-  deleteCartItem: (documentId: string, slug: string) => Promise<void>;
+  deleteCartItem: (cartItemId: number) => Promise<void>;
   addCartItem: (
-    documentId: string,
-    price: number,
-    productId: string,
-    product_quantity: number,
-    size: string
+    productId: number,
+    quantity: number
   ) => Promise<void>;
-  deleteCart: () => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -93,223 +57,192 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 // Context Provider Component
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { userSession } = useAuth();
+  const [cart, setCart] = useState<Cart | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const { data, loading, refetch } = useQuery<{ carts: Cart[] }>(GET_CART, {
-    variables: {
-      filters: {
-        users_permissions_user: {
-          email: {
-            eq: userSession?.user?.email,
-          },
-        },
-      },
-    },
-  });
-  // const [deleteCart] = useMutation(DELETE_CART_ITEM);
+  const fetchCart = async () => {
+    if (!userSession?.userId || !userSession?.accessToken) {
+      setCart(null);
+      setLoading(false);
+      return;
+    }
 
-  const cart = data?.carts?.[0] || null;
-
-  // Function to update cart item quantity
-  const updateCartItem = async (
-    documentId: string,
-    slug: string,
-    quantity: number
-  ): Promise<void> => {
     try {
-      const refetchResponse = await refetch();
-      const latestData = refetchResponse?.data;
-      const currentCart = latestData?.carts?.[0];
-
-      if (!currentCart) {
-        console.error("Cart not found.");
-        return;
-      }
-
-      if (!documentId) {
-        console.error("documentId is missing.");
-        return;
-      }
-
-      // Modify only the target product
-      const updatedCartProducts = currentCart.cart_products.map((item) =>
-        item.slug === slug ? { ...item, product_quantity: quantity } : item
-      );
-      // Ensure correct product relation structure
-      const payload = {
-        data: {
-          cart_products: updatedCartProducts.map((item) => ({
-            price: item.price,
-            product: item.product.documentId,
-            product_quantity: item.product_quantity,
-            size: item.size,
-            slug: item.slug,
-          })),
-        },
-      };
-
-      // Send API request with Axios
-      await axios.put(
-        `http://localhost:1337/api/carts/${documentId}`, // Adjust the endpoint based on your API
-        payload,
+      setLoading(true);
+      const response = await axios.get(
+        getApiUrl(`/cartproducts/user/${userSession.userId}`),
         {
-          headers: {
-            // Authorization: `Bearer ${userSession?.jwt}`,
-            "Content-Type": "application/json",
-          },
+          headers: getApiHeaders(userSession.accessToken),
         }
       );
 
-      // Refetch to update UI
-      await refetch();
+      const items: CartProduct[] = response.data.data || [];
+      const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+      const totalPrice = items.reduce((sum, item) => sum + item.totalPrice, 0);
+
+      setCart({
+        items,
+        totalItems,
+        totalPrice,
+      });
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      setCart(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, [userSession?.userId, userSession?.accessToken]);
+
+  // Function to update cart item quantity
+  const updateCartItem = async (
+    cartItemId: number,
+    quantity: number
+  ): Promise<void> => {
+    if (!userSession?.accessToken || !userSession?.userId) {
+      console.error("User not authenticated");
+      return;
+    }
+
+    try {
+      // Note: Backend may need a PATCH endpoint for individual items
+      // For now, we'll delete and recreate if quantity changes
+      if (quantity <= 0) {
+        await deleteCartItem(cartItemId);
+        return;
+      }
+
+      // Find the cart item to get productId
+      const cartItem = cart?.items.find((item) => item.id === cartItemId);
+      if (!cartItem) {
+        console.error("Cart item not found");
+        return;
+      }
+
+      // Delete old item
+      await axios.delete(
+        getApiUrl(`/cartproducts/${cartItemId}`),
+        {
+          headers: getApiHeaders(userSession.accessToken),
+        }
+      ).catch(() => {
+        // If delete endpoint doesn't exist, we'll handle it differently
+      });
+
+      // Add new item with updated quantity
+      await axios.post(
+        getApiUrl("/cartproducts"),
+        {
+          userId: userSession.userId,
+          productId: cartItem.product.id,
+          quantity: quantity,
+        },
+        {
+          headers: getApiHeaders(userSession.accessToken),
+        }
+      );
+
+      await fetchCart();
     } catch (error) {
       console.error("Error updating cart item:", error);
+      throw error;
     }
   };
 
   // Function to remove a cart item
-  const deleteCartItem = async (
-    documentId: string,
-    slug: string
-  ): Promise<void> => {
+  const deleteCartItem = async (cartItemId: number): Promise<void> => {
+    if (!userSession?.accessToken) {
+      console.error("User not authenticated");
+      return;
+    }
+
     try {
-      const refetchResponse = await refetch();
-      const latestData = refetchResponse?.data;
-      const currentCart = latestData?.carts?.[0];
+      // Note: Backend may need a DELETE endpoint for individual items
+      // For now, we'll use a workaround by clearing and re-adding items
+      const remainingItems = cart?.items.filter((item) => item.id !== cartItemId) || [];
 
-      if (!currentCart) {
-        console.error("Cart not found.");
-        return;
-      }
-
-      if (!documentId) {
-        console.error("documentId is missing.");
-        return;
-      }
-
-      // Modify only the target product
-      const updatedCartProducts = currentCart.cart_products.filter(
-        (item) => !(item.slug === slug)
-      );
-
-      // Ensure correct product relation structure
-      const payload = {
-        data: {
-          cart_products: updatedCartProducts.map((item) => ({
-            price: item.price,
-            product: item.product.documentId,
-            product_quantity: item.product_quantity,
-            size: item.size,
-            slug: item.slug,
-          })),
-        },
-      };
-
-      // // Send API request with Axios
-      await axios.put(
-        `http://localhost:1337/api/carts/${documentId}`, // Adjust the endpoint based on your API
-        payload,
+      // Clear cart
+      await axios.delete(
+        getApiUrl(`/cartproducts/user/${userSession.userId}`),
         {
-          headers: {
-            // Authorization: `Bearer ${userSession?.jwt}`,
-            "Content-Type": "application/json",
-          },
+          headers: getApiHeaders(userSession.accessToken),
         }
       );
-      await refetch();
+
+      // Re-add remaining items
+      for (const item of remainingItems) {
+        await axios.post(
+          getApiUrl("/cartproducts"),
+          {
+            userId: userSession.userId,
+            productId: item.product.id,
+            quantity: item.quantity,
+          },
+          {
+            headers: getApiHeaders(userSession.accessToken),
+          }
+        );
+      }
+
+      await fetchCart();
     } catch (error) {
       console.error("Error deleting cart item:", error);
+      throw error;
     }
   };
 
   // function to add cart item
   const addCartItem = async (
-    documentId: string,
-    price: number,
-    productId: string,
-    product_quantity: number,
-    size: string
+    productId: number,
+    quantity: number
   ): Promise<void> => {
+    if (!userSession?.accessToken || !userSession?.userId) {
+      console.error("User not authenticated");
+      throw new Error("User must be logged in to add items to cart");
+    }
+
     try {
-      const refetchResponse = await refetch();
-      const latestData = refetchResponse?.data;
-      const currentCart = latestData?.carts?.[0];
-
-      const newdata = {
-        price,
-        product: productId,
-        product_quantity,
-        size,
-        slug: uuidv4(),
-      };
-      if (documentId === "") {
-        await axios.post(
-          "http://localhost:1337/api/carts",
-          {
-            data: {
-              slug: uuidv4(),
-              cart_products: [
-                {
-                  ...newdata,
-                },
-              ],
-              users_permissions_user: "e9v0wks7z3wytf8vcvs07ltf",
-            },
-          },
-          {
-            headers: {
-              // Authorization: `Bearer ${userSession?.jwt}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        await refetch();
-        return;
-      }
-      if (!currentCart) {
-        console.error("Cart not found.");
-        return;
-      }
-      // // Modify only the target product
-      const oldData = currentCart.cart_products.map((item) => {
-        const oldData = {
-          price: item.price,
-          product: item.product.documentId,
-          product_quantity: item.product_quantity,
-          size: item.size,
-          slug: item.slug,
-        };
-        return oldData;
-      });
-
-      // Ensure correct product relation structure
-      const payload = {
-        data: {
-          cart_products: [...oldData, newdata],
-        },
-      };
-
-      await axios.put(
-        `http://localhost:1337/api/carts/${documentId}`, // Adjust the endpoint based on your API
-        payload,
+      await axios.post(
+        getApiUrl("/cartproducts"),
         {
-          headers: {
-            // Authorization: `Bearer ${userSession?.jwt}`,
-            "Content-Type": "application/json",
-          },
+          userId: userSession.userId,
+          productId,
+          quantity,
+        },
+        {
+          headers: getApiHeaders(userSession.accessToken),
         }
       );
 
-      await refetch();
+      await fetchCart();
     } catch (error) {
-      console.error("Error updating cart item:", error);
+      console.error("Error adding cart item:", error);
+      throw error;
     }
   };
 
-  // function to delete cart
-  const deleteCart = async () => {
+  // function to clear cart
+  const clearCart = async (): Promise<void> => {
+    if (!userSession?.accessToken || !userSession?.userId) {
+      console.error("User not authenticated");
+      return;
+    }
+
     try {
+      await axios.delete(
+        getApiUrl(`/cartproducts/user/${userSession.userId}`),
+        {
+          headers: getApiHeaders(userSession.accessToken),
+        }
+      );
+
+      await fetchCart();
     } catch (error) {
-      console.error("Error deleting cart:", error);
+      console.error("Error clearing cart:", error);
+      throw error;
     }
   };
 
@@ -318,11 +251,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       value={{
         cart,
         loading,
-        refetch,
+        refetch: fetchCart,
         updateCartItem,
         deleteCartItem,
         addCartItem,
-        deleteCart,
+        clearCart,
       }}
     >
       {children}

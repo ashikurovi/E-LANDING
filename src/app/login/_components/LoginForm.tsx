@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -18,6 +18,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callBackURL = searchParams.get("callbackUrl");
@@ -25,17 +27,16 @@ export default function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    const result = await login(email, password);
 
-    if (result?.error) {
-      setError("Invalid email or password");
+    if (!result.success) {
+      setError(result.error || "Invalid email or password");
+      setLoading(false);
     } else {
       router.push(callBackURL || "/");
+      router.refresh();
     }
   };
 
@@ -56,10 +57,11 @@ export default function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
-            className="bg-primary p-2.5 rounded text-white w-full hover:bg-primary/90"
+            className="bg-primary p-2.5 rounded text-white w-full hover:bg-primary/90 disabled:opacity-50"
             type="submit"
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
         <Link href="/forgot-password" className="text-primary mt-2">

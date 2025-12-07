@@ -1,42 +1,22 @@
-import client from "@/lib/apollo-client";
-import { GET_PRODUCTS } from "@/lib/queries";
+import { getProducts } from "@/lib/api-services";
 import Link from "next/link";
 import ProductCard from "../../components/ui/ProductCard";
 
-interface Image {
-  name: string;
-  url: string;
-}
-
-interface Review {
-  rating?: number; // Optional because the reviews array may be empty
-}
-
-interface Variant {
-  price: number;
-  size: string;
-  available_quantity: number;
-  stock_status: string;
-}
-
-interface ProductProps {
-  title: string;
-  documentId: string;
-  off: number;
-  SKU: string;
-  reviews: Review[]; // Array of reviews
-  images: Image[]; // Array of images
-  variant: Variant[]; // Array of price variants
-}
 const ForYou = async () => {
-  const { data } = await client.query({
-    query: GET_PRODUCTS,
-    variables: {
-      pagination: {
-        limit: 10,
-      },
-    },
-  });
+  let products: any[] = [];
+
+  try {
+    products = await getProducts('COMP-000001');
+    // Limit to 10 products
+    products = products.slice(0, 10);
+  } catch (error) {
+    console.error("Failed to load products:", error);
+    // products will remain empty array
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-5 overflow-hidden md:pt-10 pt-5">
@@ -52,8 +32,8 @@ const ForYou = async () => {
         </Link>
       </div>
       <div className=" grid sm:grid-cols-[repeat(auto-fit,_minmax(220px,_1fr))] grid-cols-[repeat(auto-fit,_minmax(160px,_1fr))] w-full gap-3">
-        {data.products.map((product: ProductProps) => (
-          <div key={product.SKU}>
+        {products.map((product) => (
+          <div key={product.id || product.sku}>
             <ProductCard product={product} />
           </div>
         ))}

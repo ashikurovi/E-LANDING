@@ -1,21 +1,26 @@
 "use client";
 
-import { GET_CATEGORIES } from "@/lib/queries";
-import { useQuery } from "@apollo/client";
+import { getCategories } from "@/lib/api-services";
 import { Checkbox } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+
 interface CategoryProps {
   name: string;
-  documentId: string;
+  id: number;
   slug: string;
-  image: {
+  image?: {
     url: string;
-    name: string;
+    alt?: string;
   };
 }
+
 const ShopByCategory: React.FC = () => {
-  const { loading, error, data } = useQuery(GET_CATEGORIES);
+  const { userSession } = useAuth();
+  const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -26,6 +31,22 @@ const ShopByCategory: React.FC = () => {
   );
 
   const [checkedValues, setCheckedValues] = useState<string[]>(selectedValues);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const data = await getCategories(userSession?.accessToken, userSession?.companyId);
+        setCategories(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load categories");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, [userSession?.accessToken, userSession?.companyId]);
 
   // Sync state with URL changes (when manually updated)
   useEffect(() => {
@@ -50,15 +71,15 @@ const ShopByCategory: React.FC = () => {
   };
 
   if (loading) return <p>Loading categories...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-  if (!data || !data.categories) return <p>No categories found.</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!categories || categories.length === 0) return <p>No categories found.</p>;
 
   return (
     <div>
       <h2 className="text-xl font-medium">Shop By Category</h2>
       <Checkbox.Group value={checkedValues} onChange={handleChange}>
         <div className="flex flex-col">
-          {data.categories.map((category: CategoryProps) => (
+          {categories.map((category: CategoryProps) => (
             <Checkbox key={category.slug} value={category.name}>
               {category.name}
             </Checkbox>

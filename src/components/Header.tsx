@@ -15,9 +15,13 @@ const Header = () => {
   return (
     <nav className=" bg-gray-100/70 shadow backdrop-blur sticky top-0 z-40">
       <div className=" max-w-7xl px-5 mx-auto flex items-center justify-between gap-5 py-2">
-        <div>
-          <Image src={Logo} alt="logo" width={100} />
-        </div>
+
+        <Link href="/" className=" cursor-pointer">
+          <div>
+            <Image src={Logo} alt="logo" width={100} />
+          </div>
+        </Link>
+
         {/* search by category and products name  */}
 
         <div className=" rounded-full border-[.1rem] border-primary flex items-center pr-1 sm:pr-2 pl-2">
@@ -122,7 +126,7 @@ const Header = () => {
           </Link>
         </ul>
       </div>
-    </nav>
+    </nav >
   );
 };
 
