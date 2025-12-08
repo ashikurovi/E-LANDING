@@ -4,20 +4,29 @@ import { calculateAverageRating } from "@/utils/getAverageRating";
 import { Rate } from "antd";
 import ReviewModal from "./ReviewModal";
 import ReviewsCarousel from "./ReviewsCarousel";
+import { Review } from "@/types/review";
+import { useMemo, useState } from "react";
+import { API_CONFIG } from "@/lib/api-config";
 
 interface ReviewProps {
-  reviews: {
-    date: string;
-    documentId: string;
-    rating: number;
-    review: string;
-    users_permissions_user: {
-      username: string;
-    };
-  }[];
+  reviews: Review[];
+  productId: number;
+  companyId?: string;
 }
 
-const Reviews: React.FC<ReviewProps> = ({ reviews }) => {
+const Reviews: React.FC<ReviewProps> = ({ reviews, productId, companyId }) => {
+  const [reviewList, setReviewList] = useState<Review[]>(reviews || []);
+  const effectiveCompanyId = companyId || API_CONFIG.companyId;
+
+  const averageRating = useMemo(
+    () => calculateAverageRating(reviewList),
+    [reviewList]
+  );
+
+  const handleNewReview = (review: Review) => {
+    setReviewList((prev) => [review, ...prev]);
+  };
+
   return (
     <section className="flex gap-5 flex-col min-[850px]:flex-row">
       <div className="flex gap-3 flex-col min-w-max">
@@ -26,21 +35,25 @@ const Reviews: React.FC<ReviewProps> = ({ reviews }) => {
             Customer Reviews
           </h1>
           <div className="flex gap-1 items-center">
-            <Rate
-              disabled
-              defaultValue={calculateAverageRating(reviews)}
-              allowHalf
-            />
+            <Rate disabled value={averageRating} allowHalf />
             <p className=" sm:text-base text-xs">
-              Based on {reviews.length} review
+              Based on {reviewList.length} review
             </p>
           </div>
         </div>
 
-        <ReviewModal />
+        <ReviewModal
+          productId={productId}
+          companyId={effectiveCompanyId}
+          onSubmitted={handleNewReview}
+        />
       </div>
       <div className=" overflow-hidden px-5 w-full">
-        <ReviewsCarousel reviews={reviews} />
+        {reviewList.length > 0 ? (
+          <ReviewsCarousel reviews={reviewList} />
+        ) : (
+          <p className="text-sm text-gray-600">No reviews yet.</p>
+        )}
       </div>
     </section>
   );

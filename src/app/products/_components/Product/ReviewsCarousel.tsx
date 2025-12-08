@@ -1,22 +1,19 @@
 import EmblaCarousel from "@/components/shared/EmblaCarouel";
 import { Rate } from "antd";
+import { Review } from "@/types/review";
 
-interface ReviewProps {
-  date: string;
-  documentId: string;
-  rating: number;
-  review: string;
-  users_permissions_user: {
-    username: string;
-  };
-}
+const formatDate = (value?: string) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString();
+};
 
-const ReviewsCarousel = ({ reviews }: { reviews: ReviewProps[] }) => {
-  console.log(reviews);
+const ReviewsCarousel = ({ reviews }: { reviews: Review[] }) => {
   return (
     <div className="">
       <EmblaCarousel arrowButtons autoplay>
-        {reviews.map((review: ReviewProps, index: number) => (
+        {reviews.map((review: Review, index: number) => (
           <div
             key={index}
             className=" flex-[0_0_100%] min-[400px]:flex-[0_0_75%] min-[500px]:flex-[0_0_60%]
@@ -30,13 +27,13 @@ const ReviewsCarousel = ({ reviews }: { reviews: ReviewProps[] }) => {
             <div className=" mt-1.5 flex flex-col gap-1">
               <Rate disabled defaultValue={review.rating} allowHalf />
               <h1 className="sm:text-lg text-base line-clamp-1 font-medium">
-                {review.users_permissions_user.username}
+                {review.userName || "Customer"}
               </h1>
               <p className=" text-xs sm:text-sm  text-gray-700">
-                {review.date}
+                {formatDate(review.createdAt)}
               </p>
               <p className=" text-xs sm:text-sm font-light italic line-clamp-2">
-                {review.review}
+                {review.comment}
               </p>
             </div>
           </div>

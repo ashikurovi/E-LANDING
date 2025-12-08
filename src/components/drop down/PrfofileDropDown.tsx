@@ -10,10 +10,13 @@ import {
   IoLogInOutline,
 } from "react-icons/io5";
 import { MdOutlineManageAccounts } from "react-icons/md";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const ProfileDropDown: React.FC = () => {
   const { userSession, logout } = useAuth();
   // console.log(userSession);
+  const router = useRouter();
   const items: MenuProps["items"] = [
     {
       key: "1",
@@ -46,23 +49,38 @@ const ProfileDropDown: React.FC = () => {
     {
       key: "5",
       icon: <IoLogInOutline size={20} style={{ color: "#dc2626" }} />,
-      label: (
-        <button
-          onClick={() => {
-            if (window.confirm("Are you sure you want to log out?")) {
-              logout(); // Only logs out if user confirms
-            }
-          }}
-          className="text-red-600"
-        >
-          Log out
-        </button>
-      ),
+      label: "Log out",
+      danger: true,
     },
   ];
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    switch (key) {
+      case "2":
+        router.push("/my-account/dashboard");
+        break;
+      case "3":
+        router.push("/my-account/orders");
+        break;
+      case "4":
+        router.push("/my-account/address");
+        break;
+      case "5":
+        if (window.confirm("Are you sure you want to log out?")) {
+          logout();
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Dropdown
-      menu={{ items }}
+      menu={{
+        items,
+        onClick: handleMenuClick,
+      }}
       overlayStyle={{
         marginTop: "25px",
         marginRight: "-15px",
@@ -72,7 +90,7 @@ const ProfileDropDown: React.FC = () => {
       <div className=" hover:text-primary transition-all duration-200 ease-linear ">
         <FaRegUser size={20} />
       </div>
-    </Dropdown>
+    </Dropdown >
   );
 };
 

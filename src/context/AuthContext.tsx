@@ -27,6 +27,9 @@ interface AuthContextType {
   userSession: UserSession | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (
+    payload: { name: string; email: string; password: string; phone?: string }
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -53,12 +56,15 @@ const setStoredAuth = (token: string, user: UserSession) => {
   if (typeof window === "undefined") return;
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+  // also set cookie for middleware protection
+  document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
 };
 
 const clearStoredAuth = () => {
   if (typeof window === "undefined") return;
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  document.cookie = "auth_token=; path=/; max-age=0";
 };
 
 // Provider component
@@ -73,6 +79,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (token && user) {
       setUserSession(user);
+        // refresh auth cookie if missing
+        document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
     }
     setLoading(false);
   }, []);
@@ -100,6 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         setStoredAuth(accessToken, session);
         setUserSession(session);
+        document.cookie = `auth_token=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}`;
         return { success: true };
       }
 
@@ -111,13 +120,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const register = async (
+    payload: { name: string; email: string; password: string; phone?: string }
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await axios.post(getApiUrl("/users/register"), {
+        name: payload.name,
+        email: payload.email,
+        password: payload.password,
+        phone: payload.phone,
+        companyId: API_CONFIG.companyId,
+      });
+
+      // Auto-login on successful registration if tokens provided
+      const { accessToken, user } = response.data || {};
+      if (accessToken && user) {
+        const session: UserSession = {
+          accessToken,
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          companyId: user.companyId,
+          permissions: user.permissions,
+          user,
+        };
+        setStoredAuth(accessToken, session);
+        setUserSession(session);
+        document.cookie = `auth_token=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}`;
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Register error:", error);
+      const apiMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        (Array.isArray(error.response?.data) ? error.response.data.join(", ") : undefined);
+      const errorMessage = apiMessage || error.message || "Registration failed";
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const logout = () => {
     clearStoredAuth();
     setUserSession(null);
   };
 
   return (
-    <AuthContext.Provider value={{ userSession, loading, login, logout }}>
+    <AuthContext.Provider value={{ userSession, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

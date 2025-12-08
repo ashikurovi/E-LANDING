@@ -5,6 +5,7 @@ import { Tabs } from "antd";
 import Description from "./Description";
 import ReturnPolicies from "./ReturnPolicies";
 import Reviews from "./Reviews";
+import { Review } from "@/types/review";
 
 interface CategoryProps {
   name: string;
@@ -29,15 +30,6 @@ interface ImageProps {
   name: string;
   url: string;
 }
-interface ReviewProps {
-  date: string;
-  documentId: string;
-  rating: number;
-  review: string;
-  users_permissions_user: {
-    username: string;
-  };
-}
 interface VariantProps {
   available_quantity: number;
   id: string;
@@ -47,6 +39,7 @@ interface VariantProps {
 }
 interface ProductProps {
   product: {
+    id?: number | string;
     SKU: string;
     documentId: string;
     off: number;
@@ -55,11 +48,12 @@ interface ProductProps {
     categories: CategoryProps[];
     description: DescriptionProps;
     images: ImageProps[];
-    reviews: ReviewProps[];
+    reviews: Review[];
     variant: VariantProps[];
   };
+  returnPolicyContent?: string;
 }
-const Tab: React.FC<ProductProps> = ({ product }) => {
+const Tab: React.FC<ProductProps> = ({ product, returnPolicyContent }) => {
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -70,12 +64,18 @@ const Tab: React.FC<ProductProps> = ({ product }) => {
     {
       key: "2",
       label: "Reviews",
-      children: <Reviews reviews={product?.reviews} />,
+      children: (
+        <Reviews
+          reviews={product?.reviews}
+          productId={Number(product?.documentId || product?.id)}
+          companyId={product?.companyId}
+        />
+      ),
     },
     {
       key: "3",
       label: "Return Policies",
-      children: <ReturnPolicies />,
+      children: <ReturnPolicies content={returnPolicyContent} />,
     },
   ];
   return <Tabs defaultActiveKey="1" items={items} />;

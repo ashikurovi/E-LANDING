@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styled from "styled-components";
+import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 const Input = styled.input`
   padding: 10px;
@@ -18,24 +20,41 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { register } = useAuth();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ full_name, phone_number, email, password }),
+    if (!full_name.trim() || !email.trim() || !password.trim()) {
+      setError("Name, email and password are required");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+
+    const res = await register({
+      name: full_name,
+      email,
+      password,
+      phone: phone_number,
     });
 
-    if (res.ok) {
-      router.push("/login"); // Redirect after successful registration
+    if (res.success) {
+      toast.success("Registration successful. Please log in.");
+      router.push("/login");
     } else {
-      const data = await res.json();
-      setError(data.error);
+      setError(res.error || "Registration failed");
     }
+    setLoading(false);
   };
   console.log(error);
   return (
@@ -73,8 +92,9 @@ export default function RegisterPage() {
             <button
               className=" bg-primary p-2.5 rounded text-white w-full  hover:bg-primary/90"
               type="submit"
+              disabled={loading}
             >
-              Sign Up
+              {loading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
           <div className="flex  items-center justify-center gap-2 mt-3 ">

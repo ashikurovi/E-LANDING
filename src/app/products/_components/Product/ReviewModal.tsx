@@ -1,38 +1,62 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
+import { createReview } from "@/lib/api-services";
+import { API_CONFIG } from "@/lib/api-config";
+import { Review } from "@/types/review";
 import { Button, Modal, Rate } from "antd";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
-const ReviewModal: React.FC = () => {
+interface ReviewModalProps {
+  productId: number;
+  companyId?: string;
+  onSubmitted?: (review: Review) => void;
+}
+
+const ReviewModal: React.FC<ReviewModalProps> = ({ productId, companyId, onSubmitted }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { userSession } = useAuth();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
-  const date = new Date().toLocaleDateString("fr-CA");
+  const [submitting, setSubmitting] = useState(false);
 
   const showModal = () => {
     if (userSession) {
       setIsModalOpen(true);
-      console.log(userSession);
       return;
     }
     toast("Please login to write a review", { icon: "🔒" });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!rating || !review.trim()) {
       toast.error("Please provide both a rating and a review.");
       return;
     }
 
-    // Handle review submission logic (e.g., API call)
-    console.log({ rating, review, date });
+    if (!userSession?.accessToken) {
+      toast.error("You must be logged in to submit a review.");
+      return;
+    }
 
-    toast.success("Review submitted successfully!");
-    setIsModalOpen(false);
-    setRating(0);
-    setReview("");
+    try {
+      setSubmitting(true);
+      const created = await createReview(
+        { productId, rating, comment: review },
+        userSession.accessToken,
+        companyId || userSession.companyId || API_CONFIG.companyId
+      );
+      onSubmitted?.(created);
+      toast.success("Review submitted successfully!");
+      setIsModalOpen(false);
+      setRating(0);
+      setReview("");
+    } catch (error) {
+      console.error("Failed to submit review", error);
+      toast.error("Failed to submit review. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -53,6 +77,7 @@ const ReviewModal: React.FC = () => {
             type="primary"
             onClick={handleSubmit}
             disabled={!rating || !review.trim()}
+            loading={submitting}
           >
             Submit
           </Button>,
@@ -63,7 +88,7 @@ const ReviewModal: React.FC = () => {
             <h2 className="font-bold">Your Rating</h2>
             <Rate
               style={{ fontSize: "1.2rem" }}
-              allowHalf
+              allowHalf={false}
               value={rating}
               onChange={setRating}
             />

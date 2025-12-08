@@ -3,7 +3,7 @@
 import axios from "axios";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-import { getApiUrl, getApiHeaders } from "@/lib/api-config";
+import { getApiUrl, getApiHeaders, API_CONFIG } from "@/lib/api-config";
 
 // Define TypeScript interfaces
 interface ProductImage {
@@ -69,8 +69,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       setLoading(true);
+      const companyId = userSession.companyId || API_CONFIG.companyId;
       const response = await axios.get(
-        getApiUrl(`/cartproducts/user/${userSession.userId}`),
+        getApiUrl(`/cartproducts/user/${userSession.userId}?companyId=${companyId}`),
         {
           headers: getApiHeaders(userSession.accessToken),
         }
@@ -123,8 +124,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
 
       // Delete old item
+      const companyId = userSession.companyId || API_CONFIG.companyId;
       await axios.delete(
-        getApiUrl(`/cartproducts/${cartItemId}`),
+        getApiUrl(`/cartproducts/${cartItemId}?companyId=${companyId}`),
         {
           headers: getApiHeaders(userSession.accessToken),
         }
@@ -139,6 +141,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           userId: userSession.userId,
           productId: cartItem.product.id,
           quantity: quantity,
+          companyId,
         },
         {
           headers: getApiHeaders(userSession.accessToken),
@@ -165,8 +168,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const remainingItems = cart?.items.filter((item) => item.id !== cartItemId) || [];
 
       // Clear cart
+      const companyId = userSession.companyId || API_CONFIG.companyId;
       await axios.delete(
-        getApiUrl(`/cartproducts/user/${userSession.userId}`),
+        getApiUrl(`/cartproducts/user/${userSession.userId}?companyId=${companyId}`),
         {
           headers: getApiHeaders(userSession.accessToken),
         }
@@ -175,11 +179,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       // Re-add remaining items
       for (const item of remainingItems) {
         await axios.post(
-          getApiUrl("/cartproducts"),
+          getApiUrl(`/cartproducts?companyId=${companyId}`),
           {
             userId: userSession.userId,
             productId: item.product.id,
             quantity: item.quantity,
+            companyId,
           },
           {
             headers: getApiHeaders(userSession.accessToken),
@@ -205,12 +210,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      const companyId = userSession.companyId || API_CONFIG.companyId;
       await axios.post(
-        getApiUrl("/cartproducts"),
+        getApiUrl(`/cartproducts?companyId=${companyId}`),
         {
-          userId: userSession.userId,
-          productId,
-          quantity,
+          userId: Number(userSession.userId),
+          productId: Number(productId),
+          quantity: Number(quantity),
+          companyId,
         },
         {
           headers: getApiHeaders(userSession.accessToken),
@@ -219,8 +226,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       await fetchCart();
     } catch (error) {
-      console.error("Error adding cart item:", error);
-      throw error;
+      const err = error as any;
+      const apiMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        (Array.isArray(err?.response?.data) ? err.response.data.join(", ") : undefined);
+      const finalMessage = apiMessage || err?.message || "Error adding cart item";
+      console.error("Error adding cart item:", finalMessage, err);
+      throw new Error(finalMessage);
     }
   };
 
@@ -232,8 +245,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      const companyId = userSession.companyId || API_CONFIG.companyId;
       await axios.delete(
-        getApiUrl(`/cartproducts/user/${userSession.userId}`),
+        getApiUrl(`/cartproducts/user/${userSession.userId}?companyId=${companyId}`),
         {
           headers: getApiHeaders(userSession.accessToken),
         }

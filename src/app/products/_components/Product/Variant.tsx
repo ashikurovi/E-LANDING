@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/utils/cn";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 interface VariantProps {
   available_quantity: number;
   id: string;
@@ -16,7 +16,14 @@ const Variant = ({
   variant: VariantProps[];
   handlePrice: (price: number | undefined) => void;
 }) => {
-  const [activeId, setActiveId] = useState(variant[0].id);
+  const [activeId, setActiveId] = useState(variant[0]?.id);
+
+  // Update price when active variant changes (avoids setState during render)
+  useEffect(() => {
+    if (!variant || variant.length === 0) return;
+    const active = variant.find((v) => v.id === activeId) ?? variant[0];
+    handlePrice(active?.price);
+  }, [activeId, handlePrice, variant]);
   const handleClick = (id: string) => {
     console.log("clicked" + id);
     setActiveId(id);
@@ -25,7 +32,6 @@ const Variant = ({
   const stockQuantity = variant.find(
     (v) => v.id === activeId
   )?.available_quantity;
-  handlePrice(variant.find((v) => v.id === activeId)?.price);
   return (
     <div className=" flex flex-col gap-2">
       <div className=" border-[1.5px] text-gray-800 max-w-max px-3 py-0.5 border-primary font-medium rounded sm:text-sm text-xs">

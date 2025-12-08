@@ -3,7 +3,12 @@ import { useState } from "react";
 import Quantity from "../../../../components/shared/Quantity";
 import AddToCartButton from "./AddToCartButton";
 
-const ProductCart = ({ price }: { price: string }) => {
+interface ProductCartProps {
+  price: number;
+  productId: number;
+}
+
+const ProductCart = ({ price, productId }: ProductCartProps) => {
   const [quantity, setQuantity] = useState(1);
   const handleIncrement = async () => {
     setQuantity(quantity + 1);
@@ -24,7 +29,7 @@ const ProductCart = ({ price }: { price: string }) => {
         />
       </div>
       <div className=" flex-1 w-full">
-        <AddToCartButton totalQuantity={quantity} price={price} />
+        <AddToCartButton totalQuantity={quantity} price={price} productId={productId} />
       </div>
     </div>
   );

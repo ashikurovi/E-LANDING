@@ -1,6 +1,5 @@
 "use client";
 import { useCart } from "@/context/CartContext";
-import calculateDiscountedPrice from "@/utils/calculateDiscountPrice";
 import formatteeNumber from "@/utils/formatteNumber";
 // import { calculateAverageRating } from "@/utils/getAverageRating";
 import { Rate } from "antd";
@@ -36,8 +35,8 @@ interface ProductProps {
   off?: number;
   SKU?: string;
   sku?: string;
-  price?: number;
-  discountPrice?: number;
+  price?: number | string;
+  discountPrice?: number | string;
   thumbnail?: string;
   reviews?: Review[]; // Array of reviews
   images?: Image[]; // Array of images
@@ -47,6 +46,40 @@ interface ProductProps {
 const ProductCard = ({ product }: { product: ProductProps }) => {
   const { addCartItem, cart } = useCart();
   const router = useRouter();
+
+  // Calculate discount percentage from price and discountPrice
+  const calculateDiscountPercentage = () => {
+    const originalPrice = Number(product?.price || product?.variant?.[0]?.price || 0);
+    const discountedPrice = Number(product?.discountPrice || 0);
+
+    if (originalPrice > 0 && discountedPrice > 0 && discountedPrice < originalPrice) {
+      return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
+    }
+
+    // Fallback to off if provided
+    return product?.off || 0;
+  };
+
+  // Get the final price to display (discountPrice if available, otherwise original price)
+  const getFinalPrice = () => {
+    const discountedPrice = Number(product?.discountPrice || 0);
+    const originalPrice = Number(product?.price || product?.variant?.[0]?.price || 0);
+
+    // If discountPrice exists and is valid, use it; otherwise use original price
+    return discountedPrice > 0 && discountedPrice < originalPrice ? discountedPrice : originalPrice;
+  };
+
+  // Get the original price for strikethrough
+  const getOriginalPrice = () => {
+    const originalPrice = Number(product?.price || product?.variant?.[0]?.price || 0);
+    const discountedPrice = Number(product?.discountPrice || 0);
+
+    // Only show strikethrough if there's a valid discount
+    if (discountedPrice > 0 && discountedPrice < originalPrice) {
+      return originalPrice;
+    }
+    return 0; // Don't show strikethrough if no discount
+  };
 
   const calculateAverageRating = () => {
     if (!product?.reviews || product.reviews.length === 0) return 0; // Avoid division by zero
@@ -110,15 +143,15 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
       {/* image use here  */}
       <div className=" relative overflow-hidden rounded-lg">
         <Image
-          src={product?.images?.[0]?.url || product?.thumbnail || '/placeholder-image.jpg'}
+          src={product?.thumbnail || ''}
           alt=""
           width={500}
           height={500}
           className=" rounded-lg aspect-[7/5] group-hover/product:scale-[1.05] transition-all duration-200 ease-linear"
         />
-        {!(product?.off == 0) && (
+        {calculateDiscountPercentage() > 0 && (
           <div className=" absolute top-2 left-2 bg-primary px-1.5 py-0.5  rounded-2xl font-bold sm:text-xs text-[10px]  text-white max-w-max">
-            save {product?.off}%
+            save {calculateDiscountPercentage()}%
           </div>
         )}
         <button
@@ -138,20 +171,19 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
               <TbCurrencyTaka />
             </span>
             <h2 className=" mt-[2px] sm:text-2xl text-xl font-bold ">
-              {calculateDiscountedPrice(
-                product?.variant?.[0]?.price || product?.price || 0,
-                product?.off || 0
-              )}
+              {formatteeNumber(getFinalPrice())}
             </h2>
           </div>
-          <div className=" flex items-center text-gray-600">
-            <span>
-              <TbCurrencyTaka size={15} />
-            </span>
-            <h2 className=" mt-[2px] line-through font-light  sm:text-base text-sm">
-              {formatteeNumber(product?.variant?.[0]?.price || product?.price || 0)}
-            </h2>
-          </div>
+          {getOriginalPrice() > 0 && (
+            <div className=" flex items-center text-gray-600">
+              <span>
+                <TbCurrencyTaka size={15} />
+              </span>
+              <h2 className=" mt-[2px] line-through font-light  sm:text-base text-sm">
+                {formatteeNumber(getOriginalPrice())}
+              </h2>
+            </div>
+          )}
         </div>
         <div className="  flex items-center justify-between">
           <Rate disabled allowHalf defaultValue={calculateAverageRating()} />

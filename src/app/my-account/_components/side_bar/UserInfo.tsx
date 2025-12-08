@@ -1,19 +1,52 @@
 "use client";
 import Man_Avatar from "@/../public/images/avatar/man.png";
 import Image, { StaticImageData } from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RiImageEditLine } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
+import { getApiUrl, getApiHeaders } from "@/lib/api-config";
 
 const UserInfo = () => {
+  const { userSession } = useAuth();
   const [avatar, setAvatar] = useState<StaticImageData | string>(Man_Avatar);
+  const [userName, setUserName] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  useEffect(() => {
+    if (userSession?.accessToken) {
+      fetchUserProfile();
+    } else if (userSession?.name && userSession?.email) {
+      setUserName(userSession.name);
+      setUserEmail(userSession.email);
+    }
+  }, [userSession]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axios.get(getApiUrl("/users/me"), {
+        headers: getApiHeaders(userSession?.accessToken),
+      });
+      const userData = response.data.data;
+      setUserName(userData.name || "");
+      setUserEmail(userData.email || "");
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      // Fallback to session data
+      if (userSession?.name) setUserName(userSession.name);
+      if (userSession?.email) setUserEmail(userSession.email);
+    }
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setAvatar(imageUrl);
+      // TODO: Upload avatar to backend when endpoint is available
     }
   };
+
   return (
     <div className="flex gap-2 items-center">
       <div className="relative w-12 h-12">
@@ -39,9 +72,9 @@ const UserInfo = () => {
         </label>
       </div>
       <div>
-        <h3 className="font-medium">Md Shobuj</h3>
+        <h3 className="font-medium">{userName || "User"}</h3>
         <p className="text-sm line-clamp-1 text-gray-700">
-          mdshobuj123@gmail.com
+          {userEmail || "Loading..."}
         </p>
       </div>
     </div>

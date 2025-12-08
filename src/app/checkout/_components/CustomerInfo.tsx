@@ -1,63 +1,53 @@
 "use client";
 
-import Bkash_Logo from "@/../public/images/BKash_Logo.png";
-import Nagad_Logo from "@/../public/images/Nagad-Logo.png";
-import { Collapse, CollapseProps } from "antd";
-import Image from "next/image";
-import Link from "next/link";
 import { IoCartOutline } from "react-icons/io5";
-import AutoComplete from "./Autocomplete";
-import PaymentMethodInfo from "./PaymentMethodInfo";
-import RadioBtn from "./RadioBtn";
 
-const items: CollapseProps["items"] = [
-  {
-    key: "1",
-    label: <p className=" font-medium">Cash on delivery</p>,
-    children: <p>Pay with cash upon delivery.</p>,
-  },
-  {
-    key: "2",
-    label: (
-      <div className=" flex  gap-2">
-        <p className=" font-medium">Bkash</p>
-        <Image src={Bkash_Logo} alt="bkash_logo" width={40} />
-      </div>
-    ),
-    children: (
-      <PaymentMethodInfo
-        method="Bkash"
-        number="01774617452"
-        send_money_cost="1.85"
-      />
-    ),
-  },
-  {
-    key: "3",
-    label: (
-      <div className=" flex  gap-2">
-        <p className=" font-medium">Nagad</p>
-        <Image src={Nagad_Logo} alt="nagad_logo" width={60} />
-      </div>
-    ),
-    children: (
-      <PaymentMethodInfo
-        method="Nagad"
-        number="01774617452"
-        send_money_cost="1.45"
-      />
-    ),
-  },
-];
+interface CustomerInfoProps {
+  name: string;
+  setName: (v: string) => void;
+  email: string;
+  setEmail: (v: string) => void;
+  phone: string;
+  setPhone: (v: string) => void;
+  address: string;
+  setAddress: (v: string) => void;
+  district?: string;
+  setDistrict?: (v: string) => void;
+  deliveryType?: "inside" | "outside";
+  setDeliveryType?: (v: "inside" | "outside") => void;
+  paymentMethod?: "cod" | "prepaid";
+  setPaymentMethod?: (v: "cod" | "prepaid") => void;
+  onSubmit: () => void;
+  submitting?: boolean;
+}
 
-const CustomerInfo = () => {
-  const onChange = (key: string | string[]) => {
-    console.log(key);
-  };
-
+const CustomerInfo = ({
+  name,
+  setName,
+  email,
+  setEmail,
+  phone,
+  setPhone,
+  address,
+  setAddress,
+  district,
+  setDistrict,
+  deliveryType,
+  setDeliveryType,
+  paymentMethod,
+  setPaymentMethod,
+  onSubmit,
+  submitting,
+}: CustomerInfoProps) => {
   return (
     <section>
-      <form className=" flex flex-col gap-5">
+      <form
+        className=" flex flex-col gap-5"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
+      >
         {/* customer info start */}
         <div className=" flex flex-col gap-3 shadow bg-gray-50 p-5 rounded-md">
           <h1 className=" text-2xl font-medium ">Customer Information</h1>
@@ -67,19 +57,34 @@ const CustomerInfo = () => {
                 className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
                 type="email"
                 placeholder="ইমেইল (optional)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                readOnly={!!email}
               />
               <input
                 className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
                 type="text"
                 placeholder="সম্পূর্ণ নাম *"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
               />
             </div>
             <div className=" grid min-[550px]:grid-cols-2 grid-cols-1 gap-5">
-              <AutoComplete />
+              <input
+                className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
+                type="text"
+                placeholder="এলাকা / সিটি"
+                value={district || ""}
+                onChange={(e) => setDistrict?.(e.target.value)}
+              />
               <input
                 className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
                 type="text"
                 placeholder="সম্পূর্ণ ঠিকানা *"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
               />
             </div>
             <div className=" grid grid-cols-1">
@@ -87,83 +92,80 @@ const CustomerInfo = () => {
                 className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
                 type="text"
                 placeholder="ফোন নম্বর *"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
               />
             </div>
           </div>
         </div>
         {/* customer info end  */}
 
-        {/* shipping info start */}
+        {/* delivery type */}
         <div className="flex flex-col gap-3 shadow bg-gray-50 p-5 rounded-md">
-          <div>
-            <h1 className=" text-2xl font-medium ">Shipping Method</h1>
-            <p className=" text-sm text-gray-600">Shipping Method</p>
-          </div>
-          <div className="flex justify-between items-center border-[1.5px] border-gray-300 rounded-md p-3">
-            <input
-              type="text"
-              className=" bg-transparent placeholder:text-gray-500"
-              placeholder="ডেলিভারি চার্জ"
-              disabled
-            />
-            <span className=" text-gray-600">120.00৳</span>
-          </div>
-        </div>
-        {/* shipping info end */}
-        {/* payment info start */}
-
-        <div className="flex flex-col gap-3 shadow bg-gray-50 p-5 rounded-md">
-          <div>
-            <h1 className=" text-2xl font-medium ">পেমেন্ট ইনফরমেশন</h1>
-            <p className=" text-sm text-gray-600">
-              All transactions are secure and encrypted. Credit card information
-              is never stored on our servers.
-            </p>
-          </div>
-          <div>
-            <h4>Your order</h4>
-            <div>
-              <Collapse
-                accordion
-                defaultActiveKey={["1"]}
-                onChange={onChange}
-                expandIcon={({ isActive }) =>
-                  isActive ? <RadioBtn checked /> : <RadioBtn />
-                }
-                items={items}
+          <h2 className="text-xl font-medium">ডেলিভারি টাইপ</h2>
+          <div className="flex gap-3 items-center">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="deliveryType"
+                value="inside"
+                checked={deliveryType === "inside"}
+                onChange={() => setDeliveryType?.("inside")}
+                className="accent-primary"
               />
-            </div>
-            <div className=" flex flex-col gap-3 mt-4">
-              <p className=" text-sm text-gray-600">
-                Your personal data will be used to process your order, support
-                your experience throughout this website, and for other purposes
-                described in our{" "}
-                <Link href="/checkout" className=" text-primary">
-                  Privacy policy
-                </Link>
-                .
-              </p>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  className=" accent-primary p-1 cursor-pointer"
-                  name="check"
-                  id="check"
-                  required
-                />
-                <label htmlFor="check" className=" text-sm text-gray-600">
-                  I have read and agree to the website Terms and conditions *
-                </label>
-              </div>
-            </div>
+              <span>ঢাকার ভিতরে (60৳)</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="deliveryType"
+                value="outside"
+                checked={deliveryType === "outside"}
+                onChange={() => setDeliveryType?.("outside")}
+                className="accent-primary"
+              />
+              <span>ঢাকার বাইরে (120৳)</span>
+            </label>
           </div>
         </div>
 
-        {/* payment info end */}
+        {/* payment method */}
+        <div className="flex flex-col gap-3 shadow bg-gray-50 p-5 rounded-md">
+          <h2 className="text-xl font-medium">পেমেন্ট পদ্ধতি</h2>
+          <div className="flex gap-3 items-center">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cod"
+                checked={paymentMethod === "cod"}
+                onChange={() => setPaymentMethod?.("cod")}
+                className="accent-primary"
+              />
+              <span>ক্যাশ অন ডেলিভারি</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="prepaid"
+                checked={paymentMethod === "prepaid"}
+                onChange={() => setPaymentMethod?.("prepaid")}
+                className="accent-primary"
+              />
+              <span>অগ্রিম (Bkash/Nagad)</span>
+            </label>
+          </div>
+        </div>
 
-        <button className=" bg-primary hover:bg-black transition-all text-white text-lg py-3 font-medium rounded-md flex items-center justify-center gap-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className=" bg-primary hover:bg-black transition-all text-white text-lg py-3 font-medium rounded-md flex items-center justify-center gap-2 disabled:opacity-70"
+        >
           <IoCartOutline size={24} />
-          অর্ডার কনফার্ম করুন
+          {submitting ? "অর্ডার হচ্ছে..." : "অর্ডার কনফার্ম করুন"}
         </button>
       </form>
     </section>

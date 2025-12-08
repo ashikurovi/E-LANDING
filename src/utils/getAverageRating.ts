@@ -1,14 +1,6 @@
-interface ReviewProps {
-  date: string;
-  documentId: string;
-  rating: number;
-  review: string;
-  users_permissions_user: {
-    username: string;
-  };
-}
+import { Review } from "@/types/review";
 
-export const calculateAverageRating = (reviews: ReviewProps[]) => {
+export const calculateAverageRating = (reviews: Review[]) => {
   if (reviews.length === 0) return 0; // Avoid division by zero
   const total = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
   const average = total / reviews.length;

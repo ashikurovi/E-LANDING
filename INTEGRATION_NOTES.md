@@ -70,3 +70,4 @@ The current backend doesn't have individual update/delete endpoints for cart ite
 5. Test cart functionality with authenticated users
 6. Update product display components to match new product data structure
 
+

@@ -1,4 +1,5 @@
-import { getProduct } from "@/lib/api-services";
+import { getProduct, getProductReviews, getRefundPolicies } from "@/lib/api-services";
+import { API_CONFIG } from "@/lib/api-config";
 import { Suspense } from "react";
 import BreadCrumb from "../_components/Product/Breadcrumb";
 import ImageGallery from "../_components/Product/ImageGallery";
@@ -6,6 +7,8 @@ import ProductDetails from "../_components/Product/ProductDetails";
 import RelatedProducts from "../_components/Product/RelatedProducts";
 import Tab from "../_components/Product/Tabs";
 import { notFound } from "next/navigation";
+import { Review } from "@/types/review";
+import { ReturnPolicy } from "@/types/return-policy";
 
 interface CategoryProps {
   name: string;
@@ -30,15 +33,6 @@ interface ImageProps {
   name: string;
   url: string;
 }
-interface ReviewProps {
-  date: string;
-  documentId: string;
-  rating: number;
-  review: string;
-  users_permissions_user: {
-    username: string;
-  };
-}
 interface VariantProps {
   available_quantity: number;
   id: string;
@@ -47,20 +41,24 @@ interface VariantProps {
   stock_status: string;
 }
 interface ProductProps {
+  id?: number;
   SKU: string;
   documentId: string;
   off: number;
+  price: number;
+  discountPrice?: number;
   title: string;
   total_sale: number;
   categories: CategoryProps[];
   description: DescriptionProps;
   images: ImageProps[];
-  reviews: ReviewProps[];
+  reviews: Review[];
   variant: VariantProps[];
+  companyId?: string;
 }
 
 // Helper function to map REST API product to component format
-function mapProductToComponentFormat(apiProduct: any): ProductProps {
+function mapProductToComponentFormat(apiProduct: any, reviews: Review[]): ProductProps {
   // Calculate discount percentage
   const off = apiProduct.discountPrice && apiProduct.price
     ? Math.round(((apiProduct.price - apiProduct.discountPrice) / apiProduct.price) * 100)
@@ -95,16 +93,20 @@ function mapProductToComponentFormat(apiProduct: any): ProductProps {
   };
 
   return {
+    id: apiProduct.id,
     SKU: apiProduct.sku,
     documentId: apiProduct.id.toString(),
     off,
+    price: Number(apiProduct.price),
+    discountPrice: apiProduct.discountPrice ? Number(apiProduct.discountPrice) : undefined,
     title: apiProduct.name,
     total_sale: 0, // Not available in REST API
     categories,
     description,
     images,
-    reviews: [], // Not available in REST API yet
+    reviews,
     variant,
+    companyId: apiProduct.companyId,
   };
 }
 
@@ -112,9 +114,30 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
 
   let product: ProductProps;
+  let returnPolicyContent = "";
   try {
-    const apiProduct = await getProduct(parseInt(id), 'COMP-000001');
-    product = mapProductToComponentFormat(apiProduct);
+    const companyId = API_CONFIG.companyId;
+    const [apiProduct, apiReviews, returnPolicies] = await Promise.all([
+      getProduct(parseInt(id), companyId),
+      getProductReviews(parseInt(id), companyId),
+      getRefundPolicies(companyId),
+    ]);
+    const returnPolicy = (returnPolicies as ReturnPolicy[])[0];
+
+    // Normalize reviews to component format
+    const mappedReviews: Review[] = apiReviews.map((review) => ({
+      id: review.id,
+      productId: review.productId ?? apiProduct.id,
+      rating: review.rating,
+      title: review.title,
+      comment: review.comment,
+      companyId: review.companyId ?? companyId,
+      createdAt: review.createdAt,
+      userName: review.userName ?? "Customer",
+    }));
+
+    product = mapProductToComponentFormat(apiProduct, mappedReviews);
+    returnPolicyContent = returnPolicy?.content || "";
   } catch (error) {
     console.error("Error fetching product:", error);
     notFound();
@@ -142,7 +165,7 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
           {/* description additional info reviews return policies section  */}
           <div className=" border sm:p-5 p-2 rounded mt-5 overflow-hidden">
-            <Tab product={product} />
+            <Tab product={product} returnPolicyContent={returnPolicyContent} />
           </div>
           {/* bottom related products section  */}
           <div>

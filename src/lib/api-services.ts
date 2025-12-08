@@ -3,6 +3,8 @@
  */
 import axios from "axios";
 import { getApiUrl, getApiHeaders, API_CONFIG } from "./api-config";
+import { Review } from "@/types/review";
+import { ReturnPolicy } from "@/types/return-policy";
 
 // Types
 export interface Product {
@@ -35,16 +37,50 @@ export interface Category {
 
 export interface Banner {
     id: number;
-    name: string;
-    slug: string;
-    bannerImage?: string;
+    title: string;
+    subtitle: string;
+    imageUrl: string;
+    buttonText?: string;
+    buttonLink?: string;
     isActive: boolean;
+    order: number;
+    companyId: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface ApiResponse<T> {
     statusCode: number;
     message?: string;
     data: T;
+}
+
+export interface CartItem {
+    id: number;
+    product: Product;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+    companyId?: string;
+}
+
+export interface CartData {
+    items: CartItem[];
+    totalItems: number;
+    totalPrice: number;
+}
+
+export interface PromoCode {
+    id: number;
+    code: string;
+    description?: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    minOrderAmount?: number;
+    startsAt?: string;
+    expiresAt?: string;
+    isActive: boolean;
+    companyId: string;
 }
 
 /**
@@ -80,6 +116,55 @@ export async function getProducts(
             return [];
         }
         // For other errors, still return empty array to prevent app crash
+        return [];
+    }
+}
+
+/**
+ * Get reviews for a product
+ */
+export async function getProductReviews(
+    productId: number,
+    companyId?: string,
+): Promise<Review[]> {
+    try {
+        const params = new URLSearchParams();
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        if (companyIdParam) params.append("companyId", companyIdParam);
+
+        const response = await axios.get<ApiResponse<Review[]> | Review[]>(
+            getApiUrl(`/reviews/product/${productId}?${params.toString()}`),
+        );
+
+        const payload: any = (response as any).data;
+        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        return Array.isArray(data) ? data : [];
+    } catch (error: any) {
+        console.error("Error fetching product reviews:", error);
+        return [];
+    }
+}
+
+/**
+ * Get refund/return policies
+ */
+export async function getRefundPolicies(
+    companyId?: string,
+): Promise<ReturnPolicy[]> {
+    try {
+        const params = new URLSearchParams();
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        if (companyIdParam) params.append("companyId", companyIdParam);
+
+        const response = await axios.get<ApiResponse<ReturnPolicy[]> | ReturnPolicy[]>(
+            getApiUrl(`/refund-policy?${params.toString()}`),
+        );
+
+        const payload: any = (response as any).data;
+        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        return Array.isArray(data) ? data : [];
+    } catch (error: any) {
+        console.error("Error fetching refund policies:", error);
         return [];
     }
 }
@@ -275,6 +360,149 @@ export async function getCategory(
         console.error("Error fetching category:", error);
         throw error;
     }
+}
+
+/**
+ * Create a review for a product
+ */
+export async function createReview(
+    payload: { productId: number; rating: number; title?: string; comment: string },
+    token: string,
+    companyId?: string
+): Promise<Review> {
+    const params = new URLSearchParams();
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    if (companyIdParam) params.append("companyId", companyIdParam);
+
+    const response = await axios.post<ApiResponse<Review> | Review>(
+        getApiUrl(`/reviews?${params.toString()}`),
+        payload,
+        {
+            headers: getApiHeaders(token),
+        }
+    );
+
+    const payloadData: any = (response as any).data;
+    const data = payloadData?.data ?? payloadData;
+    return data as Review;
+}
+
+/**
+ * Cart APIs
+ */
+export async function getCart(
+    userId: number,
+    token: string,
+    companyId?: string,
+): Promise<CartData> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    const response = await axios.get<ApiResponse<CartItem[]> | CartItem[]>(
+        getApiUrl(`/cartproducts/user/${userId}?companyId=${companyIdParam}`),
+        { headers: getApiHeaders(token) },
+    );
+    const payload: any = (response as any).data;
+    const data = Array.isArray(payload?.data) ? payload.data : payload;
+    const items: CartItem[] = Array.isArray(data) ? data : [];
+    const totalItems = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+    const totalPrice = items.reduce((sum, i) => sum + Number(i.totalPrice || 0), 0);
+    return { items, totalItems, totalPrice };
+}
+
+export async function addCartItemApi(
+    userId: number,
+    productId: number,
+    quantity: number,
+
+    companyId?: string,
+): Promise<CartItem> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    const response = await axios.post<ApiResponse<CartItem> | CartItem>(
+        getApiUrl("/cartproducts"),
+        { userId, productId, quantity, companyId: companyIdParam },
+
+    );
+    const payload: any = (response as any).data;
+    return (payload?.data ?? payload) as CartItem;
+}
+
+export async function updateCartItemApi(
+    cartItemId: number,
+    quantity: number,
+
+    companyId?: string,
+): Promise<CartItem> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    const response = await axios.patch<ApiResponse<CartItem> | CartItem>(
+        getApiUrl(`/cartproducts/${cartItemId}?companyId=${companyIdParam}`),
+        { quantity },
+
+    );
+    const payload: any = (response as any).data;
+    return (payload?.data ?? payload) as CartItem;
+}
+
+export async function deleteCartItemApi(
+    cartItemId: number,
+
+    companyId?: string,
+): Promise<void> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    await axios.delete(
+        getApiUrl(`/cartproducts/${cartItemId}?companyId=${companyIdParam}`),
+
+    );
+}
+
+export async function clearCartApi(
+    userId: number,
+    token: string,
+    companyId?: string,
+): Promise<void> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    await axios.delete(
+        getApiUrl(`/cartproducts/user/${userId}?companyId=${companyIdParam}`),
+        { headers: getApiHeaders(token) },
+    );
+}
+
+/**
+ * Promo codes
+ */
+export async function getPromocodes(token: string, companyId?: string): Promise<PromoCode[]> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    const response = await axios.get<ApiResponse<PromoCode[]> | PromoCode[]>(
+        getApiUrl(`/promocode?companyId=${companyIdParam}`),
+        { headers: getApiHeaders(token) }
+    );
+    const payload: any = (response as any).data;
+    const data = Array.isArray(payload?.data) ? payload.data : payload;
+    return Array.isArray(data) ? data : [];
+}
+
+/**
+ * Orders
+ */
+export async function createOrder(
+    payload: {
+        customerId?: number;
+        customerName?: string;
+        customerPhone?: string;
+        customerAddress?: string;
+        shippingAddress?: string;
+        paymentMethod?: "DIRECT" | "COD";
+        deliveryType?: "INSIDEDHAKA" | "OUTSIDEDHAKA";
+        items: { productId: number; quantity: number }[];
+    },
+    token: string,
+    companyId?: string,
+): Promise<any> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    const response = await axios.post(
+        getApiUrl(`/orders?companyId=${companyIdParam}`),
+        payload,
+        { headers: getApiHeaders(token) }
+    );
+    return (response as any).data?.data ?? (response as any).data;
 }
 
 /**
