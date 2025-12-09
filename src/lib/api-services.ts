@@ -5,6 +5,9 @@ import axios from "axios";
 import { getApiUrl, getApiHeaders, API_CONFIG } from "./api-config";
 import { Review } from "@/types/review";
 import { ReturnPolicy } from "@/types/return-policy";
+import { SystemUser } from "@/types/system-user";
+import { Category } from "@/types/category";
+import { PolicyPage } from "@/types/policy";
 
 // Types
 export interface Product {
@@ -24,15 +27,6 @@ export interface Product {
     category: Category;
     createdAt: Date;
     updatedAt: Date;
-}
-
-export interface Category {
-    id: number;
-    name: string;
-    slug: string;
-    image?: { url: string; alt?: string };
-    parent?: Category;
-    children?: Category[];
 }
 
 export interface Banner {
@@ -81,6 +75,91 @@ export interface PromoCode {
     expiresAt?: string;
     isActive: boolean;
     companyId: string;
+}
+
+/**
+ * Get terms & conditions
+ */
+export async function getTerms(companyId?: string): Promise<PolicyPage[]> {
+    try {
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        const params = new URLSearchParams();
+        if (companyIdParam) params.append("companyId", companyIdParam);
+
+        const response = await axios.get<ApiResponse<PolicyPage[]> | PolicyPage[]>(
+            getApiUrl(`/trems-condetions?${params.toString()}`),
+        );
+
+        const payload: any = (response as any).data;
+        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        return Array.isArray(data) ? data : [];
+    } catch (error: any) {
+        console.error("Error fetching terms:", error);
+        return [];
+    }
+}
+
+/**
+ * Get privacy policy
+ */
+export async function getPrivacyPolicies(companyId?: string): Promise<PolicyPage[]> {
+    try {
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        const params = new URLSearchParams();
+        if (companyIdParam) params.append("companyId", companyIdParam);
+
+        const response = await axios.get<ApiResponse<PolicyPage[]> | PolicyPage[]>(
+            getApiUrl(`/privecy-policy?${params.toString()}`),
+        );
+
+        const payload: any = (response as any).data;
+        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        return Array.isArray(data) ? data : [];
+    } catch (error: any) {
+        console.error("Error fetching privacy policy:", error);
+        return [];
+    }
+}
+
+/**
+ * Get system user info by companyId
+ */
+export async function getSystemUserByCompanyId(
+    companyId?: string,
+): Promise<SystemUser | null> {
+    try {
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        const params = new URLSearchParams();
+        if (companyIdParam) params.append("companyId", companyIdParam);
+
+        const response = await axios.get<ApiResponse<SystemUser[]> | SystemUser>(
+            getApiUrl(`/systemuser?${params.toString()}`),
+        );
+
+        const payload: any = (response as any).data;
+        const data = Array.isArray(payload?.data) || payload?.data === undefined ? payload?.data ?? payload : payload;
+        const users: SystemUser[] = Array.isArray(data) ? data : data ? [data as SystemUser] : [];
+        const matched = users.find((user) => user.companyId === companyIdParam);
+
+        return matched ?? users[0] ?? null;
+    } catch (error: any) {
+        console.error("Error fetching system user:", error);
+        if (
+            error.code === 'ECONNREFUSED' ||
+            error.code === 'ETIMEDOUT' ||
+            error.code === 'ENOTFOUND' ||
+            error.message?.includes('ECONNREFUSED') ||
+            error.message?.includes('ETIMEDOUT') ||
+            error.message?.includes('ENOTFOUND') ||
+            error.message?.includes('Network Error') ||
+            error.message?.includes('fetch failed') ||
+            (error.cause && error.cause.code === 'ECONNREFUSED')
+        ) {
+            console.warn("Backend server is not running or not accessible. Please start the backend server.");
+            return null;
+        }
+        return null;
+    }
 }
 
 /**

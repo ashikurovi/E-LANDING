@@ -64,9 +64,9 @@ const ProductsBody = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         let apiProducts: Product[] = [];
-        
+
         if (categoryName) {
           // Use getProductsByCategory when category is selected
           apiProducts = await getProductsByCategory('COMP-000001', categoryName);
@@ -74,7 +74,7 @@ const ProductsBody = () => {
           // Use getProducts when no category is selected
           apiProducts = await getProducts('COMP-000001');
         }
-        
+
         const mappedProducts = apiProducts.map(mapProductToCardFormat);
         setProducts(mappedProducts);
       } catch (err) {

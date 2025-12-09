@@ -33,7 +33,10 @@ export default function RootLayout({
             <CartProvider>
               <AntdRegistry>
                 <Header />
-                {children}
+                <div className="min-h-screen">
+
+                  {children}
+                </div>
                 <Footer />
                 <BottomNav />
               </AntdRegistry>
