@@ -1,6 +1,6 @@
 import EmblaCarousel from "@/components/shared/EmblaCarouel";
 import ProductCard from "@/components/ui/ProductCard";
-import { getProduct, getProducts, Product } from "@/lib/api-services";
+import { getProduct, getProductsByCategory, Product } from "@/lib/api-services";
 
 interface ImageProps {
   name: string;
@@ -11,6 +11,9 @@ interface ReviewProps {
 }
 interface VariantProps {
   price: number;
+  size: string;
+  available_quantity: number;
+  stock_status: string;
 }
 interface ProductProps {
   SKU: string;
@@ -35,6 +38,9 @@ function mapProductToCardFormat(apiProduct: Product): ProductProps {
 
   const variant: VariantProps[] = [{
     price: Number(apiProduct.price),
+    size: "Default",
+    available_quantity: 100, // Default value - would need to come from inventory if available
+    stock_status: apiProduct.isActive ? "in_stock" : "out_of_stock",
   }];
 
   return {
@@ -57,7 +63,9 @@ const RelatedProducts = async ({ id }: { id: string }) => {
     const categoryName = currentProduct.category?.name;
 
     // Get products from the same category
-    const allProducts = await getProducts('COMP-000001', categoryName);
+    const allProducts = categoryName 
+      ? await getProductsByCategory('COMP-000001', categoryName)
+      : [];
 
     // Filter out the current product and limit to 10
     relatedProducts = allProducts

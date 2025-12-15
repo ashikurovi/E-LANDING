@@ -90,10 +90,10 @@ export async function getTerms(companyId?: string): Promise<PolicyPage[]> {
             getApiUrl(`/trems-condetions?${params.toString()}`),
         );
 
-        const payload: any = (response as any).data;
-        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        const payload: ApiResponse<PolicyPage[]> | PolicyPage[] = response.data;
+        const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload && Array.isArray(payload.data)) ? payload.data : [];
         return Array.isArray(data) ? data : [];
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching terms:", error);
         return [];
     }
@@ -112,10 +112,10 @@ export async function getPrivacyPolicies(companyId?: string): Promise<PolicyPage
             getApiUrl(`/privecy-policy?${params.toString()}`),
         );
 
-        const payload: any = (response as any).data;
-        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        const payload: ApiResponse<PolicyPage[]> | PolicyPage[] = response.data;
+        const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload && Array.isArray(payload.data)) ? payload.data : [];
         return Array.isArray(data) ? data : [];
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching privacy policy:", error);
         return [];
     }
@@ -136,24 +136,25 @@ export async function getSystemUserByCompanyId(
             getApiUrl(`/systemuser?${params.toString()}`),
         );
 
-        const payload: any = (response as any).data;
-        const data = Array.isArray(payload?.data) || payload?.data === undefined ? payload?.data ?? payload : payload;
+        const payload: ApiResponse<SystemUser[]> | SystemUser = response.data;
+        const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : payload;
         const users: SystemUser[] = Array.isArray(data) ? data : data ? [data as SystemUser] : [];
         const matched = users.find((user) => user.companyId === companyIdParam);
 
         return matched ?? users[0] ?? null;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching system user:", error);
+        const err = error as { code?: string; message?: string; cause?: { code?: string } };
         if (
-            error.code === 'ECONNREFUSED' ||
-            error.code === 'ETIMEDOUT' ||
-            error.code === 'ENOTFOUND' ||
-            error.message?.includes('ECONNREFUSED') ||
-            error.message?.includes('ETIMEDOUT') ||
-            error.message?.includes('ENOTFOUND') ||
-            error.message?.includes('Network Error') ||
-            error.message?.includes('fetch failed') ||
-            (error.cause && error.cause.code === 'ECONNREFUSED')
+            err.code === 'ECONNREFUSED' ||
+            err.code === 'ETIMEDOUT' ||
+            err.code === 'ENOTFOUND' ||
+            err.message?.includes('ECONNREFUSED') ||
+            err.message?.includes('ETIMEDOUT') ||
+            err.message?.includes('ENOTFOUND') ||
+            err.message?.includes('Network Error') ||
+            err.message?.includes('fetch failed') ||
+            (err.cause && err.cause.code === 'ECONNREFUSED')
         ) {
             console.warn("Backend server is not running or not accessible. Please start the backend server.");
             return null;
@@ -177,20 +178,31 @@ export async function getProducts(
             getApiUrl(`/products?companyId=${companyIdParam}`),
         );
         return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching products:", error);
-        // Handle various connection errors
-        if (
-            error.code === 'ECONNREFUSED' ||
-            error.code === 'ETIMEDOUT' ||
-            error.code === 'ENOTFOUND' ||
-            error.message?.includes('ECONNREFUSED') ||
-            error.message?.includes('ETIMEDOUT') ||
-            error.message?.includes('ENOTFOUND') ||
-            error.message?.includes('Network Error') ||
-            error.message?.includes('fetch failed') ||
-            (error.cause && error.cause.code === 'ECONNREFUSED')
-        ) {
+        const err = error as {
+            code?: string;
+            message?: string;
+            cause?: { code?: string } | AggregateError;
+            name?: string;
+            errors?: unknown[];
+        };
+        // Handle various connection errors including AggregateError
+        const isConnectionError =
+            err.code === 'ECONNREFUSED' ||
+            err.code === 'ETIMEDOUT' ||
+            err.code === 'ENOTFOUND' ||
+            err.message?.includes('ECONNREFUSED') ||
+            err.message?.includes('ETIMEDOUT') ||
+            err.message?.includes('ENOTFOUND') ||
+            err.message?.includes('Network Error') ||
+            err.message?.includes('fetch failed') ||
+            err.message?.includes('AggregateError') ||
+            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
+            err.name === 'AggregateError' ||
+            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
+
+        if (isConnectionError) {
             console.warn("Backend server is not running or not accessible. Please start the backend server.");
             return [];
         }
@@ -215,10 +227,10 @@ export async function getProductReviews(
             getApiUrl(`/reviews/product/${productId}?${params.toString()}`),
         );
 
-        const payload: any = (response as any).data;
-        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        const payload: ApiResponse<Review[]> | Review[] = response.data;
+        const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : [];
         return Array.isArray(data) ? data : [];
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching product reviews:", error);
         return [];
     }
@@ -239,10 +251,10 @@ export async function getRefundPolicies(
             getApiUrl(`/refund-policy?${params.toString()}`),
         );
 
-        const payload: any = (response as any).data;
-        const data = Array.isArray(payload?.data) ? payload.data : payload;
+        const payload: ApiResponse<ReturnPolicy[]> | ReturnPolicy[] = response.data;
+        const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : [];
         return Array.isArray(data) ? data : [];
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching refund policies:", error);
         return [];
     }
@@ -267,20 +279,31 @@ export async function getProductsByCategory(
             getApiUrl(`/products/category?${params.toString()}`),
         );
         return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching products by category:", error);
-        // Handle various connection errors
-        if (
-            error.code === 'ECONNREFUSED' ||
-            error.code === 'ETIMEDOUT' ||
-            error.code === 'ENOTFOUND' ||
-            error.message?.includes('ECONNREFUSED') ||
-            error.message?.includes('ETIMEDOUT') ||
-            error.message?.includes('ENOTFOUND') ||
-            error.message?.includes('Network Error') ||
-            error.message?.includes('fetch failed') ||
-            (error.cause && error.cause.code === 'ECONNREFUSED')
-        ) {
+        const err = error as {
+            code?: string;
+            message?: string;
+            cause?: { code?: string } | AggregateError;
+            name?: string;
+            errors?: unknown[];
+        };
+        // Handle various connection errors including AggregateError
+        const isConnectionError =
+            err.code === 'ECONNREFUSED' ||
+            err.code === 'ETIMEDOUT' ||
+            err.code === 'ENOTFOUND' ||
+            err.message?.includes('ECONNREFUSED') ||
+            err.message?.includes('ETIMEDOUT') ||
+            err.message?.includes('ENOTFOUND') ||
+            err.message?.includes('Network Error') ||
+            err.message?.includes('fetch failed') ||
+            err.message?.includes('AggregateError') ||
+            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
+            err.name === 'AggregateError' ||
+            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
+
+        if (isConnectionError) {
             console.warn("Backend server is not running or not accessible. Please start the backend server.");
             return [];
         }
@@ -326,20 +349,31 @@ export async function getTrendingProducts(
             getApiUrl(`/products/trending?${params.toString()}`),
         );
         return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching trending products:", error);
-        // Handle various connection errors
-        if (
-            error.code === 'ECONNREFUSED' ||
-            error.code === 'ETIMEDOUT' ||
-            error.code === 'ENOTFOUND' ||
-            error.message?.includes('ECONNREFUSED') ||
-            error.message?.includes('ETIMEDOUT') ||
-            error.message?.includes('ENOTFOUND') ||
-            error.message?.includes('Network Error') ||
-            error.message?.includes('fetch failed') ||
-            (error.cause && error.cause.code === 'ECONNREFUSED')
-        ) {
+        const err = error as {
+            code?: string;
+            message?: string;
+            cause?: { code?: string } | AggregateError;
+            name?: string;
+            errors?: unknown[];
+        };
+        // Handle various connection errors including AggregateError
+        const isConnectionError =
+            err.code === 'ECONNREFUSED' ||
+            err.code === 'ETIMEDOUT' ||
+            err.code === 'ENOTFOUND' ||
+            err.message?.includes('ECONNREFUSED') ||
+            err.message?.includes('ETIMEDOUT') ||
+            err.message?.includes('ENOTFOUND') ||
+            err.message?.includes('Network Error') ||
+            err.message?.includes('fetch failed') ||
+            err.message?.includes('AggregateError') ||
+            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
+            err.name === 'AggregateError' ||
+            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
+
+        if (isConnectionError) {
             console.warn("Backend server is not running or not accessible. Please start the backend server.");
             return [];
         }
@@ -361,20 +395,31 @@ export async function getFlashSaleProducts(companyId?: string): Promise<Product[
             getApiUrl(`/products/flash-sell/active?${params.toString()}`),
         );
         return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching flash sale products:", error);
-        // Handle various connection errors
-        if (
-            error.code === 'ECONNREFUSED' ||
-            error.code === 'ETIMEDOUT' ||
-            error.code === 'ENOTFOUND' ||
-            error.message?.includes('ECONNREFUSED') ||
-            error.message?.includes('ETIMEDOUT') ||
-            error.message?.includes('ENOTFOUND') ||
-            error.message?.includes('Network Error') ||
-            error.message?.includes('fetch failed') ||
-            (error.cause && error.cause.code === 'ECONNREFUSED')
-        ) {
+        const err = error as {
+            code?: string;
+            message?: string;
+            cause?: { code?: string } | AggregateError;
+            name?: string;
+            errors?: unknown[];
+        };
+        // Handle various connection errors including AggregateError
+        const isConnectionError =
+            err.code === 'ECONNREFUSED' ||
+            err.code === 'ETIMEDOUT' ||
+            err.code === 'ENOTFOUND' ||
+            err.message?.includes('ECONNREFUSED') ||
+            err.message?.includes('ETIMEDOUT') ||
+            err.message?.includes('ENOTFOUND') ||
+            err.message?.includes('Network Error') ||
+            err.message?.includes('fetch failed') ||
+            err.message?.includes('AggregateError') ||
+            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
+            err.name === 'AggregateError' ||
+            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
+
+        if (isConnectionError) {
             console.warn("Backend server is not running or not accessible. Please start the backend server.");
             return [];
         }
@@ -397,20 +442,31 @@ export async function getCategories(companyId?: string): Promise<Category[]> {
 
         );
         return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching categories:", error);
-        // Handle various connection errors
-        if (
-            error.code === 'ECONNREFUSED' ||
-            error.code === 'ETIMEDOUT' ||
-            error.code === 'ENOTFOUND' ||
-            error.message?.includes('ECONNREFUSED') ||
-            error.message?.includes('ETIMEDOUT') ||
-            error.message?.includes('ENOTFOUND') ||
-            error.message?.includes('Network Error') ||
-            error.message?.includes('fetch failed') ||
-            (error.cause && error.cause.code === 'ECONNREFUSED')
-        ) {
+        const err = error as {
+            code?: string;
+            message?: string;
+            cause?: { code?: string } | AggregateError;
+            name?: string;
+            errors?: unknown[];
+        };
+        // Handle various connection errors including AggregateError
+        const isConnectionError =
+            err.code === 'ECONNREFUSED' ||
+            err.code === 'ETIMEDOUT' ||
+            err.code === 'ENOTFOUND' ||
+            err.message?.includes('ECONNREFUSED') ||
+            err.message?.includes('ETIMEDOUT') ||
+            err.message?.includes('ENOTFOUND') ||
+            err.message?.includes('Network Error') ||
+            err.message?.includes('fetch failed') ||
+            err.message?.includes('AggregateError') ||
+            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
+            err.name === 'AggregateError' ||
+            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
+
+        if (isConnectionError) {
             console.warn("Backend server is not running or not accessible. Please start the backend server.");
             return [];
         }
@@ -461,8 +517,8 @@ export async function createReview(
         }
     );
 
-    const payloadData: any = (response as any).data;
-    const data = payloadData?.data ?? payloadData;
+    const payloadData: ApiResponse<Review> | Review = response.data;
+    const data = (payloadData && typeof payloadData === 'object' && 'data' in payloadData) ? payloadData.data : payloadData;
     return data as Review;
 }
 
@@ -479,8 +535,8 @@ export async function getCart(
         getApiUrl(`/cartproducts/user/${userId}?companyId=${companyIdParam}`),
         { headers: getApiHeaders(token) },
     );
-    const payload: any = (response as any).data;
-    const data = Array.isArray(payload?.data) ? payload.data : payload;
+    const payload: ApiResponse<CartItem[]> | CartItem[] = response.data;
+    const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : [];
     const items: CartItem[] = Array.isArray(data) ? data : [];
     const totalItems = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
     const totalPrice = items.reduce((sum, i) => sum + Number(i.totalPrice || 0), 0);
@@ -500,8 +556,8 @@ export async function addCartItemApi(
         { userId, productId, quantity, companyId: companyIdParam },
 
     );
-    const payload: any = (response as any).data;
-    return (payload?.data ?? payload) as CartItem;
+    const payload: ApiResponse<CartItem> | CartItem = response.data;
+    return (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : payload as CartItem;
 }
 
 export async function updateCartItemApi(
@@ -516,8 +572,8 @@ export async function updateCartItemApi(
         { quantity },
 
     );
-    const payload: any = (response as any).data;
-    return (payload?.data ?? payload) as CartItem;
+    const payload: ApiResponse<CartItem> | CartItem = response.data;
+    return (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : payload as CartItem;
 }
 
 export async function deleteCartItemApi(
@@ -553,8 +609,8 @@ export async function getPromocodes(token: string, companyId?: string): Promise<
         getApiUrl(`/promocode?companyId=${companyIdParam}`),
         { headers: getApiHeaders(token) }
     );
-    const payload: any = (response as any).data;
-    const data = Array.isArray(payload?.data) ? payload.data : payload;
+    const payload: ApiResponse<PromoCode[]> | PromoCode[] = response.data;
+    const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload) ? payload.data : [];
     return Array.isArray(data) ? data : [];
 }
 
@@ -574,14 +630,17 @@ export async function createOrder(
     },
     token: string,
     companyId?: string,
-): Promise<any> {
+): Promise<unknown> {
     const companyIdParam = companyId || API_CONFIG.companyId;
     const response = await axios.post(
         getApiUrl(`/orders?companyId=${companyIdParam}`),
         payload,
         { headers: getApiHeaders(token) }
     );
-    return (response as any).data?.data ?? (response as any).data;
+    const responseData: ApiResponse<unknown> | unknown = response.data;
+    return (responseData && typeof responseData === 'object' && 'data' in responseData)
+        ? (responseData as ApiResponse<unknown>).data
+        : responseData;
 }
 
 /**
@@ -598,22 +657,31 @@ export async function getBanners(companyId?: string): Promise<Banner[]> {
 
         );
         return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching banners:", error);
+        const err = error as {
+            code?: string;
+            message?: string;
+            cause?: { code?: string } | AggregateError;
+            name?: string;
+            errors?: unknown[];
+        };
         // Handle various connection errors including AggregateError
-        if (
-            error.code === 'ECONNREFUSED' ||
-            error.code === 'ETIMEDOUT' ||
-            error.code === 'ENOTFOUND' ||
-            error.message?.includes('ECONNREFUSED') ||
-            error.message?.includes('ETIMEDOUT') ||
-            error.message?.includes('ENOTFOUND') ||
-            error.message?.includes('Network Error') ||
-            error.message?.includes('fetch failed') ||
-            error.message?.includes('AggregateError') ||
-            (error.cause && error.cause.code === 'ECONNREFUSED') ||
-            (error.name === 'AggregateError')
-        ) {
+        const isConnectionError =
+            err.code === 'ECONNREFUSED' ||
+            err.code === 'ETIMEDOUT' ||
+            err.code === 'ENOTFOUND' ||
+            err.message?.includes('ECONNREFUSED') ||
+            err.message?.includes('ETIMEDOUT') ||
+            err.message?.includes('ENOTFOUND') ||
+            err.message?.includes('Network Error') ||
+            err.message?.includes('fetch failed') ||
+            err.message?.includes('AggregateError') ||
+            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
+            err.name === 'AggregateError' ||
+            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
+
+        if (isConnectionError) {
             console.warn("Backend server is not running or not accessible. Please start the backend server.");
             return [];
         }

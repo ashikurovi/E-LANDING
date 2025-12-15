@@ -1,10 +1,11 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { getApiUrl, getApiHeaders, API_CONFIG } from "@/lib/api-config";
-import { getCategories, getProductsByCategory, Product, Category } from "@/lib/api-services";
+import { getCategories, getProductsByCategory, Product } from "@/lib/api-services";
+import type { Category } from "@/types/category";
 import { Rate } from "antd";
 
 interface Review {
@@ -37,22 +38,7 @@ export default function Reviews() {
     comment: "",
   });
 
-  useEffect(() => {
-    if (userSession?.accessToken) {
-      fetchCategories();
-      fetchReviews();
-    }
-  }, [userSession]);
-
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchProducts();
-    } else {
-      setProducts([]);
-    }
-  }, [selectedCategory]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const cats = await getCategories(API_CONFIG.companyId);
       setCategories(cats);
@@ -61,9 +47,9 @@ export default function Reviews() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const prods = await getProductsByCategory(
         API_CONFIG.companyId,
@@ -73,9 +59,9 @@ export default function Reviews() {
     } catch (error) {
       console.error("Error fetching products:", error);
     }
-  };
+  }, [selectedCategory]);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const response = await axios.get(
         getApiUrl("/reviews/my-reviews"),
@@ -87,7 +73,22 @@ export default function Reviews() {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  };
+  }, [userSession?.accessToken]);
+
+  useEffect(() => {
+    if (userSession?.accessToken) {
+      fetchCategories();
+      fetchReviews();
+    }
+  }, [userSession, fetchCategories, fetchReviews]);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchProducts();
+    } else {
+      setProducts([]);
+    }
+  }, [selectedCategory, fetchProducts]);
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,10 +121,11 @@ export default function Reviews() {
       setSelectedProduct(null);
       setShowForm(false);
       fetchReviews();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting review:", error);
+      const axiosError = error as { response?: { data?: { message?: string } } };
       alert(
-        error.response?.data?.message || "Failed to submit review. Please try again."
+        axiosError.response?.data?.message || "Failed to submit review. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -259,7 +261,7 @@ export default function Reviews() {
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-xl font-medium mb-4">My Reviews</h3>
         {reviews.length === 0 ? (
-          <p className="text-gray-600">You haven't written any reviews yet.</p>
+          <p className="text-gray-600">You haven&apos;t written any reviews yet.</p>
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (

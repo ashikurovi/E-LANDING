@@ -1,24 +1,15 @@
 "use client";
 
 import { getCategories } from "@/lib/api-services";
+import type { Category } from "@/types/category";
 import { Checkbox } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-interface CategoryProps {
-  name: string;
-  id: number;
-  slug: string;
-  image?: {
-    url: string;
-    alt?: string;
-  };
-}
-
 const ShopByCategory: React.FC = () => {
   const { userSession } = useAuth();
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
@@ -37,7 +28,7 @@ const ShopByCategory: React.FC = () => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const data = await getCategories(userSession?.accessToken, userSession?.companyId);
+        const data = await getCategories(userSession?.companyId);
         setCategories(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load categories");
@@ -46,7 +37,7 @@ const ShopByCategory: React.FC = () => {
       }
     };
     fetchCategories();
-  }, [userSession?.accessToken, userSession?.companyId]);
+  }, [userSession?.companyId]);
 
   // Sync state with URL changes (when manually updated)
   useEffect(() => {
@@ -79,7 +70,7 @@ const ShopByCategory: React.FC = () => {
       <h2 className="text-xl font-medium">Shop By Category</h2>
       <Checkbox.Group value={checkedValues} onChange={handleChange}>
         <div className="flex flex-col">
-          {categories.map((category: CategoryProps) => (
+          {categories.map((category: Category) => (
             <Checkbox key={category.slug} value={category.name}>
               {category.name}
             </Checkbox>

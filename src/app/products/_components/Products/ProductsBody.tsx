@@ -15,6 +15,9 @@ interface ReviewProps {
 }
 interface VariantProps {
   price: number;
+  size: string;
+  available_quantity: number;
+  stock_status: string;
 }
 interface ProductProps {
   SKU: string;
@@ -39,6 +42,9 @@ function mapProductToCardFormat(apiProduct: Product): ProductProps {
 
   const variant: VariantProps[] = [{
     price: Number(apiProduct.price),
+    size: "Default",
+    available_quantity: 100, // Default value - would need to come from inventory if available
+    stock_status: apiProduct.isActive ? "in_stock" : "out_of_stock",
   }];
 
   return {

@@ -2,17 +2,17 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CheckoutCart from "./_components/CheckoutCart";
 import CustomerInfo from "./_components/CustomerInfo";
 import toast from "react-hot-toast";
-import { createOrder, getPromocodes, PromoCode, getProduct, Product } from "@/lib/api-services";
+import { createOrder, getPromocodes, PromoCode, getProduct } from "@/lib/api-services";
 import { API_CONFIG } from "@/lib/api-config";
 
-const Checkout = () => {
+const CheckoutContent = () => {
   const { userSession } = useAuth();
-  const { cart, loading, refetch } = useCart();
+  const { cart, refetch } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -20,7 +20,6 @@ const Checkout = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [district, setDistrict] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [promo, setPromo] = useState<PromoCode | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
@@ -82,9 +81,8 @@ const Checkout = () => {
     if (userSession?.user) {
       setName(userSession.user.name || "");
       setEmail(userSession.user.email || "");
-      setPhone(userSession.user.phone || "");
-      setDistrict(userSession.user.district);
-      setAddress(userSession.user.address || "");
+      setPhone((userSession.user.phone as string | undefined) || "");
+      setAddress((userSession.user.address as string | undefined) || "");
     }
   }, [userSession]);
 
@@ -306,6 +304,14 @@ const Checkout = () => {
         />
       </div>
     </section>
+  );
+};
+
+const Checkout = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 };
 

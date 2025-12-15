@@ -87,13 +87,6 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
 
   const hasDiscount = discountedPrice > 0 && discountedPrice < originalPrice;
 
-  const getDiscountPercentage = () => {
-    if (hasDiscount && originalPrice > 0) {
-      return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
-    }
-    return product?.off || 0;
-  };
-
   return (
     <section className=" flex flex-col gap-3">
       {/* product category and review amounts start  */}

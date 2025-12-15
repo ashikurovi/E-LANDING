@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { getApiUrl, getApiHeaders } from "@/lib/api-config";
 import { TbCurrencyTaka } from "react-icons/tb";
@@ -61,13 +61,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (userSession?.accessToken) {
-      fetchOrders();
-    }
-  }, [userSession]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const response = await axios.get(getApiUrl("/orders/my-orders"), {
         headers: getApiHeaders(userSession?.accessToken),
@@ -78,7 +72,13 @@ const Orders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userSession?.accessToken]);
+
+  useEffect(() => {
+    if (userSession?.accessToken) {
+      fetchOrders();
+    }
+  }, [userSession, fetchOrders]);
 
   const isOrderCancellable = (order: Order): boolean => {
     if (order.status.toLowerCase() === "cancelled") return false;
@@ -107,11 +107,12 @@ const Orders = () => {
       );
       alert("Order cancelled successfully!");
       fetchOrders(); // Refresh orders list
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error cancelling order:", error);
+      const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
       const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
+        axiosError.response?.data?.message ||
+        axiosError.response?.data?.error ||
         "Failed to cancel order. Please try again.";
       alert(errorMessage);
     } finally {

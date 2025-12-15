@@ -1,5 +1,4 @@
 "use client";
-import CartProduct from "./CartProduct";
 import CouponCode from "./CouponCode";
 import formatteeNumber from "@/utils/formatteNumber";
 import { PromoCode } from "@/lib/api-services";
@@ -28,7 +27,6 @@ const CheckoutCart = ({
   items,
   subtotal,
   discount,
-  total,
   shipping,
   grandTotal,
   promoCode,

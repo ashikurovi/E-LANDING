@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { getApiUrl, getApiHeaders } from "@/lib/api-config";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
@@ -27,13 +27,7 @@ export default function Address() {
   });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (userSession?.accessToken) {
-      fetchProfile();
-    }
-  }, [userSession]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await axios.get(getApiUrl("/users/me"), {
         headers: getApiHeaders(userSession?.accessToken),
@@ -50,7 +44,13 @@ export default function Address() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userSession?.accessToken]);
+
+  useEffect(() => {
+    if (userSession?.accessToken) {
+      fetchProfile();
+    }
+  }, [userSession, fetchProfile]);
 
   const handleSave = async () => {
     try {

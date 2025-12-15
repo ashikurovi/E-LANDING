@@ -29,7 +29,7 @@ const PriceFilter: React.FC = () => {
     if (newMin !== value[0] || newMax !== value[1]) {
       setValue([newMin, newMax]);
     }
-  }, [minPrice, maxPrice]);
+  }, [minPrice, maxPrice, value]);
 
   // Update URL when user changes slider values
   useEffect(() => {
@@ -49,7 +49,7 @@ const PriceFilter: React.FC = () => {
     if (newUrl !== currentUrl) {
       router.push(newUrl, { scroll: false });
     }
-  }, [value, router]); // ❌ Removed `searchParams` to prevent loops
+  }, [value, router, searchParams]);
 
   return (
     <div>

@@ -2,7 +2,7 @@
 
 import { FaEdit } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { getApiUrl, getApiHeaders } from "@/lib/api-config";
 
@@ -29,14 +29,7 @@ export default function Dashboard() {
     address: "",
   });
 
-  useEffect(() => {
-    if (userSession?.accessToken) {
-      fetchProfile();
-      fetchOrdersCount();
-    }
-  }, [userSession]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await axios.get(
         getApiUrl("/users/me"),
@@ -56,9 +49,9 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userSession?.accessToken]);
 
-  const fetchOrdersCount = async () => {
+  const fetchOrdersCount = useCallback(async () => {
     try {
       const response = await axios.get(
         getApiUrl("/orders/my-orders"),
@@ -70,7 +63,14 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error fetching orders count:", error);
     }
-  };
+  }, [userSession?.accessToken]);
+
+  useEffect(() => {
+    if (userSession?.accessToken) {
+      fetchProfile();
+      fetchOrdersCount();
+    }
+  }, [userSession, fetchProfile, fetchOrdersCount]);
 
   const handleUpdateProfile = async () => {
     try {

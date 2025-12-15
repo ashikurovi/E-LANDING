@@ -1,9 +1,9 @@
-import { getProducts } from "@/lib/api-services";
+import { getProducts, Product } from "@/lib/api-services";
 import Link from "next/link";
 import ProductCard from "../../components/ui/ProductCard";
 
 const ForYou = async () => {
-  let products: any[] = [];
+  let products: Product[] = [];
 
   try {
     products = await getProducts('COMP-000001');
@@ -34,7 +34,18 @@ const ForYou = async () => {
       <div className=" grid sm:grid-cols-[repeat(auto-fit,_minmax(220px,_1fr))] grid-cols-[repeat(auto-fit,_minmax(160px,_1fr))] w-full gap-3">
         {products.map((product) => (
           <div key={product.id || product.sku}>
-            <ProductCard product={product} />
+            <ProductCard product={{
+              id: product.id,
+              name: product.name,
+              title: product.name,
+              documentId: product.id?.toString(),
+              sku: product.sku,
+              price: product.price,
+              discountPrice: product.discountPrice,
+              thumbnail: product.thumbnail,
+              images: product.images?.map(img => ({ name: img.alt || 'Product image', url: img.url })) || [],
+              reviews: [],
+            }} />
           </div>
         ))}
       </div>

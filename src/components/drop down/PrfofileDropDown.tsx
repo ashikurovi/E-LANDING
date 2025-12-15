@@ -10,7 +10,6 @@ import {
   IoLogInOutline,
 } from "react-icons/io5";
 import { MdOutlineManageAccounts } from "react-icons/md";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const ProfileDropDown: React.FC = () => {

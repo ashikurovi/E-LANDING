@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState, useCallback } from "react";
 import { useAuth } from "./AuthContext";
 import { getApiUrl, getApiHeaders, API_CONFIG } from "@/lib/api-config";
 
@@ -60,7 +60,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     if (!userSession?.userId || !userSession?.accessToken) {
       setCart(null);
       setLoading(false);
@@ -92,11 +92,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userSession?.userId, userSession?.accessToken, userSession?.companyId]);
 
   useEffect(() => {
     fetchCart();
-  }, [userSession?.userId, userSession?.accessToken]);
+  }, [userSession?.userId, userSession?.accessToken, fetchCart]);
 
   // Function to update cart item quantity
   const updateCartItem = async (
@@ -226,11 +226,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       await fetchCart();
     } catch (error) {
-      const err = error as any;
+      const err = error as { response?: { data?: { message?: string; error?: string } | string[] }; message?: string };
+      const responseData = err?.response?.data;
       const apiMessage =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        (Array.isArray(err?.response?.data) ? err.response.data.join(", ") : undefined);
+        (responseData && typeof responseData === 'object' && !Array.isArray(responseData) && 'message' in responseData) 
+          ? responseData.message 
+          : (responseData && typeof responseData === 'object' && !Array.isArray(responseData) && 'error' in responseData)
+          ? responseData.error
+          : Array.isArray(responseData) 
+          ? responseData.join(", ") 
+          : undefined;
       const finalMessage = apiMessage || err?.message || "Error adding cart item";
       console.error("Error adding cart item:", finalMessage, err);
       throw new Error(finalMessage);

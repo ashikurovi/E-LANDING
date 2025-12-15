@@ -5,7 +5,7 @@ import Link from "next/link";
 import React from "react";
 
 const HeroCarousel: React.FC = async () => {
-  let banners: any[] = [];
+  let banners: Banner[] = [];
 
   try {
     banners = await getBanners('COMP-000001');

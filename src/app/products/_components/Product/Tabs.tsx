@@ -50,6 +50,7 @@ interface ProductProps {
     images: ImageProps[];
     reviews: Review[];
     variant: VariantProps[];
+    companyId?: string;
   };
   returnPolicyContent?: string;
 }

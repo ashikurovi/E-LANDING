@@ -44,7 +44,7 @@ interface ProductProps {
 }
 
 const ProductCard = ({ product }: { product: ProductProps }) => {
-  const { addCartItem, cart } = useCart();
+  const { addCartItem } = useCart();
   const router = useRouter();
 
   // Calculate discount percentage from price and discountPrice
@@ -111,7 +111,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
       try {
         await addCartItem(Number(productId), 1);
         toast.success("Product added to cart!");
-      } catch (error) {
+      } catch {
         toast.error("Failed to add product to cart");
       }
     } else if (product?.price !== undefined) {
@@ -119,7 +119,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
       try {
         await addCartItem(Number(productId), 1);
         toast.success("Product added to cart!");
-      } catch (error) {
+      } catch {
         toast.error("Failed to add product to cart");
       }
     } else {

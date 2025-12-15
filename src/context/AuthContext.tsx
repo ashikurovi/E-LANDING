@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { getApiUrl, getApiHeaders, API_CONFIG } from "@/lib/api-config";
+import { getApiUrl, API_CONFIG } from "@/lib/api-config";
 
 // Define user session type
 export interface UserSession {
@@ -18,7 +18,7 @@ export interface UserSession {
     name?: string;
     companyId: string;
     companyName?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -113,9 +113,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       return { success: false, error: "Invalid response from server" };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Invalid credentials";
+      const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+      const errorMessage = axiosError.response?.data?.message || axiosError.message || "Invalid credentials";
       return { success: false, error: errorMessage };
     }
   };
@@ -150,13 +151,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Register error:", error);
+      const axiosError = error as { 
+        response?: { 
+          data?: { message?: string; error?: string } | string[]; 
+        }; 
+        message?: string;
+      };
       const apiMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        (Array.isArray(error.response?.data) ? error.response.data.join(", ") : undefined);
-      const errorMessage = apiMessage || error.message || "Registration failed";
+        (typeof axiosError.response?.data === 'object' && axiosError.response.data && 'message' in axiosError.response.data) 
+          ? (axiosError.response.data as { message?: string }).message
+          : (typeof axiosError.response?.data === 'object' && axiosError.response.data && 'error' in axiosError.response.data)
+          ? (axiosError.response.data as { error?: string }).error
+          : Array.isArray(axiosError.response?.data) 
+          ? axiosError.response.data.join(", ") 
+          : undefined;
+      const errorMessage = apiMessage || axiosError.message || "Registration failed";
       return { success: false, error: errorMessage };
     }
   };

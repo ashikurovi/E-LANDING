@@ -1,7 +1,7 @@
 "use client";
 import Man_Avatar from "@/../public/images/avatar/man.png";
 import Image, { StaticImageData } from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { RiImageEditLine } from "react-icons/ri";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
@@ -13,16 +13,7 @@ const UserInfo = () => {
   const [userName, setUserName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
 
-  useEffect(() => {
-    if (userSession?.accessToken) {
-      fetchUserProfile();
-    } else if (userSession?.name && userSession?.email) {
-      setUserName(userSession.name);
-      setUserEmail(userSession.email);
-    }
-  }, [userSession]);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       const response = await axios.get(getApiUrl("/users/me"), {
         headers: getApiHeaders(userSession?.accessToken),
@@ -36,7 +27,16 @@ const UserInfo = () => {
       if (userSession?.name) setUserName(userSession.name);
       if (userSession?.email) setUserEmail(userSession.email);
     }
-  };
+  }, [userSession?.accessToken, userSession?.name, userSession?.email]);
+
+  useEffect(() => {
+    if (userSession?.accessToken) {
+      fetchUserProfile();
+    } else if (userSession?.name && userSession?.email) {
+      setUserName(userSession.name);
+      setUserEmail(userSession.email);
+    }
+  }, [userSession, fetchUserProfile]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

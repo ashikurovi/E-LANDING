@@ -1,9 +1,9 @@
-import { getFlashSaleProducts } from "@/lib/api-services";
+import { getFlashSaleProducts, Product } from "@/lib/api-services";
 import CountDown from "./CountDown";
 import FlashSaleProduct from "./FlashSaleProduct";
 
 const FlashSale = async () => {
-  let flashSaleProducts: any[] = [];
+  let flashSaleProducts: Product[] = [];
   
   try {
     flashSaleProducts = await getFlashSaleProducts();

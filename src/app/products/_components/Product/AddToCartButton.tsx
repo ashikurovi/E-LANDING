@@ -38,8 +38,9 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       await addCartItem(productId, totalQuantity);
       toast.success("Added to cart");
       router.push("/view-cart");
-    } catch (error: any) {
-      const msg = error?.message || "Failed to add to cart";
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      const msg = err?.message || "Failed to add to cart";
       toast.error(msg);
     } finally {
       setLoading(false);

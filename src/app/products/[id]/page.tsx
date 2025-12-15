@@ -1,4 +1,5 @@
 import { getProduct, getProductReviews, getRefundPolicies } from "@/lib/api-services";
+import type { Product } from "@/lib/api-services";
 import { API_CONFIG } from "@/lib/api-config";
 import { Suspense } from "react";
 import BreadCrumb from "../_components/Product/Breadcrumb";
@@ -58,14 +59,14 @@ interface ProductProps {
 }
 
 // Helper function to map REST API product to component format
-function mapProductToComponentFormat(apiProduct: any, reviews: Review[]): ProductProps {
+function mapProductToComponentFormat(apiProduct: Product, reviews: Review[], companyId: string): ProductProps {
   // Calculate discount percentage
   const off = apiProduct.discountPrice && apiProduct.price
     ? Math.round(((apiProduct.price - apiProduct.discountPrice) / apiProduct.price) * 100)
     : 0;
 
   // Map images
-  const images: ImageProps[] = apiProduct.images?.map((img: any, index: number) => ({
+  const images: ImageProps[] = apiProduct.images?.map((img: { url: string; alt?: string }, index: number) => ({
     name: img.alt || `Image ${index + 1}`,
     url: img.url,
   })) || [];
@@ -106,7 +107,7 @@ function mapProductToComponentFormat(apiProduct: any, reviews: Review[]): Produc
     images,
     reviews,
     variant,
-    companyId: apiProduct.companyId,
+    companyId,
   };
 }
 
@@ -136,7 +137,7 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
       userName: review.userName ?? "Customer",
     }));
 
-    product = mapProductToComponentFormat(apiProduct, mappedReviews);
+    product = mapProductToComponentFormat(apiProduct, mappedReviews, companyId);
     returnPolicyContent = returnPolicy?.content || "";
   } catch (error) {
     console.error("Error fetching product:", error);
