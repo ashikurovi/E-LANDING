@@ -3,7 +3,7 @@
  */
 
 export const API_CONFIG = {
-    baseURL: 'http://localhost:8000',
+    baseURL: 'https://e-backend-six.vercel.app',
     companyId: 'COMP-000001',
 };
 
