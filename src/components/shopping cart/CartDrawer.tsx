@@ -1,7 +1,7 @@
 "use client";
-import CartProduct from "@/app/checkout/_components/CartProduct";
-import { useCart } from "@/context/CartContext";
-import { cn } from "@/utils/cn";
+import CartProduct from "../../app/checkout/_components/CartProduct";
+import { useCart } from "../../context/CartContext";
+import { cn } from "../../utils/cn";
 import { Badge, Drawer, Empty } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

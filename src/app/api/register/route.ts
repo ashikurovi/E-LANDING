@@ -1,6 +1,6 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
-import { getApiUrl, API_CONFIG } from "@/lib/api-config";
+import { getApiUrl, API_CONFIG } from "../../../lib/api-config";
 
 export async function POST(req: Request) {
   try {

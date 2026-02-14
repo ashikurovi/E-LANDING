@@ -1,9 +1,9 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { getApiUrl, getApiHeaders } from "@/lib/api-config";
+import { getApiUrl, getApiHeaders } from "../../../lib/api-config";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 
 interface UserProfile {

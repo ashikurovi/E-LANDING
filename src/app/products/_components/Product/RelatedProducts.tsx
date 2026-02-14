@@ -1,6 +1,6 @@
-import EmblaCarousel from "@/components/shared/EmblaCarouel";
-import ProductCard from "@/components/ui/ProductCard";
-import { getProduct, getProductsByCategory, Product } from "@/lib/api-services";
+import EmblaCarousel from "../../../../components/shared/EmblaCarousel";
+import ProductCard from "../../../../components/ui/ProductCard";
+import { getProduct, getProductsByCategory, Product } from "../../../../lib/api-services";
 
 interface ImageProps {
   name: string;

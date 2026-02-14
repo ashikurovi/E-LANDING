@@ -1,5 +1,5 @@
-import { getTrendingProducts, Product } from "@/lib/api-services";
-import EmblaCarousel from "../../components/shared/EmblaCarouel";
+import { getTrendingProducts, Product } from "../../lib/api-services";
+import EmblaCarousel from "../../components/shared/EmblaCarousel";
 import ProductCard from "../../components/ui/ProductCard";
 
 const TrendingProducts = async () => {

@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/utils/cn";
+import { cn } from "../../../../utils/cn";
 import Image from "next/image";
 import { useState } from "react";
 

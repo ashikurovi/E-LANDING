@@ -1,7 +1,7 @@
 "use client";
-import { useAuth } from "@/context/AuthContext";
-import { createReview } from "@/lib/api-services";
-import { API_CONFIG } from "@/lib/api-config";
+import { useAuth } from "../../../../context/AuthContext";
+import { createReview } from "../../../../lib/api-services";
+import { API_CONFIG } from "../../../../lib/api-config";
 import { Review } from "@/types/review";
 import { Button, Modal, Rate } from "antd";
 import React, { useState } from "react";

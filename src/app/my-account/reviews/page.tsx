@@ -1,10 +1,10 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { getApiUrl, getApiHeaders, API_CONFIG } from "@/lib/api-config";
-import { getCategories, getProductsByCategory, Product } from "@/lib/api-services";
+import { getApiUrl, getApiHeaders, API_CONFIG } from "../../../lib/api-config";
+import { getCategories, getProductsByCategory, Product } from "../../../lib/api-services";
 import type { Category } from "@/types/category";
 import { Rate } from "antd";
 

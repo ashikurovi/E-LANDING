@@ -1,4 +1,4 @@
-import { getProducts, Product } from "@/lib/api-services";
+import { getProducts, Product } from "../../lib/api-services";
 import Link from "next/link";
 import ProductCard from "../../components/ui/ProductCard";
 

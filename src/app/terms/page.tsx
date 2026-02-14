@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_CONFIG } from "@/lib/api-config";
-import { getTerms } from "@/lib/api-services";
+import { API_CONFIG } from "../../lib/api-config";
+import { getTerms } from "../../lib/api-services";
 import { PolicyPage } from "@/types/policy";
 
 const TermsPage = () => {

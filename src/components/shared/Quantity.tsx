@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/utils/cn";
+import { cn } from "../../utils/cn";
 import { FaMinus, FaPlus } from "react-icons/fa6";
 
 interface QuantityProps {

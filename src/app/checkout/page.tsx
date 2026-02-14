@@ -1,14 +1,14 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CheckoutCart from "./_components/CheckoutCart";
 import CustomerInfo from "./_components/CustomerInfo";
 import toast from "react-hot-toast";
-import { createOrder, getPromocodes, PromoCode, getProduct } from "@/lib/api-services";
-import { API_CONFIG } from "@/lib/api-config";
+import { createOrder, getPromocodes, PromoCode, getProduct } from "../../lib/api-services";
+import { API_CONFIG } from "../../lib/api-config";
 
 const CheckoutContent = () => {
   const { userSession } = useAuth();

@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { getApiUrl, API_CONFIG } from "@/lib/api-config";
+import { getApiUrl, API_CONFIG } from "../lib/api-config";
 
 // Define user session type
 export interface UserSession {

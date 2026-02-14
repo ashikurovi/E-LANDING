@@ -1,6 +1,6 @@
 "use client";
-import formatteeNumber from "@/utils/formatteNumber";
-import { calculateAverageRating } from "@/utils/getAverageRating";
+import formatteeNumber from "../../../../utils/formatteNumber";
+import { calculateAverageRating } from "../../../../utils/getAverageRating";
 import { Rate } from "antd";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,7 +15,7 @@ import {
 import { TbCurrencyTaka, TbTruckReturn } from "react-icons/tb";
 import ProductCart from "./ProductCart";
 import Variant from "./Variant";
-import { Review } from "@/types/review";
+import { Review } from "../../../../types/review";
 
 interface CategoryProps {
   name: string;

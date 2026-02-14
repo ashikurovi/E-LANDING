@@ -1,12 +1,12 @@
 "use client";
 
-import Logo from "@/../public/images/logo.png";
-import PaymentGateway from "@/../public/images/payment-gateway.webp";
-import { useAuth } from "@/context/AuthContext";
-import { API_CONFIG } from "@/lib/api-config";
-import { getCategories, getSystemUserByCompanyId } from "@/lib/api-services";
-import { Category } from "@/types/category";
-import { SystemUser } from "@/types/system-user";
+import Logo from "../../public/images/logo.png";
+import PaymentGateway from "../../public/images/payment-gateway.webp";
+import { useAuth } from "../context/AuthContext";
+import { API_CONFIG } from "../lib/api-config";
+import { getCategories, getSystemUserByCompanyId } from "../lib/api-services";
+import { Category } from "../types/category";
+import { SystemUser } from "../types/system-user";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";

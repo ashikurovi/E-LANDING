@@ -1,8 +1,8 @@
-import { getCategories } from "@/lib/api-services";
-import type { Category } from "@/types/category";
+import { getCategories } from "../../lib/api-services";
+import type { Category } from "../../types/category";
 import Image from "next/image";
 import Link from "next/link";
-import EmblaCarousel from "../../components/shared/EmblaCarouel";
+import EmblaCarousel from "../../components/shared/EmblaCarousel";
 
 const Category = async () => {
   // Note: Backend requires authentication. You may need to use a public token

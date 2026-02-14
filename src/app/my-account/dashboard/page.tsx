@@ -1,10 +1,10 @@
 "use client";
 
 import { FaEdit } from "react-icons/fa";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { getApiUrl, getApiHeaders } from "@/lib/api-config";
+import { getApiUrl, getApiHeaders } from "../../../lib/api-config";
 
 interface UserProfile {
   id: number;

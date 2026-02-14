@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/utils/cn";
+import { cn } from "../../../../utils/cn";
 import { useEffect, useState } from "react";
 interface VariantProps {
   available_quantity: number;

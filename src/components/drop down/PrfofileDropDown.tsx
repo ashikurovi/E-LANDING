@@ -1,5 +1,5 @@
 "use client";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import type { MenuProps } from "antd";
 import { Dropdown } from "antd";
 import React from "react";

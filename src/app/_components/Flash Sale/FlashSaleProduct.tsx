@@ -1,7 +1,7 @@
-import EmblaCarousel from "@/components/shared/EmblaCarouel";
-import ProductCard from "@/components/ui/ProductCard";
-import client from "@/lib/apollo-client";
-import { GET_FLASH_SALE_PRODUCTS } from "@/lib/queries";
+import EmblaCarousel from "../../../components/shared/EmblaCarousel";
+import ProductCard from "../../../components/ui/ProductCard";
+import client from "../../../lib/apollo-client";
+import { GET_FLASH_SALE_PRODUCTS } from "../../../lib/queries";
 
 interface Image {
   name: string;

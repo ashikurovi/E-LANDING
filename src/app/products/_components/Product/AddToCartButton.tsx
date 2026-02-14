@@ -1,5 +1,5 @@
-import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
+import { useCart } from "../../../../context/CartContext";
+import { useAuth } from "../../../../context/AuthContext";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { useState } from "react";
 import toast from "react-hot-toast";

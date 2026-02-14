@@ -1,7 +1,7 @@
 "use client";
 import CouponCode from "./CouponCode";
-import formatteeNumber from "@/utils/formatteNumber";
-import { PromoCode } from "@/lib/api-services";
+import formatteeNumber from "../../../utils/formatteNumber";
+import { PromoCode } from "../../../lib/api-services";
 
 interface CheckoutCartProps {
   items: {

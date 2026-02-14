@@ -1,12 +1,12 @@
 "use client";
 
-import { calculateAverageRating } from "@/utils/getAverageRating";
+import { calculateAverageRating } from "../../../../utils/getAverageRating";
 import { Rate } from "antd";
 import ReviewModal from "./ReviewModal";
 import ReviewsCarousel from "./ReviewsCarousel";
 import { Review } from "@/types/review";
 import { useMemo, useState } from "react";
-import { API_CONFIG } from "@/lib/api-config";
+import { API_CONFIG } from "../../../../lib/api-config";
 
 interface ReviewProps {
   reviews: Review[];

@@ -1,11 +1,11 @@
 "use client";
-import Man_Avatar from "@/../public/images/avatar/man.png";
+import Man_Avatar from "../../../../../public/images/avatar/man.png";
 import Image, { StaticImageData } from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { RiImageEditLine } from "react-icons/ri";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../../../context/AuthContext";
 import axios from "axios";
-import { getApiUrl, getApiHeaders } from "@/lib/api-config";
+import { getApiUrl, getApiHeaders } from "../../../../lib/api-config";
 
 const UserInfo = () => {
   const { userSession } = useAuth();

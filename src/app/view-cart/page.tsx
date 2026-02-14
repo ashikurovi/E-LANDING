@@ -1,13 +1,13 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import CartProduct from "@/app/checkout/_components/CartProduct";
-import formatteeNumber from "@/utils/formatteNumber";
-import { getProduct } from "@/lib/api-services";
-import { API_CONFIG } from "@/lib/api-config";
+import CartProduct from "../checkout/_components/CartProduct";
+import formatteeNumber from "../../utils/formatteNumber";
+import { getProduct } from "../../lib/api-services";
+import { API_CONFIG } from "../../lib/api-config";
 import Link from "next/link";
 import { Button } from "antd";
 

@@ -1,8 +1,8 @@
 "use client";
-import Quantity from "@/components/shared/Quantity";
-import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
-import formatteeNumber from "@/utils/formatteNumber";
+import Quantity from "../../../components/shared/Quantity";
+import { useCart } from "../../../context/CartContext";
+import { useAuth } from "../../../context/AuthContext";
+import formatteeNumber from "../../../utils/formatteNumber";
 import { Badge } from "antd";
 import Image from "next/image";
 import toast from "react-hot-toast";

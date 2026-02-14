@@ -1,5 +1,5 @@
-import EmblaCarousel from "@/components/shared/EmblaCarouel";
-import { Banner, getBanners } from "@/lib/api-services";
+import EmblaCarousel from "../../components/shared/EmblaCarousel";
+import { Banner, getBanners } from "../../lib/api-services";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";

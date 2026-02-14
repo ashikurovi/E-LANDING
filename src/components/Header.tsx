@@ -1,6 +1,6 @@
 "use client";
-import Logo from "@/../public/images/logo.png";
-import { cn } from "@/utils/cn";
+import Logo from "../../public/images/logo.png";
+import { cn } from "../utils/cn";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";

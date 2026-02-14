@@ -1,6 +1,6 @@
 "use client";
-import { useCart } from "@/context/CartContext";
-import formatteeNumber from "@/utils/formatteNumber";
+import { useCart } from "../../context/CartContext";
+import formatteeNumber from "../../utils/formatteNumber";
 // import { calculateAverageRating } from "@/utils/getAverageRating";
 import { Rate } from "antd";
 import Image from "next/image";

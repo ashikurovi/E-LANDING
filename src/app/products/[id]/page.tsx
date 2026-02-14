@@ -1,6 +1,6 @@
-import { getProduct, getProductReviews, getRefundPolicies } from "@/lib/api-services";
-import type { Product } from "@/lib/api-services";
-import { API_CONFIG } from "@/lib/api-config";
+import { getProduct, getProductReviews, getRefundPolicies } from "../../../lib/api-services";
+import type { Product } from "../../../lib/api-services";
+import { API_CONFIG } from "../../../lib/api-config";
 import { Suspense } from "react";
 import BreadCrumb from "../_components/Product/Breadcrumb";
 import ImageGallery from "../_components/Product/ImageGallery";
@@ -8,8 +8,8 @@ import ProductDetails from "../_components/Product/ProductDetails";
 import RelatedProducts from "../_components/Product/RelatedProducts";
 import Tab from "../_components/Product/Tabs";
 import { notFound } from "next/navigation";
-import { Review } from "@/types/review";
-import { ReturnPolicy } from "@/types/return-policy";
+import { Review } from "../../../types/review";
+import { ReturnPolicy } from "../../../types/return-policy";
 
 interface CategoryProps {
   name: string;

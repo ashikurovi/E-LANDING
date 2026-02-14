@@ -1,4 +1,4 @@
-import EmblaCarousel from "@/components/shared/EmblaCarouel";
+import EmblaCarousel from "../../../../components/shared/EmblaCarousel";
 import { Rate } from "antd";
 import { Review } from "@/types/review";
 

@@ -3,7 +3,7 @@
 import axios from "axios";
 import { createContext, ReactNode, useContext, useEffect, useState, useCallback } from "react";
 import { useAuth } from "./AuthContext";
-import { getApiUrl, getApiHeaders, API_CONFIG } from "@/lib/api-config";
+import { getApiUrl, getApiHeaders, API_CONFIG } from "../lib/api-config";
 
 // Define TypeScript interfaces
 interface ProductImage {

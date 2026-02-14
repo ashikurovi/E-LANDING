@@ -1,4 +1,4 @@
-import { getFlashSaleProducts, Product } from "@/lib/api-services";
+import { getFlashSaleProducts, Product } from "../../../lib/api-services";
 import CountDown from "./CountDown";
 import FlashSaleProduct from "./FlashSaleProduct";
 

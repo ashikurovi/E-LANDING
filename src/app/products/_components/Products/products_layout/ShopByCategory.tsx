@@ -1,11 +1,11 @@
 "use client";
 
-import { getCategories } from "@/lib/api-services";
+import { getCategories } from "../../../../../lib/api-services";
 import type { Category } from "@/types/category";
 import { Checkbox } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../../../../context/AuthContext";
 
 const ShopByCategory: React.FC = () => {
   const { userSession } = useAuth();

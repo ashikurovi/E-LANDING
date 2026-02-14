@@ -1,5 +1,5 @@
 "use client";
-import EmblaCarousel from "@/components/shared/EmblaCarouel";
+import EmblaCarousel from "../../../components/shared/EmblaCarousel";
 
 const items = [
   {
