@@ -1,24 +1,51 @@
+# Chitrokormo Project
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## 🚀 Getting Started
 
-First, run the development server:
+You can run this project either **locally** or using **Docker**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Method 1: Docker (Recommended)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run the project effortlessly without manual dependency installation.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  **Prerequisites**: Install [Docker Desktop](https://www.docker.com/products/docker-desktop).
+2.  **Run**:
+    ```bash
+    docker-compose up --build
+    ```
+3.  **Access**: Open [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+👉 For detailed Docker instructions and troubleshooting, see [DOCKER_INSTRUCTIONS.md](./DOCKER_INSTRUCTIONS.md).
+
+---
+
+### Method 2: Local Development
+
+If you prefer running it natively on your machine:
+
+1.  **Prerequisites**:
+    - Node.js (v22 LTS recommended)
+    - npm
+
+2.  **Install Dependencies**:
+
+    ```bash
+    npm ci
+    ```
+
+    > **Note**: Use `npm ci` to ensure you get the exact dependencies from `package-lock.json`.
+
+3.  **Run Development Server**:
+
+    ```bash
+    npm run dev -- --turbo
+    ```
+
+    > **Important**: You **MUST** use the `--turbo` flag. Standard `npm run dev` (Webpack) currently fails due to CSS parsing issues with `animate.css`. Turbopack handles this correctly.
+
+4.  **Access**: Open [http://localhost:3000](http://localhost:3000).
 
 ## Learn More
 
