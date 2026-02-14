@@ -1,202 +1,194 @@
 "use client";
 
-import { useAuth } from "../../context/AuthContext";
-import { useCart } from "../../context/CartContext";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import CartProduct from "../checkout/_components/CartProduct";
-import formatteeNumber from "../../utils/formatteNumber";
-import { getProduct } from "../../lib/api-services";
-import { API_CONFIG } from "../../lib/api-config";
 import Link from "next/link";
-import { Button } from "antd";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { FiEye, FiEyeOff, FiLock, FiMail, FiUser } from "react-icons/fi";
+import styled from "styled-components";
+import { useAuth } from "../../context/AuthContext";
 
-const ViewCart = () => {
-  const { userSession } = useAuth();
-  const { cart, loading } = useCart();
+const Input = styled.input`
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  background-color: transparent;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  &:focus {
+    border-color: #d31a7a;
+    box-shadow: 0 0 0 3px rgba(211, 26, 122, 0.1);
+  }
+`;
+export default function RegisterPage() {
+  const [full_name, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const { register } = useAuth();
+  const canSubmit = useMemo(() => {
+    const validEmail = /\S+@\S+\.\S+/.test(email);
+    const strongPass = password.length >= 6;
+    return !!full_name.trim() && validEmail && strongPass && !loading;
+  }, [full_name, email, password, loading]);
+  const passScore = useMemo(() => {
+    let s = 0;
+    if (password.length >= 6) s++;
+    if (/[A-Z]/.test(password)) s++;
+    if (/\d/.test(password)) s++;
+    if (/[^A-Za-z0-9]/.test(password)) s++;
+    return s;
+  }, [password]);
+  const scoreLabel =
+    ["দুর্বল", "সহনীয়", "ভাল", "মজবুত", "খুব মজবুত"][passScore] || "দুর্বল";
 
-  const [enrichedItems, setEnrichedItems] = useState<Array<{
-    id: number;
-    product: { id: number; name: string; thumbnail?: string; images?: { url: string; alt?: string }[] };
-    quantity: number;
-    unitPrice: number;
-    totalPrice: number;
-  }>>([]);
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!loading && (!userSession?.accessToken || !userSession?.userId)) {
-      router.push("/login");
+    if (!full_name.trim() || !email.trim() || !password.trim()) {
+      setError("নাম, ইমেইল এবং পাসওয়ার্ড প্রয়োজন");
+      setLoading(false);
+      return;
     }
-  }, [userSession, loading, router]);
 
-  // Fetch product details for cart items
-  useEffect(() => {
-    const enrichCartItems = async () => {
-      if (!cart?.items || !Array.isArray(cart.items) || !cart.items.length || !userSession?.companyId) {
-        setEnrichedItems([]);
-        return;
-      }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("অনুগ্রহ করে সঠিক ইমেইল লিখুন");
+      setLoading(false);
+      return;
+    }
 
-      try {
-        const companyId = userSession.companyId || API_CONFIG.companyId;
-        const enriched = await Promise.all(
-          cart.items.map(async (item) => {
-            // If product already has name, use it
-            if (item.product?.name) {
-              return item;
-            }
-            // Otherwise fetch product details
-            try {
-              const product = await getProduct(item.product.id, companyId);
-              return {
-                ...item,
-                product: {
-                  id: product.id,
-                  name: product.name,
-                  thumbnail: product.thumbnail,
-                  images: product.images,
-                },
-              };
-            } catch (error) {
-              console.error(`Failed to fetch product ${item.product.id}:`, error);
-              return item;
-            }
-          })
-        );
-        setEnrichedItems(enriched);
-      } catch (error) {
-        console.error("Failed to enrich cart items:", error);
-        setEnrichedItems(Array.isArray(cart.items) ? cart.items : []);
-      }
-    };
+    if (password.length < 6) {
+      setError("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে");
+      setLoading(false);
+      return;
+    }
 
-    enrichCartItems();
-  }, [cart?.items, userSession?.companyId]);
+    const res = await register({
+      name: full_name,
+      email,
+      password,
+    });
 
-  // Use enriched items or fallback to cart items
-  const items = useMemo(() => {
-    return enrichedItems.length > 0 ? enrichedItems : (Array.isArray(cart?.items) ? cart.items : []);
-  }, [enrichedItems, cart?.items]);
-
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + Number(item.unitPrice || 0) * (item.quantity || 0), 0),
-    [items]
-  );
-
-  // Show loading state
-  if (loading) {
-    return (
-      <section className="max-w-7xl mx-auto px-5 py-10">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-lg">Loading cart...</p>
-        </div>
-      </section>
-    );
-  }
-
-  // Show empty cart state
-  if (!cart || !items.length) {
-    return (
-      <section className="max-w-7xl mx-auto px-5 py-10">
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-          <h1 className="text-2xl font-medium">আপনার কার্ট খালি</h1>
-          <p className="text-gray-600">আপনার কার্টে কোনো পণ্য নেই</p>
-          <Link href="/products">
-            <Button type="primary" size="large">
-              শপিং করুন
-            </Button>
-          </Link>
-        </div>
-      </section>
-    );
-  }
-
+    if (res.success) {
+      toast.success("রেজিস্ট্রেশন সফল হয়েছে। লগইন করুন।");
+      router.push("/login?callbackUrl=/my-account/dashboard");
+    } else {
+      setError(res.error || "রেজিস্ট্রেশন ব্যর্থ হয়েছে");
+    }
+    setLoading(false);
+  };
   return (
-    <section className="max-w-7xl mx-auto px-5 py-10">
-      <div className="grid min-[950px]:grid-cols-3 gap-5">
-        {/* Cart Items */}
-        <div className="min-[950px]:col-span-2">
-          <div className="bg-white rounded-md shadow p-5">
-            <h1 className="text-2xl font-medium mb-6">আপনার কার্ট ({items.length} টি পণ্য)</h1>
-            
-            <div className="flex flex-col gap-4">
-              {items.map((item) => (
-                <div key={item.id} className="border-b pb-4 last:border-b-0">
-                  <CartProduct item={item} />
-                </div>
-              ))}
+    <div className="min-h-screen relative bg-gradient-to-br from-white to-primary/5">
+      <div className="max-w-7xl mx-auto px-5  min-h-screen flex items-center justify-center">
+        <div className="mx-auto w-full sm:w-[560px] md:w-[640px] my-10  rounded-2xl bg-white shadow-xl border border-gray-100 overflow-hidden">
+          <div className="px-6 pt-6 text-center">
+            <div className="inline-block mb-3">
+              <span className="text-xs font-bold tracking-widest text-white px-4 py-2 rounded-full bg-primary">
+                নতুন অ্যাকাউন্ট
+              </span>
             </div>
+            <h2 className="text-3xl font-black text-primary">রেজিস্টার</h2>
           </div>
-        </div>
-
-        {/* Cart Summary */}
-        <div className="min-[950px]:col-span-1">
-          <div className="bg-gray-50 p-5 rounded-md shadow sticky top-20">
-            <h2 className="text-xl font-medium mb-4">কার্ট সারাংশ</h2>
-            
-            <div className="flex flex-col gap-3 mb-6">
-              {/* Item summary */}
-              <div className="flex flex-col gap-2">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm text-gray-700">
-                    <span className="line-clamp-1">{item.product.name} × {item.quantity}</span>
-                    <span>{formatteeNumber(item.unitPrice * item.quantity)}৳</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t pt-3">
-                <div className="flex justify-between items-center mb-2">
-                  <p className="text-gray-700">সাবটোটাল</p>
-                  <p className="font-medium">{formatteeNumber(subtotal)}৳</p>
-                </div>
-                <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
-                  <p>শিপিং</p>
-                  <p>চেকআউটে গণনা করা হবে</p>
-                </div>
-              </div>
-
-              <div className="border-t pt-3">
-                <div className="flex justify-between items-center">
-                  <p className="font-bold text-lg">মোট</p>
-                  <p className="font-bold text-lg">{formatteeNumber(subtotal)}৳</p>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">* শিপিং চার্জ চেকআউটে যোগ হবে</p>
-              </div>
-            </div>
-
-            <Link href="/checkout" className="block">
-              <Button 
-                type="primary" 
-                size="large" 
-                block
-                className="w-full"
-              >
-                চেকআউট করুন
-              </Button>
-            </Link>
-
-            <Link href="/products" className="block mt-3">
-              <Button 
-                size="large" 
-                block
-                className="w-full"
-              >
-                আরো পণ্য দেখুন
-              </Button>
-            </Link>
-
-            <p className="text-sm text-center mt-4 text-gray-600">
-              যেকোনো সমস্যায় নির্দ্বিধায় যোগাযোগ করুন- 01774617452
+          <div className="p-8 border-t border-gray-100">
+            <p className="text-sm text-gray-600 text-center mb-4">
+              দ্রুত ডেলিভারি, নিরাপদ পেমেন্ট, সন্তুষ্টি গ্যারান্টি
             </p>
+            {error && (
+              <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleRegister} className="flex flex-col gap-6">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  <FiUser />
+                </span>
+                <Input
+                  type="text"
+                  placeholder="পূর্ণ নাম"
+                  onChange={(e) => setFullName(e.target.value)}
+                  style={{ paddingLeft: "34px" }}
+                />
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  <FiMail />
+                </span>
+                <Input
+                  type="email"
+                  placeholder="ইমেইল"
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ paddingLeft: "34px" }}
+                />
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  <FiLock />
+                </span>
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="পাসওয়ার্ড"
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ paddingLeft: "34px", paddingRight: "40px" }}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                </button>
+                <div className="mt-2">
+                  <div className="h-2 bg-gray-200 rounded">
+                    <div
+                      className="h-2 rounded bg-primary transition-all"
+                      style={{ width: `${(passScore / 4) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">
+                    পাসওয়ার্ড শক্তি: {scoreLabel}
+                  </p>
+                </div>
+              </div>
+              <button
+                className="bg-primary p-2.5 rounded text-white w-full hover:bg-primary/90 disabled:opacity-50 font-semibold"
+                type="submit"
+                disabled={!canSubmit}
+              >
+                {loading ? "রেজিস্টার হচ্ছে..." : "রেজিস্টার"}
+              </button>
+            </form>
+            <div className="flex items-center gap-3 my-4">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-500">অথবা</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button className="border rounded-lg py-2 text-sm hover:bg-gray-50">
+                Google
+              </button>
+              <button className="border rounded-lg py-2 text-sm hover:bg-gray-50">
+                Facebook
+              </button>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <p>ইতিমধ্যেই অ্যাকাউন্ট আছে?</p>
+              <Link href="/login" className="text-primary font-semibold">
+                লগইন করুন
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
-};
-
-export default ViewCart;
-
+}
