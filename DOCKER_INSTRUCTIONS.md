@@ -48,6 +48,9 @@ This guide explains how to run the project using Docker. This ensures that the a
   Then access at [http://localhost:3001](http://localhost:3001).
 
 - **Rebuild**: If you make changes to `package.json` or the code and they don't appear, force a rebuild:
+
   ```bash
   docker-compose up --build --force-recreate
   ```
+
+- **Slow Build on Windows**: The `npm ci` step (installing dependencies) might take several minutes to complete on Windows due to file system differences. **Please be patient and let it finish.**
