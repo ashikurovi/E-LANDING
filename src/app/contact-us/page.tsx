@@ -122,7 +122,7 @@ const ContactUs = () => {
         } as React.CSSProperties
       }
     >
-      <div className="relative z-10 max-w-7xl mx-auto px-5 py-16 md:py-24">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-5 py-12 sm:py-16 md:py-24">
         {/* Header Section */}
         <div className="text-center mb-16 md:mb-20 animate-fade-in">
           <div className="inline-block mb-6">
@@ -131,7 +131,7 @@ const ContactUs = () => {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight text-primary">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-6 leading-tight text-primary">
             {`চলুন কথা বলি`}
           </h1>
 
@@ -140,7 +140,7 @@ const ContactUs = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 sm:gap-6 mb-12 sm:mb-16">
           {[
             {
               icon: FiMail,
@@ -182,7 +182,7 @@ const ContactUs = () => {
                 key={index}
                 className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200"
               >
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 text-white group-hover:scale-110 transition-transform duration-300 bg-primary">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform duration-300 bg-primary/10 border border-primary/30">
                   <IconComponent size={28} />
                 </div>
 
@@ -210,9 +210,9 @@ const ContactUs = () => {
         </div>
 
         {/* Contact Form Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
           {/* Form */}
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1 max-w-xl mx-auto w-full">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name Field */}
               <div>
@@ -416,7 +416,7 @@ const ContactUs = () => {
           </div>
 
           {/* Info Section */}
-          <div className="order-1 lg:order-2 rounded-3xl p-12 text-white shadow-2xl bg-primary">
+          <div className="order-1 lg:order-2 rounded-3xl p-8 sm:p-12 text-white shadow-2xl bg-primary">
             <h2 className="text-4xl font-black mb-8 leading-tight">
               {`আমরা সবসময় পাশে`}
             </h2>
@@ -458,28 +458,28 @@ const ContactUs = () => {
                 শনিবার–বৃহস্পতিবার সকাল ৯টা থেকে সন্ধ্যা ৬টা পর্যন্ত সাপোর্ট
                 খোলা থাকে। জরুরি প্রয়োজনে ফোন করুন।
               </p>
-              <div className="flex items-center gap-3 mt-4 text-lg">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 text-base sm:text-lg">
                 <Link
                   href="/"
-                  className="border rounded-full p-2 hover:bg-white/10"
+                  className="border rounded-full p-1.5 sm:p-2 hover:bg-white/10"
                 >
                   <FaFacebookF />
                 </Link>
                 <Link
                   href="/"
-                  className="border rounded-full p-2 hover:bg-white/10"
+                  className="border rounded-full p-1.5 sm:p-2 hover:bg-white/10"
                 >
                   <FaXTwitter />
                 </Link>
                 <Link
                   href="/"
-                  className="border rounded-full p-2 hover:bg-white/10"
+                  className="border rounded-full p-1.5 sm:p-2 hover:bg-white/10"
                 >
                   <FaInstagram />
                 </Link>
                 <Link
                   href="/"
-                  className="border rounded-full p-2 hover:bg-white/10"
+                  className="border rounded-full p-1.5 sm:p-2 hover:bg-white/10"
                 >
                   <FaTiktok />
                 </Link>
@@ -493,7 +493,7 @@ const ContactUs = () => {
                   })()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border rounded-full p-2 hover:bg-white/10"
+                  className="border rounded-full p-1.5 sm:p-2 hover:bg-white/10"
                 >
                   <FaWhatsapp />
                 </a>
@@ -504,14 +504,15 @@ const ContactUs = () => {
 
         <div className="mt-16">
           <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200">
-            <iframe
-              title="Map"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(companyInfo?.branchLocation || "স্টেশন রোড, শাপলা চত্তর, রংপুর")}&output=embed`}
-              width="100%"
-              height="350"
-              style={{ border: 0 }}
-              loading="lazy"
-            />
+            <div className="relative h-[240px] sm:h-[300px] md:h-[350px]">
+              <iframe
+                title="Map"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(companyInfo?.branchLocation || "স্টেশন রোড, শাপলা চত্তর, রংপুর")}&output=embed`}
+                className="w-full h-full"
+                style={{ border: 0 }}
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
 

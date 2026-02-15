@@ -1,12 +1,12 @@
 "use client";
-import Logo from "../../public/images/logo.png";
-import { cn } from "../utils/cn";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { FaBars, FaXmark } from "react-icons/fa6";
 import { TbCategoryPlus } from "react-icons/tb";
+import Logo from "../../public/images/logo.png";
+import { cn } from "../utils/cn";
 import ProfileDropDown from "./drop down/PrfofileDropDown";
 import CartDrawer from "./shopping cart/CartDrawer";
 
@@ -15,7 +15,6 @@ const Header = () => {
   return (
     <nav className=" bg-gray-100/70 shadow backdrop-blur sticky top-0 z-40">
       <div className=" max-w-7xl px-5 mx-auto flex items-center justify-between gap-5 py-2">
-
         <Link href="/" className=" cursor-pointer">
           <div>
             <Image src={Logo} alt="logo" width={100} />
@@ -49,19 +48,19 @@ const Header = () => {
                 হোম
               </Link>
               <Link
-                href="/"
+                href="/products"
                 className=" text-lg font-medium px-3 py-2 hover:text-primary transition-all ease-linear duration-200"
               >
                 শপ
               </Link>
               <Link
-                href="/register"
+                href="/about-us"
                 className=" text-lg font-medium px-3 py-2 hover:text-primary transition-all ease-linear duration-200"
               >
                 আমাদের সম্পর্কে
               </Link>
               <Link
-                href="/"
+                href="/contact-us"
                 className=" text-lg font-medium px-3 py-2 hover:text-primary transition-all ease-linear duration-200"
               >
                 যোগাযোগ
@@ -92,7 +91,7 @@ const Header = () => {
       <div
         className={`bg-white shadow-md absolute backdrop-blur-xl min-[950px]:hidden block transition-all ease-linear duration-200 ${cn(
           toggle ? "left-0" : "-left-80",
-          toggle && "right-0"
+          toggle && "right-0",
         )}`}
       >
         <ul className=" flex flex-col bg gap-2">
@@ -126,7 +125,7 @@ const Header = () => {
           </Link>
         </ul>
       </div>
-    </nav >
+    </nav>
   );
 };
 

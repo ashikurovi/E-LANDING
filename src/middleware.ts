@@ -1,16 +1,17 @@
 // middleware.ts
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
   // Check for auth token in cookies or headers
-  const token = request.cookies.get("auth_token")?.value ||
+  const token =
+    request.cookies.get("auth_token")?.value ||
     request.headers.get("authorization")?.replace("Bearer ", "");
 
   // Protected routes
   const protectedPaths = ["/my-account", "/checkout"];
   const isProtectedPath = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+    request.nextUrl.pathname.startsWith(path),
   );
 
   if (isProtectedPath && !token) {
