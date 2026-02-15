@@ -4,7 +4,7 @@
 
 export const API_CONFIG = {
   baseURL: "https://squadcart-backend.up.railway.app",
-  companyId: "COMP-000004",
+  companyId: "COMP-000001",
 };
 
 /**

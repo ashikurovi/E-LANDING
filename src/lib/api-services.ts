@@ -175,7 +175,7 @@ export async function getProducts(
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Product[]>>(
-            getApiUrl(`/products?companyId=${companyIdParam}`),
+            getApiUrl(`/products/public?companyId=${companyIdParam}`),
         );
         return response.data.data;
     } catch (error: unknown) {
@@ -248,7 +248,7 @@ export async function getRefundPolicies(
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<ReturnPolicy[]> | ReturnPolicy[]>(
-            getApiUrl(`/refund-policy?${params.toString()}`),
+            getApiUrl(`/refund-policy/public?${params.toString()}`),
         );
 
         const payload: ApiResponse<ReturnPolicy[]> | ReturnPolicy[] = response.data;
@@ -321,7 +321,7 @@ export async function getProduct(id: number, companyId?: string): Promise<Produc
         const params = new URLSearchParams();
         if (companyIdParam) params.append("companyId", companyIdParam);
         const response = await axios.get<ApiResponse<Product>>(
-            getApiUrl(`/products/${id}?${params.toString()}`),
+            getApiUrl(`/products/public/${id}?${params.toString()}`),
         );
         return response.data.data;
     } catch (error) {
@@ -438,7 +438,7 @@ export async function getCategories(companyId?: string): Promise<Category[]> {
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Category[]>>(
-            getApiUrl(`/categories?${params.toString()}`),
+            getApiUrl(`/categories/public?${params.toString()}`),
 
         );
         return response.data.data;
@@ -487,7 +487,7 @@ export async function getCategory(
         const companyIdParam = companyId || API_CONFIG.companyId;
         if (companyIdParam) params.append("companyId", companyIdParam);
         const response = await axios.get<ApiResponse<Category>>(
-            getApiUrl(`/categories/${id}?${params.toString()}`),
+            getApiUrl(`/categories/public/${id}?${params.toString()}`),
 
         );
         return response.data.data;
