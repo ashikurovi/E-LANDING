@@ -1,10 +1,10 @@
-import BottomNav from "../components/BottomNav";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import { AuthProvider } from "../context/AuthContext";
-import { CartProvider } from "../context/CartContext";
-import { theme } from "../theme/antd";
-import { hindSiliguriFonts } from "../utils/customFonts";
+import BottomNav from "@/components/BottomNav";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
+import { theme } from "@/theme/antd";
+import { hindSiliguriFonts } from "@/app/fonts";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "animate.css/animate.min.css";
 import { ConfigProvider } from "antd";

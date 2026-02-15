@@ -1,29 +1,30 @@
 import localFont from "next/font/local";
 
+// Font paths relative to this file (src/app/) so next/font resolves them reliably
 export const hindSiliguriFonts = localFont({
   src: [
     {
-      path: "../app/fonts/Hind_Siliguri/HindSiliguri-Light.ttf",
+      path: "./fonts/Hind_Siliguri/HindSiliguri-Light.ttf",
       weight: "300",
       style: "light",
     },
     {
-      path: "../app/fonts/Hind_Siliguri/HindSiliguri-Regular.ttf",
+      path: "./fonts/Hind_Siliguri/HindSiliguri-Regular.ttf",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../app/fonts/Hind_Siliguri/HindSiliguri-Medium.ttf",
+      path: "./fonts/Hind_Siliguri/HindSiliguri-Medium.ttf",
       weight: "500",
       style: "medium",
     },
     {
-      path: "../app/fonts/Hind_Siliguri/HindSiliguri-SemiBold.ttf",
+      path: "./fonts/Hind_Siliguri/HindSiliguri-SemiBold.ttf",
       weight: "600",
       style: "semiBold",
     },
     {
-      path: "../app/fonts/Hind_Siliguri/HindSiliguri-Bold.ttf",
+      path: "./fonts/Hind_Siliguri/HindSiliguri-Bold.ttf",
       weight: "700",
       style: "bold",
     },

@@ -3,6 +3,11 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl?.pathname;
+  if (pathname == null || typeof pathname !== "string") {
+    return NextResponse.next();
+  }
+
   // Check for auth token in cookies or headers
   const token =
     request.cookies.get("auth_token")?.value ||
@@ -11,12 +16,12 @@ export function middleware(request: NextRequest) {
   // Protected routes
   const protectedPaths = ["/my-account", "/checkout"];
   const isProtectedPath = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
+    pathname.startsWith(path)
   );
 
   if (isProtectedPath && !token) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
