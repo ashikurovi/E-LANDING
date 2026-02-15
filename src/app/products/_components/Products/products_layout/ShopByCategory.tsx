@@ -66,13 +66,13 @@ const ShopByCategory: React.FC = () => {
   if (!categories || categories.length === 0) return <p>No categories found.</p>;
 
   return (
-    <div>
-      <h2 className="text-xl font-medium">Shop By Category</h2>
+    <div className="space-y-2">
+      <h2 className="text-sm font-semibold text-gray-900">Shop by category</h2>
       <Checkbox.Group value={checkedValues} onChange={handleChange}>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           {categories.map((category: Category) => (
             <Checkbox key={category.slug} value={category.name}>
-              {category.name}
+              <span className="text-sm text-gray-700">{category.name}</span>
             </Checkbox>
           ))}
         </div>

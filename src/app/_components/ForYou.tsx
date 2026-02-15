@@ -6,7 +6,7 @@ const ForYou = async () => {
   let products: Product[] = [];
 
   try {
-    products = await getProducts('COMP-000001');
+    products = await getProducts();
     // Limit to 10 products
     products = products.slice(0, 10);
   } catch (error) {

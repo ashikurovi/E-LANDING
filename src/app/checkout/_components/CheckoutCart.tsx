@@ -36,8 +36,10 @@ const CheckoutCart = ({
   promo,
 }: CheckoutCartProps) => {
   return (
-    <section className=" bg-gray-50 p-5 rounded-md shadow flex flex-col gap-8">
-      <h1 className=" text-2xl font-medium">আপনার কার্ট</h1>
+    <section className="rounded-2xl border border-pink-100 bg-white/90 p-5 md:p-6 shadow-sm flex flex-col gap-6">
+      <h1 className="text-lg md:text-xl font-semibold text-gray-900">
+        আপনার কার্ট
+      </h1>
       {/* products */}
       {/* <div className=" flex flex-col gap-4">
         {items.map((item) => (
@@ -53,12 +55,17 @@ const CheckoutCart = ({
         appliedPromo={promo}
       />
       {/* total */}
-      <div className=" border-t-[1.5px]">
+      <div className="border-t-[1.5px]">
         {/* item summary */}
         <div className="flex flex-col gap-2 py-3">
           {items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm text-gray-700">
-              <span className="line-clamp-1">{item.product.name} × {item.quantity}</span>
+            <div
+              key={item.id}
+              className="flex justify-between text-sm text-gray-700"
+            >
+              <span className="line-clamp-1">
+                {item.product.name} × {item.quantity}
+              </span>
               <span>{formatteeNumber(item.unitPrice * item.quantity)}৳</span>
             </div>
           ))}

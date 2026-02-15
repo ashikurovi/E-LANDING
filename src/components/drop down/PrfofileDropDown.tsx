@@ -8,21 +8,44 @@ import {
   IoCartOutline,
   IoLocationOutline,
   IoLogInOutline,
+  IoHeartOutline,
+  IoSettingsOutline,
 } from "react-icons/io5";
 import { MdOutlineManageAccounts } from "react-icons/md";
 import { useRouter } from "next/navigation";
 
 const ProfileDropDown: React.FC = () => {
   const { userSession, logout } = useAuth();
-  // console.log(userSession);
   const router = useRouter();
+
+  const userName = userSession?.user?.name || "Guest user";
+  const userEmail = (userSession as { user?: { email?: string } } | undefined)
+    ?.user?.email;
+  const initials =
+    userName
+      .split(" ")
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
+
   const items: MenuProps["items"] = [
     {
       key: "1",
       label: (
-        <div className=" flex  items-center gap-2">
-          <div className=" bg-gray-400 w-7 h-7 rounded-full"></div>
-          <h2 className=" text-black text-lg">{userSession?.user?.name}</h2>
+        <div className="flex items-center gap-3 px-1 py-1.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-fuchsia-500 text-xs font-semibold text-white">
+            {initials}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900 truncate">
+              {userName}
+            </p>
+            {userEmail && (
+              <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+            )}
+          </div>
         </div>
       ),
       disabled: true,
@@ -47,6 +70,16 @@ const ProfileDropDown: React.FC = () => {
     },
     {
       key: "5",
+      icon: <IoHeartOutline size={20} />,
+      label: "Wishlist",
+    },
+    {
+      key: "6",
+      icon: <IoSettingsOutline size={20} />,
+      label: "Settings",
+    },
+    {
+      key: "7",
       icon: <IoLogInOutline size={20} style={{ color: "#dc2626" }} />,
       label: "Log out",
       danger: true,
@@ -65,6 +98,12 @@ const ProfileDropDown: React.FC = () => {
         router.push("/my-account/address");
         break;
       case "5":
+        router.push("/my-account/wishlist");
+        break;
+      case "6":
+        router.push("/my-account/settings");
+        break;
+      case "7":
         if (window.confirm("Are you sure you want to log out?")) {
           logout();
         }
@@ -79,17 +118,29 @@ const ProfileDropDown: React.FC = () => {
       menu={{
         items,
         onClick: handleMenuClick,
+        className:
+          "rounded-2xl border border-pink-50 bg-white/95 px-1 py-1 shadow-lg",
       }}
+      placement="bottomRight"
+      trigger={["click"]}
       overlayStyle={{
-        marginTop: "25px",
-        marginRight: "-15px",
-        width: "200px",
+        marginTop: "14px",
+        minWidth: "220px",
+        maxWidth: "260px",
       }}
     >
-      <div className=" hover:text-primary transition-all duration-200 ease-linear ">
-        <FaRegUser size={20} />
-      </div>
-    </Dropdown >
+      <button
+        type="button"
+        className="flex items-center gap-2 rounded-full border border-gray-200 bg-white/80 px-3 py-1.5 text-xs md:text-sm text-gray-700 hover:border-pink-200 hover:bg-pink-50 transition-colors duration-200 ease-linear"
+      >
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-fuchsia-500 text-[11px] font-semibold text-white">
+          {initials || <FaRegUser size={14} />}
+        </div>
+        <span className="hidden md:inline-block max-w-[120px] truncate">
+          {userName}
+        </span>
+      </button>
+    </Dropdown>
   );
 };
 

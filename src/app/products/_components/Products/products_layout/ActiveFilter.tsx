@@ -16,12 +16,12 @@ const ActiveFilter: React.FC = () => {
   // Memoize availability and categories to prevent unnecessary re-renders
   const availability = useMemo(
     () => searchParams.get("availability")?.split(",") || [],
-    [searchParams]
+    [searchParams],
   );
 
   const categories = useMemo(
     () => searchParams.get("categories")?.split(",") || [],
-    [searchParams]
+    [searchParams],
   );
 
   // Store active filter items
@@ -44,14 +44,14 @@ const ActiveFilter: React.FC = () => {
         filters.push({
           label: `${item}`,
           key: `availability-${item}`,
-        })
+        }),
       );
 
       categories.forEach((item) =>
         filters.push({
           label: `${item}`,
           key: `categories-${item}`,
-        })
+        }),
       );
 
       // Prevent unnecessary re-renders by checking if the state actually changed
@@ -102,32 +102,42 @@ const ActiveFilter: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-medium">Active Filters</h2>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold tracking-wide text-gray-900">
+            Active Filters
+          </h2>
+          <p className="text-xs text-gray-500">
+            Fine-tune results by adjusting filters below.
+          </p>
+        </div>
         {filterItems.length > 0 && (
           <button
             onClick={handleClearAll}
-            className="hover:text-primary transition-all cursor-pointer"
+            className="text-xs font-medium text-pink-600 hover:text-pink-700 hover:underline underline-offset-4"
           >
             Clear all
           </button>
         )}
       </div>
-      <div className="flex flex-wrap gap-1">
-        {filterItems.map(({ label, key }) => (
-          <div
-            key={key}
-            className="flex items-center gap-2 max-w-max rounded-md px-2 py-1 bg-primary text-white"
-          >
-            <span>{label}</span>
-            <button
-              onClick={() => handleRemoveFilter(key)}
-              className="cursor-pointer"
-            >
-              <HiMiniXMark />
-            </button>
+      <div className="flex flex-wrap gap-2">
+        {filterItems.length === 0 && (
+          <div className="rounded-full border border-dashed border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-500">
+            No filters applied
           </div>
+        )}
+        {filterItems.map(({ label, key }) => (
+          <button
+            key={key}
+            onClick={() => handleRemoveFilter(key)}
+            className="group flex items-center gap-1 rounded-full bg-pink-50 px-3 py-1 text-xs font-medium text-pink-700 border border-pink-100 hover:bg-pink-600 hover:text-white transition-colors"
+          >
+            <span className="truncate max-w-[140px]">{label}</span>
+            <span className="inline-flex items-center justify-center rounded-full bg-pink-100 text-pink-700 group-hover:bg-white group-hover:text-pink-600 h-4 w-4 text-[10px]">
+              <HiMiniXMark />
+            </span>
+          </button>
         ))}
       </div>
     </div>

@@ -85,30 +85,56 @@ export default function Address() {
 
   if (loading) {
     return (
-      <div className="bg-[#F8F8F8] p-3 w-full flex items-center justify-center min-h-[400px]">
-        <p>Loading...</p>
-      </div>
+      <section className="w-full flex justify-center items-center min-h-[320px]">
+        <div className="max-w-md w-full text-center space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-1 border border-pink-100">
+            <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
+            <span className="text-[11px] font-medium text-pink-700">
+              Loading your address
+            </span>
+          </div>
+          <p className="text-sm text-gray-600">
+            আপনার সেভ করা ডেলিভারি ঠিকানা লোড হচ্ছে, একটু অপেক্ষা করুন।
+          </p>
+        </div>
+      </section>
     );
   }
 
   if (!profile) {
     return (
-      <div className="bg-[#F8F8F8] p-3 w-full flex items-center justify-center min-h-[400px]">
-        <p>Failed to load address. Please try again.</p>
-      </div>
+      <section className="w-full flex justify-center items-center min-h-[320px]">
+        <div className="max-w-md w-full text-center space-y-3 rounded-2xl border border-red-100 bg-red-50/70 px-6 py-6">
+          <p className="text-sm font-semibold text-red-700">
+            ঠিকানা লোড করা যায়নি
+          </p>
+          <p className="text-xs md:text-sm text-red-600">
+            অনুগ্রহ করে পেজটি রিফ্রেশ করুন বা একটু পরে আবার চেষ্টা করুন।
+          </p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="bg-[#F8F8F8] p-3 w-full flex flex-col gap-5">
-      <div>
-        <h2 className="text-3xl font-medium text-primary">SAVED ADDRESS</h2>
-        <p>Manage your delivery addresses here.</p>
+    <div className="w-full flex flex-col gap-5">
+      <div className="border-b border-pink-100 pb-3">
+        <p className="text-[11px] font-semibold tracking-[0.18em] text-pink-600 uppercase">
+          My account
+        </p>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+          Saved address
+        </h2>
+        <p className="text-sm text-gray-600">
+          পছন্দের ডেলিভারি ঠিকানা আপডেট করে রাখুন, যেন প্রতিবার অর্ডার দ্রুত হয়।
+        </p>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-medium">Default Address</h3>
+          <h3 className="text-lg md:text-xl font-semibold text-gray-900">
+            Default address
+          </h3>
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}

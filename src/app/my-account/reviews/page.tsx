@@ -140,22 +140,41 @@ export default function Reviews() {
 
   if (loading) {
     return (
-      <div className="bg-[#F8F8F8] p-3 w-full flex items-center justify-center min-h-[400px]">
-        <p>Loading...</p>
-      </div>
+      <section className="w-full flex justify-center items-center min-h-[320px]">
+        <div className="max-w-md w-full text-center space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-1 border border-pink-100">
+            <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
+            <span className="text-[11px] font-medium text-pink-700">
+              Loading your reviews
+            </span>
+          </div>
+          <p className="text-sm text-gray-600">
+            আপনার রিভিউ এবং ক্যাটাগরি তথ্য লোড হচ্ছে, একটু অপেক্ষা করুন।
+          </p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="bg-[#F8F8F8] p-3 w-full flex flex-col gap-5">
-      <div>
-        <h2 className="text-3xl font-medium text-primary">REVIEWS</h2>
-        <p>Share your experience with our products.</p>
+    <div className="w-full flex flex-col gap-5">
+      <div className="border-b border-pink-100 pb-3">
+        <p className="text-[11px] font-semibold tracking-[0.18em] text-pink-600 uppercase">
+          My account
+        </p>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+          Reviews
+        </h2>
+        <p className="text-sm text-gray-600">
+          আপনার কেনা পণ্যের অভিজ্ঞতা শেয়ার করুন এবং পুরনো রিভিউগুলো এক জায়গায় দেখুন।
+        </p>
       </div>
 
       {/* Filter and Product Selection */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-xl font-medium mb-4">Write a Review</h3>
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+        <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900">
+          Write a review
+        </h3>
         <div className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -258,8 +277,10 @@ export default function Reviews() {
       </div>
 
       {/* Existing Reviews */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-xl font-medium mb-4">My Reviews</h3>
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+        <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900">
+          My reviews
+        </h3>
         {reviews.length === 0 ? (
           <p className="text-gray-600">You haven&apos;t written any reviews yet.</p>
         ) : (

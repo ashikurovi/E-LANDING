@@ -40,13 +40,13 @@ const Availability: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-medium">Availability</h2>
+    <div className="space-y-2">
+      <h2 className="text-sm font-semibold text-gray-900">Availability</h2>
       <Checkbox.Group value={checkedValues} onChange={handleChange}>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           {OPTIONS.map((option) => (
             <Checkbox key={option.value} value={option.value}>
-              {option.label}
+              <span className="text-sm text-gray-700">{option.label}</span>
             </Checkbox>
           ))}
         </div>

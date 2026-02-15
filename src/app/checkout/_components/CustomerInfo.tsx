@@ -42,19 +42,21 @@ const CustomerInfo = ({
   return (
     <section>
       <form
-        className=" flex flex-col gap-5"
+        className="flex flex-col gap-5 md:gap-6"
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit();
         }}
       >
         {/* customer info start */}
-        <div className=" flex flex-col gap-3 shadow bg-gray-50 p-5 rounded-md">
-          <h1 className=" text-2xl font-medium ">Customer Information</h1>
-          <div className=" flex flex-col gap-5">
-            <div className=" grid min-[550px]:grid-cols-2 grid-cols-1 gap-5">
+        <div className="flex flex-col gap-3 rounded-2xl border border-pink-100 bg-white/90 shadow-sm p-5 md:p-6">
+          <h1 className="text-lg md:text-xl font-semibold text-gray-900">
+            কাস্টমার তথ্য
+          </h1>
+          <div className="flex flex-col gap-5">
+            <div className="grid min-[550px]:grid-cols-2 grid-cols-1 gap-5">
               <input
-                className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
+                className="border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 text-sm focus:border-[#6d198a] placeholder:text-gray-500"
                 type="email"
                 placeholder="ইমেইল (optional)"
                 value={email}
@@ -62,7 +64,7 @@ const CustomerInfo = ({
                 readOnly={!!email}
               />
               <input
-                className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
+                className="border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 text-sm focus:border-[#6d198a] placeholder:text-gray-500"
                 type="text"
                 placeholder="সম্পূর্ণ নাম *"
                 value={name}
@@ -70,16 +72,16 @@ const CustomerInfo = ({
                 required
               />
             </div>
-            <div className=" grid min-[550px]:grid-cols-2 grid-cols-1 gap-5">
+            <div className="grid min-[550px]:grid-cols-2 grid-cols-1 gap-5">
               <input
-                className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
+                className="border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 text-sm focus:border-[#6d198a] placeholder:text-gray-500"
                 type="text"
                 placeholder="এলাকা / সিটি"
                 value={district || ""}
                 onChange={(e) => setDistrict?.(e.target.value)}
               />
               <input
-                className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
+                className="border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 text-sm focus:border-[#6d198a] placeholder:text-gray-500"
                 type="text"
                 placeholder="সম্পূর্ণ ঠিকানা *"
                 value={address}
@@ -87,9 +89,9 @@ const CustomerInfo = ({
                 required
               />
             </div>
-            <div className=" grid grid-cols-1">
+            <div className="grid grid-cols-1">
               <input
-                className=" border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 focus:border-[#6d198a] placeholder:text-gray-500"
+                className="border-[1.5px] border-gray-300 outline-none rounded-[5px] py-[10px] px-2 text-sm focus:border-[#6d198a] placeholder:text-gray-500"
                 type="text"
                 placeholder="ফোন নম্বর *"
                 value={phone}
@@ -102,8 +104,10 @@ const CustomerInfo = ({
         {/* customer info end  */}
 
         {/* delivery type */}
-        <div className="flex flex-col gap-3 shadow bg-gray-50 p-5 rounded-md">
-          <h2 className="text-xl font-medium">ডেলিভারি টাইপ</h2>
+        <div className="flex flex-col gap-3 rounded-2xl border border-pink-100 bg-white/90 shadow-sm p-5 md:p-6">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+            ডেলিভারি টাইপ
+          </h2>
           <div className="flex gap-3 items-center">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -131,8 +135,10 @@ const CustomerInfo = ({
         </div>
 
         {/* payment method */}
-        <div className="flex flex-col gap-3 shadow bg-gray-50 p-5 rounded-md">
-          <h2 className="text-xl font-medium">পেমেন্ট পদ্ধতি</h2>
+        <div className="flex flex-col gap-3 rounded-2xl border border-pink-100 bg-white/90 shadow-sm p-5 md:p-6">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+            পেমেন্ট পদ্ধতি
+          </h2>
           <div className="flex gap-3 items-center">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -162,7 +168,7 @@ const CustomerInfo = ({
         <button
           type="submit"
           disabled={submitting}
-          className=" bg-primary hover:bg-black transition-all text-white text-lg py-3 font-medium rounded-md flex items-center justify-center gap-2 disabled:opacity-70"
+          className="bg-primary hover:bg-primary/90 transition-colors text-white text-base md:text-lg py-3.5 font-medium rounded-full flex items-center justify-center gap-2 disabled:opacity-70"
         >
           <IoCartOutline size={24} />
           {submitting ? "অর্ডার হচ্ছে..." : "অর্ডার কনফার্ম করুন"}

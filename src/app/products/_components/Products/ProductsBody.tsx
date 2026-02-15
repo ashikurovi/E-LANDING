@@ -74,11 +74,9 @@ const ProductsBody = () => {
         let apiProducts: Product[] = [];
 
         if (categoryName) {
-          // Use getProductsByCategory when category is selected
-          apiProducts = await getProductsByCategory('COMP-000001', categoryName);
+          apiProducts = await getProductsByCategory(undefined, categoryName);
         } else {
-          // Use getProducts when no category is selected
-          apiProducts = await getProducts('COMP-000001');
+          apiProducts = await getProducts();
         }
 
         const mappedProducts = apiProducts.map(mapProductToCardFormat);
@@ -97,9 +95,18 @@ const ProductsBody = () => {
 
   if (loading) {
     return (
-      <section className="flex flex-col gap-10 justify-between items-center">
-        <div className="w-full text-center py-10">
-          <p>Loading products...</p>
+      <section className="w-full flex justify-center items-center py-16">
+        <div className="max-w-md w-full text-center space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-pink-50 px-3 py-1 border border-pink-100">
+            <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
+            <span className="text-[11px] font-medium text-pink-700">
+              Loading curated products for you
+            </span>
+          </div>
+          <div className="space-y-2 animate-pulse">
+            <div className="mx-auto h-3 w-40 rounded-full bg-gray-200" />
+            <div className="mx-auto h-3 w-64 rounded-full bg-gray-100" />
+          </div>
         </div>
       </section>
     );
@@ -107,9 +114,15 @@ const ProductsBody = () => {
 
   if (error) {
     return (
-      <section className="flex flex-col gap-10 justify-between items-center">
-        <div className="w-full text-center py-10">
-          <p className="text-red-500">Error: {error}</p>
+      <section className="w-full flex justify-center items-center py-16">
+        <div className="max-w-md w-full text-center space-y-3 rounded-2xl border border-red-100 bg-red-50/60 px-6 py-6">
+          <p className="text-sm font-semibold text-red-700">Something went wrong</p>
+          <p className="text-sm text-red-600 break-words">
+            {error}
+          </p>
+          <p className="text-xs text-red-500">
+            Please refresh the page. If the problem continues, try again later.
+          </p>
         </div>
       </section>
     );
@@ -117,25 +130,33 @@ const ProductsBody = () => {
 
   if (products.length === 0) {
     return (
-      <section className="flex flex-col gap-10 justify-between items-center">
-        <div className="w-full text-center py-10">
-          <p>No products found.</p>
+      <section className="w-full flex justify-center items-center py-20">
+        <div className="max-w-lg w-full text-center space-y-4 rounded-2xl border border-dashed border-gray-200 bg-white/70 px-6 py-8">
+          <p className="text-sm font-semibold text-gray-900">
+            No products match your filters
+          </p>
+          <p className="text-sm text-gray-500">
+            Try removing some filters or adjusting price and category options to see more items
+            from the চিত্রকর্মো collection.
+          </p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="flex flex-col gap-10 justify-between items-center">
-      <div className=" grid sm:grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] grid-cols-[repeat(auto-fit,_minmax(160px,_1fr))] w-full gap-3">
+    <section className="w-full flex flex-col gap-8">
+      <div className="grid w-full grid-cols-[repeat(auto-fit,_minmax(160px,_1fr))] sm:grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-4 sm:gap-5 lg:gap-6">
         {products.map((product) => (
-          <div key={product.SKU || product.documentId}>
+          <div key={product.SKU || product.documentId} className="h-full">
             <ProductCard product={product} />
           </div>
         ))}
       </div>
 
-      <PaginationProducts total={products.length} />
+      <div className="w-full flex justify-center">
+        <PaginationProducts total={products.length} />
+      </div>
     </section>
   );
 };

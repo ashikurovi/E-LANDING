@@ -59,7 +59,9 @@ const Orders = () => {
   const { userSession } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(
+    null,
+  );
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -83,11 +85,11 @@ const Orders = () => {
   const isOrderCancellable = (order: Order): boolean => {
     if (order.status.toLowerCase() === "cancelled") return false;
     if (order.status.toLowerCase() === "delivered") return false;
-    
+
     const orderDate = new Date(order.createdAt);
     const now = new Date();
     const hoursDiff = (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60);
-    
+
     return hoursDiff <= 24;
   };
 
@@ -103,13 +105,15 @@ const Orders = () => {
         {},
         {
           headers: getApiHeaders(userSession?.accessToken),
-        }
+        },
       );
       alert("Order cancelled successfully!");
       fetchOrders(); // Refresh orders list
     } catch (error: unknown) {
       console.error("Error cancelling order:", error);
-      const axiosError = error as { response?: { data?: { message?: string; error?: string } } };
+      const axiosError = error as {
+        response?: { data?: { message?: string; error?: string } };
+      };
       const errorMessage =
         axiosError.response?.data?.message ||
         axiosError.response?.data?.error ||
@@ -122,31 +126,63 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#F8F8F8] p-3 w-full flex items-center justify-center min-h-[400px]">
-        <p>Loading orders...</p>
-      </div>
+      <section className="w-full flex justify-center items-center min-h-[320px]">
+        <div className="max-w-md w-full text-center space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-1 border border-pink-100">
+            <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
+            <span className="text-[11px] font-medium text-pink-700">
+              Loading your orders
+            </span>
+          </div>
+          <p className="text-sm text-gray-600">
+            আপনার সাম্প্রতিক অর্ডারগুলো লোড হচ্ছে, একটু অপেক্ষা করুন।
+          </p>
+        </div>
+      </section>
     );
   }
 
   if (orders.length === 0) {
     return (
-      <div className="bg-[#F8F8F8] p-3 w-full flex flex-col gap-5">
-        <h2 className="text-3xl font-medium text-primary">MY ORDERS</h2>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-gray-600">No orders found.</p>
+      <div className="w-full flex flex-col gap-5">
+        <div className="border-b border-pink-100 pb-3">
+          <p className="text-[11px] font-semibold tracking-[0.18em] text-pink-600 uppercase">
+            My account
+          </p>
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+            My orders
+          </h2>
+          <p className="text-sm text-gray-600">
+            আপনি এখনও কোনো অর্ডার করেননি। শপ থেকে পণ্য নির্বাচন করে অর্ডার করুন।
+          </p>
+        </div>
+        <div className="flex items-center justify-center min-h-[260px]">
+          <p className="text-gray-500 text-sm">
+            বর্তমানে কোনো অর্ডার পাওয়া যায়নি।
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#F8F8F8] p-3 w-full flex flex-col gap-5">
-      <h2 className="text-3xl font-medium text-primary">MY ORDERS</h2>
+    <div className="w-full flex flex-col gap-5">
+      <div className="border-b border-pink-100 pb-3">
+        <p className="text-[11px] font-semibold tracking-[0.18em] text-pink-600 uppercase">
+          My account
+        </p>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+          My orders
+        </h2>
+        <p className="text-sm text-gray-600">
+          আপনার সব অর্ডারের স্ট্যাটাস, পেমেন্ট এবং পণ্য তালিকা এখানে দেখুন।
+        </p>
+      </div>
       <div className="flex flex-col gap-4">
         {orders.map((order) => (
           <div
             key={order.id}
-            className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+            className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"
           >
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -157,7 +193,7 @@ const Orders = () => {
               </div>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                  order.status
+                  order.status,
                 )}`}
               >
                 {order.status.toUpperCase()}
@@ -214,7 +250,9 @@ const Orders = () => {
                     disabled={cancellingOrderId === order.id}
                     className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {cancellingOrderId === order.id ? "Cancelling..." : "Cancel Order"}
+                    {cancellingOrderId === order.id
+                      ? "Cancelling..."
+                      : "Cancel Order"}
                   </button>
                 </div>
               )}

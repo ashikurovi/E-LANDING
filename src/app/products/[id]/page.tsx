@@ -144,36 +144,50 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
     notFound();
   }
 
-  return (
-    <Suspense fallback={<div> loading ...</div>}>
-      <section className=" max-w-7xl mx-auto px-5 py-10">
-        <div>
-          {/* top breadcrumb section  */}
-          <div>
-            {/* breadcrumb section  */}
-            <BreadCrumb title={product?.title} />
-          </div>
-          {/* middle section  */}
-          <div className=" mt-3 flex md:flex-row flex-col gap-5">
-            {/* image gallery section  */}
-            <div className=" flex-1">
-              <ImageGallery images={product?.images} />
-            </div>
-            {/* product details section  */}
-            <div className=" flex-1">
-              <ProductDetails product={product} />
-            </div>
-          </div>
-          {/* description additional info reviews return policies section  */}
-          <div className=" border sm:p-5 p-2 rounded mt-5 overflow-hidden">
-            <Tab product={product} returnPolicyContent={returnPolicyContent} />
-          </div>
-          {/* bottom related products section  */}
-          <div>
-            <RelatedProducts id={id} />
-          </div>
+   return (
+    <Suspense
+      fallback={
+        <div className="min-h-[300px] flex items-center justify-center">
+          <p className="text-sm text-gray-600">Product details লোড হচ্ছে...</p>
         </div>
-      </section>
+      }
+    >
+      <div className="min-h-screen bg-gradient-to-b from-white via-pink-50/40 to-white">
+        <section className="max-w-7xl mx-auto px-5 py-8 md:py-10">
+          <div className="flex flex-col gap-5">
+            {/* top breadcrumb / header section */}
+            <div className="flex flex-col gap-2">
+              <BreadCrumb title={product?.title} />
+            </div>
+
+            {/* main product section */}
+            <div className="grid gap-5 md:gap-6 lg:grid-cols-[minmax(0,1.05fr),minmax(0,1fr)]">
+              {/* image gallery */}
+              <div className="rounded-2xl border border-pink-100 bg-white/90 p-3 md:p-4 flex items-center justify-center">
+                <ImageGallery images={product?.images} />
+              </div>
+
+              {/* product details */}
+              <div className="rounded-2xl border border-pink-100 bg-white/90 p-4 md:p-5 lg:p-6">
+                <ProductDetails product={product} />
+              </div>
+            </div>
+
+            {/* description / additional info / reviews / return policies */}
+            <div className="rounded-2xl border border-pink-100 bg-white/90 sm:p-5 p-3 mt-2 overflow-hidden">
+              <Tab product={product} returnPolicyContent={returnPolicyContent} />
+            </div>
+
+            {/* related products */}
+            <div className="mt-4">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-3">
+                Related products
+              </h2>
+              <RelatedProducts id={id} />
+            </div>
+          </div>
+        </section>
+      </div>
     </Suspense>
   );
 };

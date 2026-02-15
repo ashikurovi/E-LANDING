@@ -52,9 +52,14 @@ const PriceFilter: React.FC = () => {
   }, [value, router, searchParams]);
 
   return (
-    <div>
-      <h2 className="text-xl font-medium">Price</h2>
-      <div>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-gray-900">Price range</h2>
+        <span className="text-xs text-gray-500">
+          ৳{value[0]} - ৳{value[1]}
+        </span>
+      </div>
+      <div className="pt-1">
         <Slider
           range
           value={value}

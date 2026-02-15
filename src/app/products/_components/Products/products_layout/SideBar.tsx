@@ -5,8 +5,8 @@ import ShopByCategory from "./ShopByCategory";
 
 const SideBar = () => {
   return (
-    <div className=" min-[950px]:sticky min-[950px]:top-[70px] min-[950px]:max-h-max min-[950px]:border-[1.5px]  rounded min-[950px]:border-gray-300 p-2">
-      <div className=" flex flex-col gap-5">
+    <div className="min-[950px]:sticky min-[950px]:top-[90px] min-[950px]:max-h-max">
+      <div className="rounded-2xl border border-pink-100 bg-white/80 shadow-sm backdrop-blur-sm p-4 flex flex-col gap-6">
         <ActiveFilter />
         <PriceFilter />
         <Availability />

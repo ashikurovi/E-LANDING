@@ -171,7 +171,7 @@ export async function getProducts(
 ): Promise<Product[]> {
     try {
         const params = new URLSearchParams();
-        const companyIdParam = companyId || 'COMP-000001';
+        const companyIdParam = companyId || "COMP-000001";
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Product[]>>(
@@ -270,7 +270,7 @@ export async function getProductsByCategory(
 ): Promise<Product[]> {
     try {
         const params = new URLSearchParams();
-        const companyIdParam = companyId || 'COMP-000001';
+        const companyIdParam = companyId || API_CONFIG.companyId;
         if (companyIdParam) params.append("companyId", companyIdParam);
         if (categoryName) params.append("categories", categoryName);
         if (categoryId) params.append("categoryId", categoryId.toString());
@@ -317,7 +317,7 @@ export async function getProductsByCategory(
  */
 export async function getProduct(id: number, companyId?: string): Promise<Product> {
     try {
-        const companyIdParam = companyId || 'COMP-000001';
+        const companyIdParam = companyId || API_CONFIG.companyId;
         const params = new URLSearchParams();
         if (companyIdParam) params.append("companyId", companyIdParam);
         const response = await axios.get<ApiResponse<Product>>(
@@ -342,7 +342,7 @@ export async function getTrendingProducts(
         const params = new URLSearchParams();
         if (days) params.append("days", days.toString());
         if (limit) params.append("limit", limit.toString());
-        const companyIdParam = companyId || 'COMP-000001';
+        const companyIdParam = companyId || API_CONFIG.companyId;
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Product[]>>(
@@ -388,7 +388,7 @@ export async function getTrendingProducts(
 export async function getFlashSaleProducts(companyId?: string): Promise<Product[]> {
     try {
         const params = new URLSearchParams();
-        const companyIdParam = companyId || 'COMP-000001';
+        const companyIdParam = companyId || API_CONFIG.companyId;
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Product[]>>(
@@ -434,7 +434,7 @@ export async function getFlashSaleProducts(companyId?: string): Promise<Product[
 export async function getCategories(companyId?: string): Promise<Category[]> {
     try {
         const params = new URLSearchParams();
-        const companyIdParam = companyId || 'COMP-000001';
+        const companyIdParam = companyId || API_CONFIG.companyId;
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Category[]>>(
@@ -484,7 +484,7 @@ export async function getCategory(
 ): Promise<Category> {
     try {
         const params = new URLSearchParams();
-        const companyIdParam = companyId || 'COMP-000001';
+        const companyIdParam = companyId || API_CONFIG.companyId;
         if (companyIdParam) params.append("companyId", companyIdParam);
         const response = await axios.get<ApiResponse<Category>>(
             getApiUrl(`/categories/${id}?${params.toString()}`),

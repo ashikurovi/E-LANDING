@@ -7,7 +7,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import CheckoutCart from "./_components/CheckoutCart";
 import CustomerInfo from "./_components/CustomerInfo";
 import toast from "react-hot-toast";
-import { createOrder, getPromocodes, PromoCode, getProduct } from "../../lib/api-services";
+import {
+  createOrder,
+  getPromocodes,
+  PromoCode,
+  getProduct,
+} from "../../lib/api-services";
 import { API_CONFIG } from "../../lib/api-config";
 
 const CheckoutContent = () => {
@@ -25,17 +30,31 @@ const CheckoutContent = () => {
   const [promoLoading, setPromoLoading] = useState(false);
   const [orderLoading, setOrderLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "prepaid">("cod");
-  const [deliveryType, setDeliveryType] = useState<"inside" | "outside">("inside");
-  const [enrichedItems, setEnrichedItems] = useState<Array<{
-    id: number;
-    product: { id: number; name: string; thumbnail?: string; images?: { url: string; alt?: string }[] };
-    quantity: number;
-    unitPrice: number;
-    totalPrice: number;
-  }>>([]);
+  const [deliveryType, setDeliveryType] = useState<"inside" | "outside">(
+    "inside",
+  );
+  const [enrichedItems, setEnrichedItems] = useState<
+    Array<{
+      id: number;
+      product: {
+        id: number;
+        name: string;
+        thumbnail?: string;
+        images?: { url: string; alt?: string }[];
+      };
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+    }>
+  >([]);
   const [queryProduct, setQueryProduct] = useState<{
     id: number;
-    product: { id: number; name: string; thumbnail?: string; images?: { url: string; alt?: string }[] };
+    product: {
+      id: number;
+      name: string;
+      thumbnail?: string;
+      images?: { url: string; alt?: string }[];
+    };
     quantity: number;
     unitPrice: number;
     totalPrice: number;
@@ -44,7 +63,10 @@ const CheckoutContent = () => {
   // Fetch product from query params
   useEffect(() => {
     const productId = searchParams.get("productId");
-    const companyId = searchParams.get("companyId") || userSession?.companyId || API_CONFIG.companyId;
+    const companyId =
+      searchParams.get("companyId") ||
+      userSession?.companyId ||
+      API_CONFIG.companyId;
 
     if (productId && companyId) {
       const fetchQueryProduct = async () => {
@@ -89,7 +111,12 @@ const CheckoutContent = () => {
   // Fetch product details for cart items
   useEffect(() => {
     const enrichCartItems = async () => {
-      if (!cart?.items || !Array.isArray(cart.items) || !cart.items.length || !userSession?.companyId) {
+      if (
+        !cart?.items ||
+        !Array.isArray(cart.items) ||
+        !cart.items.length ||
+        !userSession?.companyId
+      ) {
         setEnrichedItems([]);
         return;
       }
@@ -115,10 +142,13 @@ const CheckoutContent = () => {
                 },
               };
             } catch (error) {
-              console.error(`Failed to fetch product ${item.product.id}:`, error);
+              console.error(
+                `Failed to fetch product ${item.product.id}:`,
+                error,
+              );
               return item;
             }
-          })
+          }),
         );
         setEnrichedItems(enriched);
       } catch (error) {
@@ -133,7 +163,9 @@ const CheckoutContent = () => {
   // Clear query product if it's already in cart
   useEffect(() => {
     if (queryProduct && cart?.items) {
-      const existsInCart = cart.items.some(item => item.product.id === queryProduct.product.id);
+      const existsInCart = cart.items.some(
+        (item) => item.product.id === queryProduct.product.id,
+      );
       if (existsInCart) {
         setQueryProduct(null);
         // Remove query params from URL
@@ -147,11 +179,18 @@ const CheckoutContent = () => {
 
   // Combine cart items with query product if present
   const items = useMemo(() => {
-    const cartItems = enrichedItems.length > 0 ? enrichedItems : (Array.isArray(cart?.items) ? cart.items : []);
+    const cartItems =
+      enrichedItems.length > 0
+        ? enrichedItems
+        : Array.isArray(cart?.items)
+          ? cart.items
+          : [];
 
     // If query product exists and not already in cart, add it
     if (queryProduct) {
-      const existsInCart = cartItems.some(item => item.product.id === queryProduct.product.id);
+      const existsInCart = cartItems.some(
+        (item) => item.product.id === queryProduct.product.id,
+      );
       if (!existsInCart) {
         return [queryProduct, ...cartItems];
       }
@@ -160,8 +199,12 @@ const CheckoutContent = () => {
     return cartItems;
   }, [enrichedItems, cart?.items, queryProduct]);
   const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + Number(item.unitPrice || 0) * (item.quantity || 0), 0),
-    [items]
+    () =>
+      items.reduce(
+        (sum, item) => sum + Number(item.unitPrice || 0) * (item.quantity || 0),
+        0,
+      ),
+    [items],
   );
 
   const discount = useMemo(() => {
@@ -187,9 +230,13 @@ const CheckoutContent = () => {
     }
     try {
       setPromoLoading(true);
-      const promos = await getPromocodes(userSession.accessToken, userSession.companyId || API_CONFIG.companyId);
+      const promos = await getPromocodes(
+        userSession.accessToken,
+        userSession.companyId || API_CONFIG.companyId,
+      );
       const match = promos.find(
-        (p) => p.code.toLowerCase() === promoCode.trim().toLowerCase() && p.isActive
+        (p) =>
+          p.code.toLowerCase() === promoCode.trim().toLowerCase() && p.isActive,
       );
       if (!match) {
         toast.error("Invalid promo code");
@@ -246,12 +293,16 @@ const CheckoutContent = () => {
           customerPhone: phone,
           customerAddress: address,
           shippingAddress: address,
-          deliveryType: deliveryType === "inside" ? "INSIDEDHAKA" : "OUTSIDEDHAKA",
+          deliveryType:
+            deliveryType === "inside" ? "INSIDEDHAKA" : "OUTSIDEDHAKA",
           paymentMethod: paymentMethod === "cod" ? "COD" : "DIRECT",
-          items: items.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
+          items: items.map((i) => ({
+            productId: i.product.id,
+            quantity: i.quantity,
+          })),
         },
         userSession.accessToken,
-        userSession.companyId
+        userSession.companyId,
       );
       toast.success("Order placed successfully");
       await refetch();
@@ -265,51 +316,91 @@ const CheckoutContent = () => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-5  grid min-[950px]:grid-cols-3 min-[820px]:grid-cols-5 gap-5 py-10">
-      <div className=" min-[820px]:col-span-3 min-[950px]:col-span-2">
-        {/* customer info  */}
-        <CustomerInfo
-          name={name}
-          setName={setName}
-          email={email}
-          setEmail={setEmail}
-          phone={phone}
-          setPhone={setPhone}
-          address={address}
-          setAddress={setAddress}
+    <div className="min-h-screen bg-gradient-to-b from-white via-pink-50/40 to-white">
+      <section className="max-w-7xl mx-auto px-5 py-8 md:py-10">
+        <div className="flex flex-col gap-3 border-b border-pink-100 pb-5">
+          <p className="text-[11px] font-semibold tracking-[0.18em] text-pink-600 uppercase">
+            Checkout
+          </p>
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+            অর্ডার সম্পূর্ণ করুন
+          </h1>
+          <p className="text-sm text-gray-600">
+            আপনার ডেলিভারি তথ্য দিন এবং পেমেন্ট পদ্ধতি নির্বাচন করুন।
+          </p>
+          <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 text-[11px]">
+                1
+              </span>
+              <span>কার্ট</span>
+            </div>
+            <span className="h-px w-6 bg-gray-300" />
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] text-white">
+                2
+              </span>
+              <span className="font-medium text-gray-900">চেকআউট</span>
+            </div>
+            <span className="h-px w-6 bg-gray-200" />
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 text-[11px]">
+                3
+              </span>
+              <span>অর্ডার সম্পন্ন</span>
+            </div>
+          </div>
+        </div>
 
-
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-          deliveryType={deliveryType}
-          setDeliveryType={setDeliveryType}
-          onSubmit={handleOrder}
-          submitting={orderLoading}
-        />
-      </div>
-      <div className=" min-[820px]:col-span-2 min-[950px]:col-span-1 order-first min-[820px]:order-none">
-        {/* checkout cart */}
-        <CheckoutCart
-          items={items}
-          subtotal={subtotal}
-          discount={discount}
-          total={total}
-          shipping={shippingCharge}
-          grandTotal={grandTotal}
-          promoCode={promoCode}
-          setPromoCode={setPromoCode}
-          applyPromo={applyPromo}
-          promoLoading={promoLoading}
-          promo={promo}
-        />
-      </div>
-    </section>
+        <div className="mt-6 grid gap-5 min-[820px]:grid-cols-5 min-[950px]:grid-cols-3">
+          <div className="min-[820px]:col-span-3 min-[950px]:col-span-2">
+            <CustomerInfo
+              name={name}
+              setName={setName}
+              email={email}
+              setEmail={setEmail}
+              phone={phone}
+              setPhone={setPhone}
+              address={address}
+              setAddress={setAddress}
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              deliveryType={deliveryType}
+              setDeliveryType={setDeliveryType}
+              onSubmit={handleOrder}
+              submitting={orderLoading}
+            />
+          </div>
+          <div className="min-[820px]:col-span-2 min-[950px]:col-span-1 order-first min-[820px]:order-none md:sticky md:top-24 self-start">
+            <CheckoutCart
+              items={items}
+              subtotal={subtotal}
+              discount={discount}
+              total={total}
+              shipping={shippingCharge}
+              grandTotal={grandTotal}
+              promoCode={promoCode}
+              setPromoCode={setPromoCode}
+              applyPromo={applyPromo}
+              promoLoading={promoLoading}
+              promo={promo}
+            />
+          </div>
+        </div>
+      </section>
+    </div>
   );
 };
 
 const Checkout = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-[300px] flex items-center justify-center">
+          <p className="text-sm text-gray-600">Checkout লোড হচ্ছে...</p>
+        </div>
+      }
+    >
       <CheckoutContent />
     </Suspense>
   );

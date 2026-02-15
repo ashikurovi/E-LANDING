@@ -58,13 +58,11 @@ const RelatedProducts = async ({ id }: { id: string }) => {
   let relatedProducts: ProductProps[] = [];
 
   try {
-    // Get the current product to find its category
-    const currentProduct = await getProduct(parseInt(id), 'COMP-000001');
+    const currentProduct = await getProduct(parseInt(id));
     const categoryName = currentProduct.category?.name;
 
-    // Get products from the same category
     const allProducts = categoryName 
-      ? await getProductsByCategory('COMP-000001', categoryName)
+      ? await getProductsByCategory(undefined, categoryName)
       : [];
 
     // Filter out the current product and limit to 10
