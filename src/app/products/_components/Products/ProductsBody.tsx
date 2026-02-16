@@ -27,6 +27,7 @@ interface ProductProps {
   images: ImageProps[];
   reviews: ReviewProps[];
   variant: VariantProps[];
+  categoryName?: string;
 }
 
 // Helper function to map REST API product to component format
@@ -55,6 +56,7 @@ function mapProductToCardFormat(apiProduct: Product): ProductProps {
     images,
     reviews: [],
     variant,
+    categoryName: apiProduct.category?.name,
   };
 }
 
@@ -71,16 +73,18 @@ const ProductsBody = () => {
         setLoading(true);
         setError(null);
 
-        let apiProducts: Product[] = [];
-
-        if (categoryName) {
-          apiProducts = await getProductsByCategory(undefined, categoryName);
-        } else {
-          apiProducts = await getProducts();
-        }
-
+        // সব প্রোডাক্ট backend থেকে আনব
+        const apiProducts: Product[] = await getProducts();
         const mappedProducts = apiProducts.map(mapProductToCardFormat);
-        setProducts(mappedProducts);
+
+        // URL এ দেওয়া category অনুযায়ী frontend থেকে filter করব
+        const finalProducts = categoryName
+          ? mappedProducts.filter(
+              (p) => p.categoryName && p.categoryName === categoryName
+            )
+          : mappedProducts;
+
+        setProducts(finalProducts);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError(err instanceof Error ? err.message : "Failed to load products");
