@@ -1,4 +1,4 @@
-import { getProduct, getProductReviews, getRefundPolicies } from "../../../lib/api-services";
+import { getProductBySlug, getProductReviews, getRefundPolicies } from "../../../lib/api-services";
 import type { Product } from "../../../lib/api-services";
 import { API_CONFIG } from "../../../lib/api-config";
 import { Suspense } from "react";
@@ -112,15 +112,18 @@ function mapProductToComponentFormat(apiProduct: Product, reviews: Review[], com
 }
 
 const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
+  const { id } = await params; // here `id` will actually be the product slug/SKU
 
   let product: ProductProps;
   let returnPolicyContent = "";
   try {
     const companyId = API_CONFIG.companyId;
-    const [apiProduct, apiReviews, returnPolicies] = await Promise.all([
-      getProduct(parseInt(id), companyId),
-      getProductReviews(parseInt(id), companyId),
+    // First fetch product by slug/SKU
+    const apiProduct = await getProductBySlug(id, companyId);
+
+    // Then in parallel: reviews (by numeric product ID) and refund policies
+    const [apiReviews, returnPolicies] = await Promise.all([
+      getProductReviews(apiProduct.id, companyId),
       getRefundPolicies(companyId),
     ]);
     const returnPolicy = (returnPolicies as ReturnPolicy[])[0];

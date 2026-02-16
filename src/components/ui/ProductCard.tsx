@@ -47,6 +47,19 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
   const { addCartItem } = useCart();
   const router = useRouter();
 
+  const getNumericProductId = () => {
+    if (typeof product?.id === "number") return product.id;
+    if (product?.documentId) {
+      const parsed = Number(product.documentId);
+      if (!Number.isNaN(parsed)) return parsed;
+    }
+    return undefined;
+  };
+
+  const getProductSlug = () => {
+    return product?.sku || product?.SKU || (product?.id ? String(product.id) : undefined);
+  };
+
   // Calculate discount percentage from price and discountPrice
   const calculateDiscountPercentage = () => {
     const originalPrice = Number(product?.price || product?.variant?.[0]?.price || 0);
@@ -101,7 +114,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
     event.stopPropagation();
     event.preventDefault();
 
-    const productId = product?.id || product?.documentId;
+    const productId = getNumericProductId();
     if (!productId) {
       toast.error("Product ID not found");
       return;
@@ -130,14 +143,14 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
   const handleBuyNow = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
-    const productId = product?.documentId || product?.id;
-    if (productId) {
-      router.push(`/products/${productId}?${new URLSearchParams({ companyId: 'COMP-000001' }).toString()}`);
+    const slug = getProductSlug();
+    if (slug) {
+      router.push(`/products/${slug}`);
     }
   };
   return (
     <Link
-      href={`/products/${product?.documentId || product?.id}?${new URLSearchParams({ companyId: 'COMP-000001' }).toString()}`}
+      href={`/products/${getProductSlug()}`}
       className=" bg-[#F3F3F3] p-2 rounded-lg  flex flex-col justify-between sm:gap-3 gap-2 shadow group/product cursor-pointer"
     >
       {/* image use here  */}

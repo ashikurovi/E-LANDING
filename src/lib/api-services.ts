@@ -335,6 +335,24 @@ export async function getProduct(id: number, companyId?: string): Promise<Produc
 }
 
 /**
+ * Get a single product by slug/SKU (public endpoint, identifier can be non-numeric)
+ */
+export async function getProductBySlug(slug: string, companyId?: string): Promise<Product> {
+    try {
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        const params = new URLSearchParams();
+        if (companyIdParam) params.append("companyId", companyIdParam);
+        const response = await axios.get<ApiResponse<Product>>(
+            getApiUrl(`/products/public/${encodeURIComponent(slug)}?${params.toString()}`),
+        );
+        return response.data.data;
+    } catch (error) {
+        console.error("Error fetching product by slug:", error);
+        throw error;
+    }
+}
+
+/**
  * Get trending products
  */
 export async function getTrendingProducts(
