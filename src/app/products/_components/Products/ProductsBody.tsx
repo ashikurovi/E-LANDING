@@ -2,7 +2,7 @@
 
 import ProductCard from "../../../../components/ui/ProductCard";
 import PaginationProducts from "./PaginationProducts";
-import { getProducts, getProductsByCategory, Product } from "../../../../lib/api-services";
+import { getProducts, Product } from "../../../../lib/api-services";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
