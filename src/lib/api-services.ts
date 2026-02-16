@@ -175,7 +175,7 @@ export async function getProducts(
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Product[]>>(
-            getApiUrl(`/products/public?companyId=${companyIdParam}`),
+            getApiUrl(`/products?companyId=${companyIdParam}`),
         );
         return response.data.data;
     } catch (error: unknown) {
@@ -321,7 +321,7 @@ export async function getProduct(id: number, companyId?: string): Promise<Produc
         const params = new URLSearchParams();
         if (companyIdParam) params.append("companyId", companyIdParam);
         const response = await axios.get<ApiResponse<Product>>(
-            getApiUrl(`/products/public/${id}?${params.toString()}`),
+            getApiUrl(`/products/${id}?${params.toString()}`),
         );
         return response.data.data;
     } catch (error) {
@@ -439,9 +439,11 @@ export async function getCategories(companyId?: string): Promise<Category[]> {
 
         const response = await axios.get<ApiResponse<Category[]>>(
             getApiUrl(`/categories/public?${params.toString()}`),
-
         );
-        return response.data.data;
+        const payload = response.data;
+        if (Array.isArray(payload)) return payload;
+        if (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)) return payload.data;
+        return [];
     } catch (error: unknown) {
         console.error("Error fetching categories:", error);
         const err = error as {

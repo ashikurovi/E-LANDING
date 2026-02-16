@@ -1,6 +1,7 @@
 "use client";
 
 import { getCategories } from "../../../../../lib/api-services";
+import { API_CONFIG } from "../../../../../lib/api-config";
 import type { Category } from "@/types/category";
 import { Checkbox } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -23,13 +24,14 @@ const ShopByCategory: React.FC = () => {
 
   const [checkedValues, setCheckedValues] = useState<string[]>(selectedValues);
 
-  // Fetch categories
+  // Fetch categories (theme: use companyId from session or fallback so guest users still see categories)
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const data = await getCategories(userSession?.companyId);
-        setCategories(data);
+        const companyId = userSession?.companyId || API_CONFIG.companyId;
+        const data = await getCategories(companyId);
+        setCategories(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load categories");
       } finally {
