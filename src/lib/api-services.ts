@@ -175,7 +175,7 @@ export async function getProducts(
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Product[]>>(
-            getApiUrl(`/products?companyId=${companyIdParam}`),
+            getApiUrl(`/products/all?companyId=${companyIdParam}`),
         );
         return response.data.data;
     } catch (error: unknown) {
