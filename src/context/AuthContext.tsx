@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     payload: { name: string; email: string; password: string; phone?: string }
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await axios.post(getApiUrl("/users/register"), {
+      const response = await axios.post(getApiUrl("/users"), {
         name: payload.name,
         email: payload.email,
         password: payload.password,
