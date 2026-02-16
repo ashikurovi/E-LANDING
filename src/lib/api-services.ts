@@ -276,9 +276,13 @@ export async function getProductsByCategory(
         if (categoryId) params.append("categoryId", categoryId.toString());
 
         const response = await axios.get<ApiResponse<Product[]>>(
-            getApiUrl(`/products/category?${params.toString()}`),
+            // Use public endpoint to avoid auth/guards (theme/storefront)
+            getApiUrl(`/products/public/category?${params.toString()}`),
         );
-        return response.data.data;
+        const payload = response.data;
+        if (Array.isArray(payload)) return payload as unknown as Product[];
+        if (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)) return payload.data as Product[];
+        return [];
     } catch (error: unknown) {
         console.error("Error fetching products by category:", error);
         const err = error as {
@@ -313,7 +317,7 @@ export async function getProductsByCategory(
 }
 
 /**
- * Get a single product by ID
+ * Get a single product by ID (uses public endpoint so storefront works without auth)
  */
 export async function getProduct(id: number, companyId?: string): Promise<Product> {
     try {
@@ -321,7 +325,7 @@ export async function getProduct(id: number, companyId?: string): Promise<Produc
         const params = new URLSearchParams();
         if (companyIdParam) params.append("companyId", companyIdParam);
         const response = await axios.get<ApiResponse<Product>>(
-            getApiUrl(`/products/${id}?${params.toString()}`),
+            getApiUrl(`/products/public/${id}?${params.toString()}`),
         );
         return response.data.data;
     } catch (error) {
