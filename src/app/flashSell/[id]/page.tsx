@@ -113,7 +113,9 @@ const FlashSaleDetail = ({ params }: FlashSaleDetailProps) => {
               <div className="bg-white/20 rounded-full p-2">
                 <Tag size={24} />
               </div>
-              <span className="text-2xl font-bold">{flashSale.discount}% OFF</span>
+              <span className="text-2xl font-bold">
+                {flashSale.discount}% OFF
+              </span>
             </div>
           </div>
         </div>
@@ -127,8 +129,11 @@ const FlashSaleDetail = ({ params }: FlashSaleDetailProps) => {
                 <TrendingUp size={20} className="text-gray-600" />
                 <h3 className="font-semibold text-gray-900">Status</h3>
               </div>
-              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor()}`}>
-                {flashSale.status.charAt(0).toUpperCase() + flashSale.status.slice(1)}
+              <span
+                className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor()}`}
+              >
+                {flashSale.status.charAt(0).toUpperCase() +
+                  flashSale.status.slice(1)}
               </span>
             </div>
 
@@ -150,7 +155,9 @@ const FlashSaleDetail = ({ params }: FlashSaleDetailProps) => {
                 <TrendingUp size={20} className="text-gray-600" />
                 <h3 className="font-semibold text-gray-900">Products</h3>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{flashSale.products}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {flashSale.products}
+              </p>
               <p className="text-sm text-gray-600">items on sale</p>
             </div>
           </div>
@@ -180,7 +187,9 @@ const FlashSaleDetail = ({ params }: FlashSaleDetailProps) => {
 
           {/* Terms */}
           <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h4 className="font-semibold text-yellow-800 mb-2">Terms & Conditions</h4>
+            <h4 className="font-semibold text-yellow-800 mb-2">
+              Terms & Conditions
+            </h4>
             <ul className="text-sm text-yellow-700 space-y-1">
               <li>• Limited time offer, subject to availability</li>
               <li>• Cannot be combined with other promotions</li>

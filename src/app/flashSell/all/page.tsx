@@ -47,13 +47,14 @@ const FlashSaleListing = async () => {
   const flashSaleProducts = data?.products || [];
 
   // Calculate average discount
-  const avgDiscount = flashSaleProducts.length > 0
-    ? Math.round(
-        flashSaleProducts.reduce((sum: number, p: ProductProps) => {
-          return sum + p.off;
-        }, 0) / flashSaleProducts.length
-      )
-    : 0;
+  const avgDiscount =
+    flashSaleProducts.length > 0
+      ? Math.round(
+          flashSaleProducts.reduce((sum: number, p: ProductProps) => {
+            return sum + p.off;
+          }, 0) / flashSaleProducts.length,
+        )
+      : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-5 py-8">
