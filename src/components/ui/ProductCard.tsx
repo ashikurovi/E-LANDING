@@ -47,6 +47,23 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
   const { addCartItem } = useCart();
   const router = useRouter();
 
+  const getNumericProductId = () => {
+    if (typeof product?.id === "number") return product.id;
+    if (product?.documentId) {
+      const parsed = Number(product.documentId);
+      if (!Number.isNaN(parsed)) return parsed;
+    }
+    return undefined;
+  };
+
+  const getProductSlug = () => {
+    return (
+      product?.sku ||
+      product?.SKU ||
+      (product?.id ? String(product.id) : undefined)
+    );
+  };
+
   // Calculate discount percentage from price and discountPrice
   const calculateDiscountPercentage = () => {
     const originalPrice = Number(
@@ -116,7 +133,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
     event.stopPropagation();
     event.preventDefault();
 
-    const productId = product?.id || product?.documentId;
+    const productId = getNumericProductId();
     if (!productId) {
       toast.error("Product ID not found");
       return;
@@ -145,29 +162,28 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
   const handleBuyNow = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
-    const productId = product?.documentId || product?.id;
-    if (productId) {
-      router.push(
-        `/products/${productId}?${new URLSearchParams({ companyId: "COMP-000001" }).toString()}`,
-      );
+    const slug = getProductSlug();
+    if (slug) {
+      router.push(`/products/${slug}`);
     }
   };
+
   return (
     <Link
-      href={`/products/${product?.documentId || product?.id}?${new URLSearchParams({ companyId: "COMP-000001" }).toString()}`}
-      className=" bg-[#F3F3F3] p-2 rounded-lg  flex flex-col justify-between sm:gap-3 gap-2 shadow group/product cursor-pointer"
+      href={`/products/${getProductSlug()}`}
+      className="bg-[#F3F3F3] p-2 rounded-lg flex flex-col justify-between sm:gap-3 gap-2 shadow group/product cursor-pointer"
     >
       {/* image use here  */}
-      <div className=" relative overflow-hidden rounded-lg">
+      <div className="relative overflow-hidden rounded-lg">
         <Image
           src={product?.thumbnail || ""}
           alt=""
           width={500}
           height={500}
-          className=" rounded-lg aspect-[7/5] group-hover/product:scale-[1.05] transition-all duration-200 ease-linear"
+          className="rounded-lg aspect-[7/5] group-hover/product:scale-[1.05] transition-all duration-200 ease-linear"
         />
         {calculateDiscountPercentage() > 0 && (
-          <div className=" absolute top-2 left-2 bg-primary px-1.5 py-0.5  rounded-2xl font-bold sm:text-xs text-[10px]  text-white max-w-max">
+          <div className="absolute top-2 left-2 bg-primary px-1.5 py-0.5 rounded-2xl font-bold sm:text-xs text-[10px] text-white max-w-max">
             save {calculateDiscountPercentage()}%
           </div>
         )}
@@ -178,35 +194,35 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
           <IoCartOutline size={18} />
         </button>
       </div>
-      <div className=" flex flex-col sm:gap-2 gap-1">
-        <h2 className=" text-gray-800 line-clamp-1 sm:text-base text-sm">
+      <div className="flex flex-col sm:gap-2 gap-1">
+        <h2 className="text-gray-800 line-clamp-1 sm:text-base text-sm">
           {product?.title || product?.name}
         </h2>
-        <div className=" flex items-center gap-2">
-          <div className=" flex items-center text-primary">
-            <span className=" text-2xl sm:text-3xl">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center text-primary">
+            <span className="text-2xl sm:text-3xl">
               <TbCurrencyTaka />
             </span>
-            <h2 className=" mt-[2px] sm:text-2xl text-xl font-bold ">
+            <h2 className="mt-[2px] sm:text-2xl text-xl font-bold">
               {formatteeNumber(getFinalPrice())}
             </h2>
           </div>
           {getOriginalPrice() > 0 && (
-            <div className=" flex items-center text-gray-600">
+            <div className="flex items-center text-gray-600">
               <span>
                 <TbCurrencyTaka size={15} />
               </span>
-              <h2 className=" mt-[2px] line-through font-light  sm:text-base text-sm">
+              <h2 className="mt-[2px] line-through font-light sm:text-base text-sm">
                 {formatteeNumber(getOriginalPrice())}
               </h2>
             </div>
           )}
         </div>
-        <div className="  flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <Rate disabled allowHalf defaultValue={calculateAverageRating()} />
           <button
             onClick={handleBuyNow}
-            className="md:text-sm sm:text-xs text-[10px] hover:bg-black bg-primary text-white max-w-max sm:px-3 px-2 py-[4px] rounded-2xl  transition-all ease-linear duration-200"
+            className="md:text-sm sm:text-xs text-[10px] hover:bg-black bg-primary text-white max-w-max sm:px-3 px-2 py-[4px] rounded-2xl transition-all ease-linear duration-200"
           >
             <span>এখনই কিনুন</span>
           </button>

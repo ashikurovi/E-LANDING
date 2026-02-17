@@ -175,7 +175,7 @@ export async function getProducts(
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<Product[]>>(
-            getApiUrl(`/products/public?companyId=${companyIdParam}`),
+            getApiUrl(`/products/all?companyId=${companyIdParam}`),
         );
         return response.data.data;
     } catch (error: unknown) {
@@ -276,9 +276,13 @@ export async function getProductsByCategory(
         if (categoryId) params.append("categoryId", categoryId.toString());
 
         const response = await axios.get<ApiResponse<Product[]>>(
-            getApiUrl(`/products/category?${params.toString()}`),
+            // Use public endpoint to avoid auth/guards (theme/storefront)
+            getApiUrl(`/products/public/category?${params.toString()}`),
         );
-        return response.data.data;
+        const payload = response.data;
+        if (Array.isArray(payload)) return payload as unknown as Product[];
+        if (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)) return payload.data as Product[];
+        return [];
     } catch (error: unknown) {
         console.error("Error fetching products by category:", error);
         const err = error as {
@@ -313,7 +317,7 @@ export async function getProductsByCategory(
 }
 
 /**
- * Get a single product by ID
+ * Get a single product by ID (uses public endpoint so storefront works without auth)
  */
 export async function getProduct(id: number, companyId?: string): Promise<Product> {
     try {
@@ -326,6 +330,24 @@ export async function getProduct(id: number, companyId?: string): Promise<Produc
         return response.data.data;
     } catch (error) {
         console.error("Error fetching product:", error);
+        throw error;
+    }
+}
+
+/**
+ * Get a single product by slug/SKU (public endpoint, identifier can be non-numeric)
+ */
+export async function getProductBySlug(slug: string, companyId?: string): Promise<Product> {
+    try {
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        const params = new URLSearchParams();
+        if (companyIdParam) params.append("companyId", companyIdParam);
+        const response = await axios.get<ApiResponse<Product>>(
+            getApiUrl(`/products/public/${encodeURIComponent(slug)}?${params.toString()}`),
+        );
+        return response.data.data;
+    } catch (error) {
+        console.error("Error fetching product by slug:", error);
         throw error;
     }
 }
@@ -439,9 +461,11 @@ export async function getCategories(companyId?: string): Promise<Category[]> {
 
         const response = await axios.get<ApiResponse<Category[]>>(
             getApiUrl(`/categories/public?${params.toString()}`),
-
         );
-        return response.data.data;
+        const payload = response.data;
+        if (Array.isArray(payload)) return payload;
+        if (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)) return payload.data;
+        return [];
     } catch (error: unknown) {
         console.error("Error fetching categories:", error);
         const err = error as {

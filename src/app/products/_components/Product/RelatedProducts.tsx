@@ -1,6 +1,6 @@
 import EmblaCarousel from "../../../../components/shared/EmblaCarousel";
 import ProductCard from "../../../../components/ui/ProductCard";
-import { getProduct, getProductsByCategory, Product } from "../../../../lib/api-services";
+import { getProductBySlug, getProductsByCategory, Product } from "../../../../lib/api-services";
 
 interface ImageProps {
   name: string;
@@ -58,7 +58,8 @@ const RelatedProducts = async ({ id }: { id: string }) => {
   let relatedProducts: ProductProps[] = [];
 
   try {
-    const currentProduct = await getProduct(parseInt(id));
+    // `id` here is actually the slug/SKU from the route
+    const currentProduct = await getProductBySlug(id);
     const categoryName = currentProduct.category?.name;
 
     const allProducts = categoryName 
@@ -67,7 +68,7 @@ const RelatedProducts = async ({ id }: { id: string }) => {
 
     // Filter out the current product and limit to 10
     relatedProducts = allProducts
-      .filter((p) => p.id.toString() !== id)
+      .filter((p) => p.id !== currentProduct.id)
       .slice(0, 10)
       .map(mapProductToCardFormat);
   } catch (error) {
