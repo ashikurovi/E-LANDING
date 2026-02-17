@@ -1,6 +1,7 @@
 import BottomNav from "@/components/BottomNav";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import FlashSaleBanner from "@/components/FlashSaleBanner";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { theme } from "@/theme/antd";
@@ -33,6 +34,7 @@ export default function RootLayout({
             <CartProvider>
               <AntdRegistry>
                 <Header />
+                <FlashSaleBanner />
                 <div className="min-h-screen">{children}</div>
                 <Footer />
                 <BottomNav />

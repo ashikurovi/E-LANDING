@@ -49,11 +49,19 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
 
   // Calculate discount percentage from price and discountPrice
   const calculateDiscountPercentage = () => {
-    const originalPrice = Number(product?.price || product?.variant?.[0]?.price || 0);
+    const originalPrice = Number(
+      product?.price || product?.variant?.[0]?.price || 0,
+    );
     const discountedPrice = Number(product?.discountPrice || 0);
 
-    if (originalPrice > 0 && discountedPrice > 0 && discountedPrice < originalPrice) {
-      return Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
+    if (
+      originalPrice > 0 &&
+      discountedPrice > 0 &&
+      discountedPrice < originalPrice
+    ) {
+      return Math.round(
+        ((originalPrice - discountedPrice) / originalPrice) * 100,
+      );
     }
 
     // Fallback to off if provided
@@ -63,15 +71,21 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
   // Get the final price to display (discountPrice if available, otherwise original price)
   const getFinalPrice = () => {
     const discountedPrice = Number(product?.discountPrice || 0);
-    const originalPrice = Number(product?.price || product?.variant?.[0]?.price || 0);
+    const originalPrice = Number(
+      product?.price || product?.variant?.[0]?.price || 0,
+    );
 
     // If discountPrice exists and is valid, use it; otherwise use original price
-    return discountedPrice > 0 && discountedPrice < originalPrice ? discountedPrice : originalPrice;
+    return discountedPrice > 0 && discountedPrice < originalPrice
+      ? discountedPrice
+      : originalPrice;
   };
 
   // Get the original price for strikethrough
   const getOriginalPrice = () => {
-    const originalPrice = Number(product?.price || product?.variant?.[0]?.price || 0);
+    const originalPrice = Number(
+      product?.price || product?.variant?.[0]?.price || 0,
+    );
     const discountedPrice = Number(product?.discountPrice || 0);
 
     // Only show strikethrough if there's a valid discount
@@ -86,18 +100,19 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
 
     const total = product.reviews.reduce(
       (sum, review) => sum + (review.rating || 0),
-      0
+      0,
     );
     const average = total / product.reviews.length;
 
     return Math.min(Math.max(average, 0), 5); // Ensuring the value is within 0-5 range
   };
 
-  const available_variant = product?.variant?.filter(
-    (i) => i.available_quantity > 0
-  ) || [];
+  const available_variant =
+    product?.variant?.filter((i) => i.available_quantity > 0) || [];
 
-  const handleAddProduct = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAddProduct = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
     event.stopPropagation();
     event.preventDefault();
 
@@ -132,18 +147,20 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
     event.preventDefault();
     const productId = product?.documentId || product?.id;
     if (productId) {
-      router.push(`/products/${productId}?${new URLSearchParams({ companyId: 'COMP-000001' }).toString()}`);
+      router.push(
+        `/products/${productId}?${new URLSearchParams({ companyId: "COMP-000001" }).toString()}`,
+      );
     }
   };
   return (
     <Link
-      href={`/products/${product?.documentId || product?.id}?${new URLSearchParams({ companyId: 'COMP-000001' }).toString()}`}
+      href={`/products/${product?.documentId || product?.id}?${new URLSearchParams({ companyId: "COMP-000001" }).toString()}`}
       className=" bg-[#F3F3F3] p-2 rounded-lg  flex flex-col justify-between sm:gap-3 gap-2 shadow group/product cursor-pointer"
     >
       {/* image use here  */}
       <div className=" relative overflow-hidden rounded-lg">
         <Image
-          src={product?.thumbnail || ''}
+          src={product?.thumbnail || ""}
           alt=""
           width={500}
           height={500}

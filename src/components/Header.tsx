@@ -65,6 +65,12 @@ const Header = () => {
               >
                 যোগাযোগ
               </Link>
+              <Link
+                href="/flashSell"
+                className=" text-lg font-medium px-3 py-2 hover:text-primary transition-all ease-linear duration-200"
+              >
+                ফ্ল্যাশ সেল
+              </Link>
             </ul>
           </div>
           <div className=" flex gap-4 items-center  ">
@@ -122,6 +128,13 @@ const Header = () => {
             className=" text-lg font-medium px-5 py-2 hover:text-primary transition-all ease-linear duration-200 hover:bg-primary/5"
           >
             যোগাযোগ
+          </Link>
+          <Link
+            onClick={() => setToggle(!toggle)}
+            href="/flashSell"
+            className=" text-lg font-medium px-5 py-2 hover:text-primary transition-all ease-linear duration-200 hover:bg-primary/5"
+          >
+            ফ্ল্যাশ সেল
           </Link>
         </ul>
       </div>
