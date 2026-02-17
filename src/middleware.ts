@@ -14,7 +14,8 @@ export function middleware(request: NextRequest) {
     request.headers.get("authorization")?.replace("Bearer ", "");
 
   // Protected routes
-  const protectedPaths = ["/my-account", "/checkout"];
+  // , "/checkout"
+  const protectedPaths = ["/my-account"]; 
   const isProtectedPath = protectedPaths.some((path) =>
     pathname.startsWith(path)
   );
@@ -27,7 +28,7 @@ export function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
-
+// , "/checkout/:path*"
 export const config = {
-  matcher: ["/my-account/:path*", "/checkout/:path*"],
+  matcher: ["/my-account/:path*"],
 };
