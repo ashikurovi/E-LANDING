@@ -121,17 +121,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (
-    payload: { name: string; email: string; password: string; phone?: string }
-  ): Promise<{ success: boolean; error?: string }> => {
-    try {
+    const register = async (
+      payload: { name: string; email: string; password: string; phone?: string }
+    ): Promise<{ success: boolean; error?: string }> => {
+      try {
       const response = await axios.post(getApiUrl("/users"), {
-        name: payload.name,
-        email: payload.email,
-        password: payload.password,
-        phone: payload.phone,
-        companyId: API_CONFIG.companyId,
-      });
+          name: payload.name,
+          email: payload.email,
+          password: payload.password,
+          phone: payload.phone,
+          companyId: API_CONFIG.companyId,
+        }, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
       // Auto-login on successful registration if tokens provided
       const { accessToken, user } = response.data || {};
