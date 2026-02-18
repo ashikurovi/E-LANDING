@@ -1,4 +1,5 @@
-import EmblaCarousel from "../../../components/shared/EmblaCarousel";
+export const dynamic = "force-dynamic";
+
 import ProductCard from "../../../components/ui/ProductCard";
 import client from "../../../lib/apollo-client";
 import { GET_FLASH_SALE_PRODUCTS } from "../../../lib/queries";
@@ -126,7 +127,7 @@ const FlashSaleListing = async () => {
         <div className="mt-12 text-center">
           <div className="bg-gray-100 rounded-lg p-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Don't Miss Out!
+              Don&apos;t Miss Out!
             </h3>
             <p className="text-gray-600 mb-4">
               These flash sale deals are available for a limited time only.

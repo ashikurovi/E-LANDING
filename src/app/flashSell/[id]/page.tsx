@@ -34,13 +34,14 @@ const getFlashSaleById = (id: string) => {
 };
 
 interface FlashSaleDetailProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-const FlashSaleDetail = ({ params }: FlashSaleDetailProps) => {
-  const flashSale = getFlashSaleById(params.id);
+const FlashSaleDetail = async ({ params }: FlashSaleDetailProps) => {
+  const { id } = await params;
+  const flashSale = getFlashSaleById(id);
 
   if (!flashSale) {
     notFound();
@@ -48,7 +49,6 @@ const FlashSaleDetail = ({ params }: FlashSaleDetailProps) => {
 
   const isActive = flashSale.status === "active";
   const isUpcoming = flashSale.status === "upcoming";
-  const isEnded = flashSale.status === "ended";
 
   const getStatusColor = () => {
     switch (flashSale.status) {
