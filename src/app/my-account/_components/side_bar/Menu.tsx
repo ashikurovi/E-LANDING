@@ -46,8 +46,8 @@ const Menu = () => {
           href={`/my-account/${item.link}`}
           key={item.id}
           className={cn(
-            " flex items-center gap-3 p-2 rounded-md hover:bg-gray-200 transition-all hover:text-primary cursor-pointer",
-            path === item.link ? "bg-gray-200 text-primary" : ""
+            "flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer hover:bg-pink-50 hover:text-primary",
+            path === item.link ? "bg-pink-100 text-primary shadow-sm" : "text-gray-700"
           )}
         >
           <div>{item.icon}</div>

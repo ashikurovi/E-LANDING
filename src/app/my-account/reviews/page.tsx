@@ -1,12 +1,16 @@
 "use client";
-
 import { useAuth } from "../../../context/AuthContext";
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { getApiUrl, getApiHeaders, API_CONFIG } from "../../../lib/api-config";
-import { getCategories, getProductsByCategory, Product } from "../../../lib/api-services";
+import {
+  getCategories,
+  getProductsByCategory,
+  Product,
+} from "../../../lib/api-services";
 import type { Category } from "@/types/category";
 import { Rate } from "antd";
+import { FiMessageCircle, FiStar } from "react-icons/fi";
 
 interface Review {
   id: number;
@@ -53,7 +57,7 @@ export default function Reviews() {
     try {
       const prods = await getProductsByCategory(
         API_CONFIG.companyId,
-        selectedCategory
+        selectedCategory,
       );
       setProducts(prods);
     } catch (error) {
@@ -63,12 +67,9 @@ export default function Reviews() {
 
   const fetchReviews = useCallback(async () => {
     try {
-      const response = await axios.get(
-        getApiUrl("/reviews/my-reviews"),
-        {
-          headers: getApiHeaders(userSession?.accessToken),
-        }
-      );
+      const response = await axios.get(getApiUrl("/reviews/my-reviews"), {
+        headers: getApiHeaders(userSession?.accessToken),
+      });
       setReviews(response.data.data || response.data || []);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -109,7 +110,7 @@ export default function Reviews() {
         },
         {
           headers: getApiHeaders(userSession?.accessToken),
-        }
+        },
       );
       alert("Review submitted successfully!");
       setFormData({
@@ -123,9 +124,12 @@ export default function Reviews() {
       fetchReviews();
     } catch (error: unknown) {
       console.error("Error submitting review:", error);
-      const axiosError = error as { response?: { data?: { message?: string } } };
+      const axiosError = error as {
+        response?: { data?: { message?: string } };
+      };
       alert(
-        axiosError.response?.data?.message || "Failed to submit review. Please try again."
+        axiosError.response?.data?.message ||
+          "Failed to submit review. Please try again.",
       );
     } finally {
       setSubmitting(false);
@@ -158,22 +162,31 @@ export default function Reviews() {
 
   return (
     <div className="w-full flex flex-col gap-5">
-      <div className="border-b border-pink-100 pb-3">
-        <p className="text-[11px] font-semibold tracking-[0.18em] text-pink-600 uppercase">
-          My account
-        </p>
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
-          Reviews
-        </h2>
-        <p className="text-sm text-gray-600">
-          আপনার কেনা পণ্যের অভিজ্ঞতা শেয়ার করুন এবং পুরনো রিভিউগুলো এক জায়গায় দেখুন।
-        </p>
+      <div className="rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white shadow-md px-4 py-4 sm:px-5 sm:py-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-pink-100/90">
+              My account
+            </p>
+            <h2 className="text-xl md:text-2xl font-semibold">Reviews</h2>
+            <p className="text-xs sm:text-sm text-pink-50/95 max-w-md">
+              আপনার কেনা পণ্যের অভিজ্ঞতা শেয়ার করুন এবং পুরনো রিভিউগুলো এক
+              জায়গায় দেখুন।
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs sm:text-sm">
+            <FiStar className="text-pink-100" />
+            <span>রেটিং দিয়ে অন্য ক্রেতাদের সাহায্য করুন</span>
+          </div>
+        </div>
       </div>
 
-      {/* Filter and Product Selection */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-        <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900">
-          Write a review
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-pink-50 px-4 py-4 sm:px-5 sm:py-5">
+        <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900 flex items-center gap-2">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 text-pink-600">
+            <FiMessageCircle size={18} />
+          </span>
+          <span>Write a review</span>
         </h3>
         <div className="flex flex-col gap-4">
           <div>
@@ -267,7 +280,7 @@ export default function Reviews() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Submitting..." : "Submit Review"}
               </button>
@@ -276,32 +289,38 @@ export default function Reviews() {
         </div>
       </div>
 
-      {/* Existing Reviews */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-        <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900">
-          My reviews
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-pink-50 px-4 py-4 sm:px-5 sm:py-5">
+        <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900 flex items-center gap-2">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 text-pink-600">
+            <FiStar size={18} />
+          </span>
+          <span>My reviews</span>
         </h3>
         {reviews.length === 0 ? (
-          <p className="text-gray-600">You haven&apos;t written any reviews yet.</p>
+          <p className="text-gray-600 text-sm">
+            You haven&apos;t written any reviews yet.
+          </p>
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="border-b border-gray-200 pb-4 last:border-b-0"
+                className="border-b border-gray-100 pb-4 last:border-b-0"
               >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h4 className="font-medium">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                  <div className="space-y-0.5">
+                    <h4 className="text-sm font-semibold text-gray-900">
                       {review.product?.name || `Product #${review.productId}`}
                     </h4>
                     {review.title && (
-                      <p className="text-sm text-gray-600">{review.title}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">
+                        {review.title}
+                      </p>
                     )}
                   </div>
                   <Rate disabled value={review.rating} />
                 </div>
-                <p className="text-gray-700 mt-2">{review.comment}</p>
+                <p className="text-sm text-gray-700 mt-1.5">{review.comment}</p>
                 <p className="text-xs text-gray-500 mt-2">
                   {new Date(review.createdAt).toLocaleDateString()}
                 </p>

@@ -4,22 +4,20 @@ import UserInfo from "./UserInfo";
 
 const SideBar = () => {
   return (
-    <div>
-      <div className="bg-[#F8F8F8] min-h-[80vh] p-3 sticky top-20 flex flex-col gap-3 justify-between">
-        <div className="  flex flex-col gap-3 ">
-          <div>
+    <div className="sticky top-24">
+      <div className="min-h-[80vh] rounded-2xl bg-gradient-to-b from-pink-50 via-white to-pink-50 border border-pink-100 shadow-sm p-3 md:p-4 flex flex-col gap-4 justify-between">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-3">
             <UserInfo />
           </div>
-          <div className=" w-full bg-gray-200 h-[1px]"></div>
-          <div>
-            <Menu />
-          </div>
+          <div className="w-full h-px bg-pink-100" />
+          <Menu />
         </div>
-
         <div>
-          <div className=" w-full bg-gray-200 h-[1px] mb-3"></div>
-          <button className=" flex items-center gap-2 bg-primary text-white p-2 rounded-md w-full justify-center hover:bg-primary/85 transition-all">
-            <MdLogout /> Log Out
+          <div className="w-full h-px bg-pink-100 mb-3" />
+          <button className="flex items-center gap-2 rounded-full bg-primary text-white px-4 py-2 w-full justify-center text-sm font-medium hover:bg-primary/90 transition-colors">
+            <MdLogout />
+            Log Out
           </button>
         </div>
       </div>

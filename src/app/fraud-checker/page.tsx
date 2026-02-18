@@ -5,4 +5,3 @@ const FraudCheckerPage = () => {
 };
 
 export default FraudCheckerPage;
-
