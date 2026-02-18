@@ -103,49 +103,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     cartItemId: number,
     quantity: number
   ): Promise<void> => {
-    if (!userSession?.accessToken || !userSession?.userId) {
-      console.error("User not authenticated");
-      return;
-    }
-
     try {
-      // Note: Backend may need a PATCH endpoint for individual items
-      // For now, we'll delete and recreate if quantity changes
       if (quantity <= 0) {
         await deleteCartItem(cartItemId);
         return;
       }
-
-      // Find the cart item to get productId
-      const cartItem = cart?.items.find((item) => item.id === cartItemId);
-      if (!cartItem) {
-        console.error("Cart item not found");
-        return;
-      }
-
-      // Delete old item
       const companyId = userSession.companyId || API_CONFIG.companyId;
-      await axios.delete(
+      await axios.patch(
         getApiUrl(`/cartproducts/${cartItemId}?companyId=${companyId}`),
-        {
-          headers: getApiHeaders(userSession.accessToken),
-        }
-      ).catch(() => {
-        // If delete endpoint doesn't exist, we'll handle it differently
-      });
-
-      // Add new item with updated quantity
-      await axios.post(
-        getApiUrl("/cartproducts"),
-        {
-          userId: userSession.userId,
-          productId: cartItem.product.id,
-          quantity: quantity,
-          companyId,
-        },
-        {
-          headers: getApiHeaders(userSession.accessToken),
-        }
+        { quantity },
+        { headers: getApiHeaders(userSession?.accessToken) },
       );
 
       await fetchCart();
@@ -157,40 +124,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to remove a cart item
   const deleteCartItem = async (cartItemId: number): Promise<void> => {
-    if (!userSession?.accessToken) {
-      console.error("User not authenticated");
-      return;
-    }
-
     try {
-      // Note: Backend may need a DELETE endpoint for individual items
-      // For now, we'll use a workaround by clearing and re-adding items
-      const remainingItems = cart?.items.filter((item) => item.id !== cartItemId) || [];
-
-      // Clear cart
       const companyId = userSession.companyId || API_CONFIG.companyId;
       await axios.delete(
-        getApiUrl(`/cartproducts/user/${userSession.userId}?companyId=${companyId}`),
+        getApiUrl(`/cartproducts/${cartItemId}?companyId=${companyId}`),
         {
-          headers: getApiHeaders(userSession.accessToken),
+          headers: getApiHeaders(userSession?.accessToken),
         }
       );
-
-      // Re-add remaining items
-      for (const item of remainingItems) {
-        await axios.post(
-          getApiUrl(`/cartproducts?companyId=${companyId}`),
-          {
-            userId: userSession.userId,
-            productId: item.product.id,
-            quantity: item.quantity,
-            companyId,
-          },
-          {
-            headers: getApiHeaders(userSession.accessToken),
-          }
-        );
-      }
 
       await fetchCart();
     } catch (error) {
