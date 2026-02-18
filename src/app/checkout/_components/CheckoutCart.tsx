@@ -21,6 +21,9 @@ interface CheckoutCartProps {
   applyPromo: () => void;
   promoLoading?: boolean;
   promo: PromoCode | null;
+  availablePromos?: PromoCode[];
+  availablePromosLoading?: boolean;
+  applyPromoFromButton?: (code: string) => void | Promise<void>;
 }
 
 const CheckoutCart = ({
@@ -34,6 +37,9 @@ const CheckoutCart = ({
   applyPromo,
   promoLoading,
   promo,
+  availablePromos,
+  availablePromosLoading,
+  applyPromoFromButton,
 }: CheckoutCartProps) => {
   return (
     <section className="rounded-2xl border border-pink-100 bg-white/90 p-5 md:p-6 shadow-sm flex flex-col gap-6">
@@ -53,6 +59,9 @@ const CheckoutCart = ({
         applyPromo={applyPromo}
         loading={promoLoading}
         appliedPromo={promo}
+        availablePromos={availablePromos}
+        availablePromosLoading={availablePromosLoading}
+        onSelectPromo={(code) => applyPromoFromButton?.(code)}
       />
       {/* total */}
       <div className="border-t-[1.5px]">

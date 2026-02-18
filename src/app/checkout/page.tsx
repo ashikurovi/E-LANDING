@@ -28,6 +28,8 @@ const CheckoutContent = () => {
   const [promoCode, setPromoCode] = useState("");
   const [promo, setPromo] = useState<PromoCode | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
+  const [availablePromos, setAvailablePromos] = useState<PromoCode[]>([]);
+  const [availablePromosLoading, setAvailablePromosLoading] = useState(false);
   const [orderLoading, setOrderLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "prepaid">("cod");
   const [deliveryType, setDeliveryType] = useState<"inside" | "outside">(
@@ -221,8 +223,9 @@ const CheckoutContent = () => {
   const total = Math.max(subtotal - discount, 0);
   const grandTotal = total + shippingCharge;
 
-  const applyPromo = async () => {
-    if (!promoCode.trim()) return;
+  const applyPromoCore = async (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) return;
     if (!userSession?.accessToken) {
       toast.error("Please login to apply promo code");
       router.push("/login");
@@ -230,13 +233,21 @@ const CheckoutContent = () => {
     }
     try {
       setPromoLoading(true);
-      const promos = await getPromocodes(
-        userSession.accessToken,
-        userSession.companyId || API_CONFIG.companyId,
-      );
+      let promos: PromoCode[] = availablePromos;
+      if (!promos.length) {
+        promos = await getPromocodes(
+          userSession.accessToken,
+          userSession.companyId || API_CONFIG.companyId,
+        );
+        setAvailablePromos(promos);
+      }
+      const now = new Date();
       const match = promos.find(
         (p) =>
-          p.code.toLowerCase() === promoCode.trim().toLowerCase() && p.isActive,
+          p.code.toLowerCase() === trimmed.toLowerCase() &&
+          p.isActive &&
+          (!p.startsAt || new Date(p.startsAt) <= now) &&
+          (!p.expiresAt || new Date(p.expiresAt) >= now),
       );
       if (!match) {
         toast.error("Invalid promo code");
@@ -260,6 +271,7 @@ const CheckoutContent = () => {
         setPromo(null);
         return;
       }
+      setPromoCode(match.code);
       setPromo(match);
       toast.success("Promo applied");
     } catch (error) {
@@ -269,6 +281,48 @@ const CheckoutContent = () => {
       setPromoLoading(false);
     }
   };
+
+  const applyPromo = async () => {
+    if (!promoCode.trim()) return;
+    await applyPromoCore(promoCode);
+  };
+
+  const applyPromoFromButton = async (code: string) => {
+    setPromoCode(code);
+    await applyPromoCore(code);
+  };
+
+  // Prefetch available promos for auto-select buttons
+  useEffect(() => {
+    const fetchPromos = async () => {
+      if (!userSession?.accessToken) {
+        setAvailablePromos([]);
+        return;
+      }
+      try {
+        setAvailablePromosLoading(true);
+        const promos = await getPromocodes(
+          userSession.accessToken,
+          userSession.companyId || API_CONFIG.companyId,
+        );
+        const now = new Date();
+        const activePromos = promos.filter((p) => {
+          if (!p.isActive) return false;
+          if (p.startsAt && new Date(p.startsAt) > now) return false;
+          if (p.expiresAt && new Date(p.expiresAt) < now) return false;
+          return true;
+        });
+        setAvailablePromos(activePromos);
+      } catch (error) {
+        console.error("Failed to load promo codes", error);
+        setAvailablePromos([]);
+      } finally {
+        setAvailablePromosLoading(false);
+      }
+    };
+
+    fetchPromos();
+  }, [userSession?.accessToken, userSession?.companyId]);
 
   const handleOrder = async () => {
     if (!userSession?.accessToken || !userSession?.userId) {
@@ -384,6 +438,9 @@ const CheckoutContent = () => {
               applyPromo={applyPromo}
               promoLoading={promoLoading}
               promo={promo}
+              availablePromos={availablePromos}
+              availablePromosLoading={availablePromosLoading}
+              applyPromoFromButton={applyPromoFromButton}
             />
           </div>
         </div>
