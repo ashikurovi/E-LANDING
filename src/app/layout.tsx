@@ -7,7 +7,6 @@ import { CartProvider } from "@/context/CartContext";
 import { theme } from "@/theme/antd";
 import { hindSiliguriFonts } from "@/app/fonts";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import "animate.css/animate.min.css";
 import { ConfigProvider } from "antd";
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
@@ -26,6 +25,12 @@ export default function RootLayout({
   return (
     <ConfigProvider theme={theme}>
       <html lang="en">
+        <head>
+          <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+          />
+        </head>
         <body
           className={`${hindSiliguriFonts.variable} font-hindSiliguri antialiased`}
         >

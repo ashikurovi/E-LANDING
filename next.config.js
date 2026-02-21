@@ -3,6 +3,7 @@ const path = require("path");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  turbopack: {},
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "plus.unsplash.com" },

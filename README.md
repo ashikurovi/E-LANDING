@@ -40,10 +40,10 @@ If you prefer running it natively on your machine:
 3.  **Run Development Server**:
 
     ```bash
-    npm run dev -- --turbo
+    npm run dev
     ```
 
-    > **Important**: You **MUST** use the `--turbo` flag. Standard `npm run dev` (Webpack) currently fails due to CSS parsing issues with `animate.css`. Turbopack handles this correctly.
+    The dev script uses Webpack (with PostCSS + Tailwind) so that global CSS and Tailwind work correctly.
 
 4.  **Access**: Open [http://localhost:3000](http://localhost:3000).
 
