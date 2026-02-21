@@ -11,9 +11,20 @@ interface ProviderStats {
   returned?: number;
 }
 
+/** Phone info from API - use string for fields that are rendered in JSX */
+interface PhoneInfoSafe {
+  original?: string;
+  number?: string;
+  operator?: string;
+  operator_name?: string;
+  e164?: string;
+  international?: string;
+  [key: string]: unknown;
+}
+
 interface FraudCheckerResult {
-  phone_info?: Record<string, unknown>;
-  phone?: Record<string, unknown>;
+  phone_info?: PhoneInfoSafe;
+  phone?: PhoneInfoSafe;
   summary?: Record<string, unknown>;
   providers?: Record<string, ProviderStats | undefined>;
   [key: string]: unknown;
@@ -85,19 +96,13 @@ const FraudCheckerClient = () => {
 
   const phoneInfo = result?.phone_info || result?.phone || null;
   const phoneDisplay = toStr(
-    (phoneInfo as Record<string, unknown> | null)?.original ??
-      (phoneInfo as Record<string, unknown> | null)?.number ??
-      phoneToCheck,
+    phoneInfo?.original ?? phoneInfo?.number ?? phoneToCheck,
   );
   const phoneOperator = toStr(
-    (phoneInfo as Record<string, unknown> | null)?.operator ??
-      (phoneInfo as Record<string, unknown> | null)?.operator_name ??
-      "অজানা",
+    phoneInfo?.operator ?? phoneInfo?.operator_name ?? "অজানা",
   );
   const phoneInternational = toStr(
-    (phoneInfo as Record<string, unknown> | null)?.e164 ??
-      (phoneInfo as Record<string, unknown> | null)?.international ??
-      "",
+    phoneInfo?.e164 ?? phoneInfo?.international ?? "",
   );
   const summary = result?.summary ?? result ?? null;
   const totalOrders = Number(
@@ -220,13 +225,13 @@ const FraudCheckerClient = () => {
                       কাস্টমারের ফোন নম্বর
                     </p>
                     <p className="text-sm font-semibold text-slate-900 break-words">
-                      {String(phoneDisplay)}
+                      {phoneInfo?.original ?? phoneInfo?.number ?? phoneToCheck}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
                     <p className="text-xs text-slate-500 mb-1">অপারেটর</p>
                     <p className="text-sm font-semibold text-emerald-600">
-                      {String(phoneOperator)}
+                      {phoneInfo?.operator ?? phoneInfo?.operator_name ?? "অজানা"}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
@@ -234,7 +239,7 @@ const FraudCheckerClient = () => {
                       ইন্টারন্যাশনাল নম্বর
                     </p>
                     <p className="text-sm font-semibold text-sky-600 break-words">
-                      {String(phoneInternational)}
+                      {phoneInfo?.e164 ?? phoneInfo?.international ?? ""}
                     </p>
                   </div>
                 </div>
