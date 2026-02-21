@@ -4,13 +4,28 @@ import { useEffect, useState } from "react";
 import { FiPhone, FiInfo, FiCheckCircle } from "react-icons/fi";
 import { IoShieldCheckmark } from "react-icons/io5";
 
+interface ProviderStats {
+  total_deliveries?: number;
+  total?: number;
+  success?: number;
+  returned?: number;
+}
+
+interface FraudCheckerResult {
+  phone_info?: Record<string, unknown>;
+  phone?: Record<string, unknown>;
+  summary?: Record<string, unknown>;
+  providers?: Record<string, ProviderStats | undefined>;
+  [key: string]: unknown;
+}
+
 const FraudCheckerClient = () => {
   const [mobile, setMobile] = useState("");
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState("");
   const [phoneToCheck, setPhoneToCheck] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any | null>(null);
+  const [result, setResult] = useState<FraudCheckerResult | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +65,7 @@ const FraudCheckerClient = () => {
           setStatus("error");
           setMessage("কোনো ডেটা পাওয়া যায়নি।");
         }
-      } catch (err) {
+      } catch {
         setStatus("error");
         setMessage("ফ্রড স্ট্যাটাস চেক করা যায়নি, পরে আবার চেষ্টা করুন।");
       } finally {
@@ -62,8 +77,8 @@ const FraudCheckerClient = () => {
   }, [phoneToCheck]);
 
   const phoneInfo =
-    (result as any)?.phone_info || (result as any)?.phone || null;
-  const summary = (result as any)?.summary || result || null;
+    result?.phone_info || result?.phone || null;
+  const summary = result?.summary ?? result ?? null;
   const totalOrders = Number(
     summary?.total_orders ?? summary?.totalOrders ?? summary?.total ?? 0,
   );
@@ -79,7 +94,7 @@ const FraudCheckerClient = () => {
   const successRate =
     totalOrders > 0 ? Math.round((successfulOrders / totalOrders) * 100) : 0;
 
-  const providers = (result as any)?.providers || result || {};
+  const providers = (result?.providers ?? result ?? {}) as Record<string, ProviderStats | undefined>;
   const pathao = providers?.pathao || providers?.Pathao || null;
   const steadfast = providers?.steadfast || providers?.Steadfast || null;
   const redx = providers?.redx || providers?.Redx || providers?.RedX || null;

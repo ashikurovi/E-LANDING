@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { getApiUrl, getApiHeaders } from "../../../lib/api-config";
 import { TbCurrencyTaka } from "react-icons/tb";
-import { FiPackage, FiTruck, FiCreditCard } from "react-icons/fi";
+import { FiPackage, FiTruck } from "react-icons/fi";
 import Link from "next/link";
 
 interface OrderItem {

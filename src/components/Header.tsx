@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CiSearch } from "react-icons/ci";
 import { FaBars, FaXmark } from "react-icons/fa6";
-import { TbCategoryPlus } from "react-icons/tb";
 import Logo from "../../public/images/logo.png";
 import { cn } from "../utils/cn";
 import ProfileDropDown from "./drop down/PrfofileDropDown";
