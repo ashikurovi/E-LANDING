@@ -180,15 +180,13 @@ const FraudCheckerClient = () => {
                       কাস্টমারের ফোন নম্বর
                     </p>
                     <p className="text-sm font-semibold text-slate-900 break-words">
-                      {phoneInfo?.original || phoneInfo?.number || phoneToCheck}
+                      {String(phoneInfo?.original ?? phoneInfo?.number ?? phoneToCheck)}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
                     <p className="text-xs text-slate-500 mb-1">অপারেটর</p>
                     <p className="text-sm font-semibold text-emerald-600">
-                      {phoneInfo?.operator ||
-                        phoneInfo?.operator_name ||
-                        "অজানা"}
+                      {String(phoneInfo?.operator ?? phoneInfo?.operator_name ?? "অজানা")}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
@@ -196,7 +194,7 @@ const FraudCheckerClient = () => {
                       ইন্টারন্যাশনাল নম্বর
                     </p>
                     <p className="text-sm font-semibold text-sky-600 break-words">
-                      {phoneInfo?.e164 || phoneInfo?.international || ""}
+                      {String(phoneInfo?.e164 ?? phoneInfo?.international ?? "")}
                     </p>
                   </div>
                 </div>
