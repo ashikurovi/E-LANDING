@@ -93,6 +93,9 @@ const FraudCheckerClient = () => {
       (phoneInfo?.international as string | undefined) ??
       "",
   );
+  const phoneDisplayNode: React.ReactNode = phoneDisplay;
+  const phoneOperatorNode: React.ReactNode = phoneOperator;
+  const phoneInternationalNode: React.ReactNode = phoneInternational;
   const summary = result?.summary ?? result ?? null;
   const totalOrders: number = Number(
     (summary?.total_orders as number | undefined) ??
@@ -211,13 +214,13 @@ const FraudCheckerClient = () => {
                       কাস্টমারের ফোন নম্বর
                     </p>
                     <p className="text-sm font-semibold text-slate-900 break-words">
-                      {phoneDisplay}
+                      {phoneDisplayNode}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
                     <p className="text-xs text-slate-500 mb-1">অপারেটর</p>
                     <p className="text-sm font-semibold text-emerald-600">
-                      {phoneOperator}
+                      {phoneOperatorNode}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
@@ -225,7 +228,7 @@ const FraudCheckerClient = () => {
                       ইন্টারন্যাশনাল নম্বর
                     </p>
                     <p className="text-sm font-semibold text-sky-600 break-words">
-                      {phoneInternational}
+                      {phoneInternationalNode}
                     </p>
                   </div>
                 </div>
