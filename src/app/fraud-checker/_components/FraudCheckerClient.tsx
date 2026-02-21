@@ -93,9 +93,6 @@ const FraudCheckerClient = () => {
       (phoneInfo?.international as string | undefined) ??
       "",
   );
-  const phoneDisplayNode: React.ReactNode = phoneDisplay;
-  const phoneOperatorNode: React.ReactNode = phoneOperator;
-  const phoneInternationalNode: React.ReactNode = phoneInternational;
   const summary = result?.summary ?? result ?? null;
   const totalOrders: number = Number(
     (summary?.total_orders as number | undefined) ??
@@ -213,15 +210,14 @@ const FraudCheckerClient = () => {
                     <p className="text-xs text-slate-500 mb-1">
                       কাস্টমারের ফোন নম্বর
                     </p>
-                    {/* Use phoneDisplayNode (string) only - do not render phoneInfo directly (ReactNode type error) */}
                     <p className="text-sm font-semibold text-slate-900 break-words">
-                      {phoneDisplayNode}
+                      {`${phoneDisplay}`}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
                     <p className="text-xs text-slate-500 mb-1">অপারেটর</p>
                     <p className="text-sm font-semibold text-emerald-600">
-                      {phoneOperatorNode}
+                      {`${phoneOperator}`}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
@@ -229,7 +225,7 @@ const FraudCheckerClient = () => {
                       ইন্টারন্যাশনাল নম্বর
                     </p>
                     <p className="text-sm font-semibold text-sky-600 break-words">
-                      {phoneInternationalNode}
+                      {`${phoneInternational}`}
                     </p>
                   </div>
                 </div>
