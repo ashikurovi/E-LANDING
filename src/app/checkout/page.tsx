@@ -254,8 +254,7 @@ const CheckoutContent = () => {
         setPromo(null);
         return;
       }
-      // date checks
-      const now = new Date();
+      // date checks (reuse now from above)
       if (match.startsAt && new Date(match.startsAt) > now) {
         toast.error("Promo not started");
         setPromo(null);
