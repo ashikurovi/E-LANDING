@@ -213,6 +213,7 @@ const FraudCheckerClient = () => {
                     <p className="text-xs text-slate-500 mb-1">
                       কাস্টমারের ফোন নম্বর
                     </p>
+                    {/* Use phoneDisplayNode (string) only - do not render phoneInfo directly (ReactNode type error) */}
                     <p className="text-sm font-semibold text-slate-900 break-words">
                       {phoneDisplayNode}
                     </p>

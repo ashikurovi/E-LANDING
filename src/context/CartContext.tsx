@@ -69,11 +69,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       setLoading(true);
-      const companyId = userSession.companyId || API_CONFIG.companyId;
+      const companyId = userSession?.companyId || API_CONFIG.companyId;
       const response = await axios.get(
         getApiUrl(`/cartproducts/user/${userSession.userId}?companyId=${companyId}`),
         {
-          headers: getApiHeaders(userSession.accessToken),
+          headers: getApiHeaders(userSession?.accessToken),
         }
       );
 
@@ -108,7 +108,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         await deleteCartItem(cartItemId);
         return;
       }
-      const companyId = userSession.companyId || API_CONFIG.companyId;
+      const companyId = userSession?.companyId || API_CONFIG.companyId;
       await axios.patch(
         getApiUrl(`/cartproducts/${cartItemId}?companyId=${companyId}`),
         { quantity },
@@ -125,7 +125,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // Function to remove a cart item
   const deleteCartItem = async (cartItemId: number): Promise<void> => {
     try {
-      const companyId = userSession.companyId || API_CONFIG.companyId;
+      const companyId = userSession?.companyId || API_CONFIG.companyId;
       await axios.delete(
         getApiUrl(`/cartproducts/${cartItemId}?companyId=${companyId}`),
         {
@@ -151,7 +151,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const companyId = userSession.companyId || API_CONFIG.companyId;
+      const companyId = userSession?.companyId || API_CONFIG.companyId;
       await axios.post(
         getApiUrl(`/cartproducts?companyId=${companyId}`),
         {
@@ -161,7 +161,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           companyId,
         },
         {
-          headers: getApiHeaders(userSession.accessToken),
+          headers: getApiHeaders(userSession?.accessToken),
         }
       );
 
@@ -191,11 +191,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const companyId = userSession.companyId || API_CONFIG.companyId;
+      const companyId = userSession?.companyId || API_CONFIG.companyId;
       await axios.delete(
         getApiUrl(`/cartproducts/user/${userSession.userId}?companyId=${companyId}`),
         {
-          headers: getApiHeaders(userSession.accessToken),
+          headers: getApiHeaders(userSession?.accessToken),
         }
       );
 
