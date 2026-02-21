@@ -35,6 +35,8 @@ interface Cart {
   totalItems: number;
   totalPrice: number;
 }
+  // dgdg
+
 
 interface CartContextType {
   cart: Cart | null;
