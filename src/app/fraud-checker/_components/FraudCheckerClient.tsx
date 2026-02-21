@@ -78,26 +78,57 @@ const FraudCheckerClient = () => {
 
   const phoneInfo =
     result?.phone_info || result?.phone || null;
-  const summary = result?.summary ?? result ?? null;
-  const totalOrders = Number(
-    summary?.total_orders ?? summary?.totalOrders ?? summary?.total ?? 0,
+  const phoneDisplay: string = String(
+    (phoneInfo?.original as string | undefined) ??
+      (phoneInfo?.number as string | undefined) ??
+      phoneToCheck,
   );
-  const successfulOrders = Number(
-    summary?.successful_orders ??
-      summary?.successOrders ??
-      summary?.success ??
+  const phoneOperator: string = String(
+    (phoneInfo?.operator as string | undefined) ??
+      (phoneInfo?.operator_name as string | undefined) ??
+      "অজানা",
+  );
+  const phoneInternational: string = String(
+    (phoneInfo?.e164 as string | undefined) ??
+      (phoneInfo?.international as string | undefined) ??
+      "",
+  );
+  const summary = result?.summary ?? result ?? null;
+  const totalOrders: number = Number(
+    (summary?.total_orders as number | undefined) ??
+      (summary?.totalOrders as number | undefined) ??
+      (summary?.total as number | undefined) ??
       0,
   );
-  const returnedOrders = Number(
-    summary?.returned_orders ?? summary?.returnOrders ?? summary?.returned ?? 0,
+  const successfulOrders: number = Number(
+    (summary?.successful_orders as number | undefined) ??
+      (summary?.successOrders as number | undefined) ??
+      (summary?.success as number | undefined) ??
+      0,
   );
-  const successRate =
+  const returnedOrders: number = Number(
+    (summary?.returned_orders as number | undefined) ??
+      (summary?.returnOrders as number | undefined) ??
+      (summary?.returned as number | undefined) ??
+      0,
+  );
+  const successRate: number =
     totalOrders > 0 ? Math.round((successfulOrders / totalOrders) * 100) : 0;
 
   const providers = (result?.providers ?? result ?? {}) as Record<string, ProviderStats | undefined>;
   const pathao = providers?.pathao || providers?.Pathao || null;
   const steadfast = providers?.steadfast || providers?.Steadfast || null;
   const redx = providers?.redx || providers?.Redx || providers?.RedX || null;
+
+  const pathaoTotal: number = pathao?.total_deliveries ?? pathao?.total ?? 0;
+  const pathaoSuccess: number = pathao?.success ?? 0;
+  const pathaoReturned: number = pathao?.returned ?? 0;
+  const steadfastTotal: number = steadfast?.total_deliveries ?? steadfast?.total ?? 0;
+  const steadfastSuccess: number = steadfast?.success ?? 0;
+  const steadfastReturned: number = steadfast?.returned ?? 0;
+  const redxTotal: number = redx?.total_deliveries ?? redx?.total ?? 0;
+  const redxSuccess: number = redx?.success ?? 0;
+  const redxReturned: number = redx?.returned ?? 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-pink-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -180,13 +211,13 @@ const FraudCheckerClient = () => {
                       কাস্টমারের ফোন নম্বর
                     </p>
                     <p className="text-sm font-semibold text-slate-900 break-words">
-                      {String(phoneInfo?.original ?? phoneInfo?.number ?? phoneToCheck)}
+                      {phoneDisplay}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
                     <p className="text-xs text-slate-500 mb-1">অপারেটর</p>
                     <p className="text-sm font-semibold text-emerald-600">
-                      {String(phoneInfo?.operator ?? phoneInfo?.operator_name ?? "অজানা")}
+                      {phoneOperator}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white border border-slate-100 px-4 py-3">
@@ -194,7 +225,7 @@ const FraudCheckerClient = () => {
                       ইন্টারন্যাশনাল নম্বর
                     </p>
                     <p className="text-sm font-semibold text-sky-600 break-words">
-                      {String(phoneInfo?.e164 ?? phoneInfo?.international ?? "")}
+                      {phoneInternational}
                     </p>
                   </div>
                 </div>
@@ -257,19 +288,19 @@ const FraudCheckerClient = () => {
                   <p className="text-xs text-slate-600 mb-1">
                     মোট ডেলিভারি:{" "}
                     <span className="text-emerald-700 font-semibold">
-                      {pathao?.total_deliveries ?? pathao?.total ?? 0}
+                      {pathaoTotal}
                     </span>
                   </p>
                   <p className="text-xs text-slate-600 mb-1">
                     সফল:{" "}
                     <span className="text-emerald-700 font-semibold">
-                      {pathao?.success ?? 0}
+                      {pathaoSuccess}
                     </span>
                   </p>
                   <p className="text-xs text-slate-600 mb-1">
                     রিটার্ন:{" "}
                     <span className="text-amber-700 font-semibold">
-                      {pathao?.returned ?? 0}
+                      {pathaoReturned}
                     </span>
                   </p>
                 </div>
@@ -286,19 +317,19 @@ const FraudCheckerClient = () => {
                       <p className="text-xs text-slate-600 mb-1">
                         মোট ডেলিভারি:{" "}
                         <span className="text-sky-700 font-semibold">
-                          {steadfast?.total_deliveries ?? steadfast?.total ?? 0}
+                          {steadfastTotal}
                         </span>
                       </p>
                       <p className="text-xs text-slate-600 mb-1">
                         সফল:{" "}
                         <span className="text-emerald-700 font-semibold">
-                          {steadfast?.success ?? 0}
+                          {steadfastSuccess}
                         </span>
                       </p>
                       <p className="text-xs text-slate-600 mb-1">
                         রিটার্ন:{" "}
                         <span className="text-amber-700 font-semibold">
-                          {steadfast?.returned ?? 0}
+                          {steadfastReturned}
                         </span>
                       </p>
                     </>
@@ -321,19 +352,19 @@ const FraudCheckerClient = () => {
                       <p className="text-xs text-slate-600 mb-1">
                         মোট ডেলিভারি:{" "}
                         <span className="text-rose-700 font-semibold">
-                          {redx?.total_deliveries ?? redx?.total ?? 0}
+                          {redxTotal}
                         </span>
                       </p>
                       <p className="text-xs text-slate-600 mb-1">
                         সফল:{" "}
                         <span className="text-emerald-700 font-semibold">
-                          {redx?.success ?? 0}
+                          {redxSuccess}
                         </span>
                       </p>
                       <p className="text-xs text-slate-600 mb-1">
                         রিটার্ন:{" "}
                         <span className="text-amber-700 font-semibold">
-                          {redx?.returned ?? 0}
+                          {redxReturned}
                         </span>
                       </p>
                     </>
