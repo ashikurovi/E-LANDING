@@ -1,6 +1,7 @@
 /* Public order tracking page */
 "use client";
 
+import { Suspense } from "react";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { getApiUrl } from "@/lib/api-config";
@@ -72,7 +73,7 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export default function OrderTrackingPage() {
+function OrderTrackingContent() {
   const searchParams = useSearchParams();
   const [trackingId, setTrackingId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -267,3 +268,10 @@ export default function OrderTrackingPage() {
   );
 }
 
+export default function OrderTrackingPage() {
+  return (
+    <Suspense fallback={<div className="max-w-3xl mx-auto px-4 py-8">লোড হচ্ছে...</div>}>
+      <OrderTrackingContent />
+    </Suspense>
+  );
+}
