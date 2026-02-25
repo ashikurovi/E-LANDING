@@ -16,6 +16,7 @@ import { TbCurrencyTaka, TbTruckReturn } from "react-icons/tb";
 import ProductCart from "./ProductCart";
 import Variant from "./Variant";
 import { Review } from "../../../../types/review";
+import { PromoCode } from "../../../../lib/api-services";
 
 interface CategoryProps {
   name: string;
@@ -64,9 +65,10 @@ interface ProductProps {
     reviews: Review[];
     variant: VariantProps[];
   };
+  promos?: PromoCode[];
 }
 
-const ProductDetails: React.FC<ProductProps> = ({ product }) => {
+const ProductDetails: React.FC<ProductProps> = ({ product, promos }) => {
   const [price, setPrice] = useState(
     Number(product?.price ?? product?.variant[0]?.price ?? 0),
   );
@@ -90,6 +92,7 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
   };
 
   const hasDiscount = discountedPrice > 0 && discountedPrice < originalPrice;
+  const applicablePromos = promos ?? [];
 
   // ============================================
   // 📋 CONSOLE LOGS - SECTION WISE DATA
@@ -244,6 +247,36 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
         )}
       </div>
       {/* product price info end */}
+
+      {/* product specific promo codes start */}
+      {applicablePromos.length > 0 && (
+        <div className="mt-2 space-y-1">
+          <p className="text-xs sm:text-sm text-gray-700">
+            এই প্রোডাক্টের জন্য উপলব্ধ কুপন কোড:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {applicablePromos.map((promo) => (
+              <Link
+                key={promo.id}
+                href={`/checkout?productId=${encodeURIComponent(
+                  String(product?.documentId || product?.id),
+                )}&companyId=${encodeURIComponent(
+                  product?.companyId || "",
+                )}&promoCode=${encodeURIComponent(promo.code)}`}
+                className="text-xs px-3 py-1 rounded-full border bg-pink-50 text-pink-700 border-pink-200 hover:bg-primary hover:text-white transition-colors"
+              >
+                <span className="font-semibold">{promo.code}</span>
+                <span className="ml-1 text-[11px] text-pink-900/80">
+                  {promo.discountType === "percentage"
+                    ? `${promo.discountValue}% ছাড়`
+                    : `${promo.discountValue}৳ ছাড়`}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* product specific promo codes end */}
 
       {/* cart & buy now button start */}
       <div className="flex min-[1035px]:flex-row md:flex-col min-[500px]:flex-row flex-col gap-3">

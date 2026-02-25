@@ -2,7 +2,7 @@
 
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CheckoutCart from "./_components/CheckoutCart";
 import CustomerInfo from "./_components/CustomerInfo";
@@ -63,14 +63,23 @@ const CheckoutContent = () => {
     unitPrice: number;
     totalPrice: number;
   } | null>(null);
+  const [initialPromoFromQuery, setInitialPromoFromQuery] = useState<string | null>(null);
+  const hasAppliedInitialPromo = useRef(false);
 
-  // Fetch product from query params
+  // Fetch product from query params and promo code
   useEffect(() => {
     const productId = searchParams.get("productId");
     const companyId =
       searchParams.get("companyId") ||
       userSession?.companyId ||
       API_CONFIG.companyId;
+
+    const promoFromQuery = searchParams.get("promoCode");
+
+    if (promoFromQuery) {
+      setInitialPromoFromQuery(promoFromQuery);
+      setPromoCode(promoFromQuery);
+    }
 
     if (productId && companyId) {
       const fetchQueryProduct = async () => {
@@ -235,6 +244,14 @@ const CheckoutContent = () => {
   const total = Math.max(subtotal - discount, 0);
   const grandTotal = total + shippingCharge;
 
+  // Auto apply promo from query once items are ready
+  useEffect(() => {
+    if (!initialPromoFromQuery || hasAppliedInitialPromo.current) return;
+    if (!items.length) return;
+
+    hasAppliedInitialPromo.current = true;
+    applyPromoCore(initialPromoFromQuery);
+  }, [initialPromoFromQuery, items]);
   const applyPromoCore = async (code: string) => {
     const trimmed = code.trim();
     if (!trimmed) return;

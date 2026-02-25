@@ -1,5 +1,11 @@
-import { getProductBySlug, getProductReviews, getRefundPolicies } from "../../../lib/api-services";
-import type { Product } from "../../../lib/api-services";
+import {
+  getProductBySlug,
+  getProductReviews,
+  getRefundPolicies,
+  getPublicPromocodes,
+  type Product,
+  type PromoCode,
+} from "../../../lib/api-services";
 import { API_CONFIG } from "../../../lib/api-config";
 import { Suspense } from "react";
 import BreadCrumb from "../_components/Product/Breadcrumb";
@@ -116,15 +122,17 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   let product: ProductProps;
   let returnPolicyContent = "";
+  let promos: PromoCode[] = [];
   try {
     const companyId = API_CONFIG.companyId;
     // First fetch product by slug/SKU
     const apiProduct = await getProductBySlug(id, companyId);
 
-    // Then in parallel: reviews (by numeric product ID) and refund policies
-    const [apiReviews, returnPolicies] = await Promise.all([
+    // Then in parallel: reviews (by numeric product ID), refund policies and public promo codes
+    const [apiReviews, returnPolicies, publicPromos] = await Promise.all([
       getProductReviews(apiProduct.id, companyId),
       getRefundPolicies(companyId),
+      getPublicPromocodes(companyId),
     ]);
     const returnPolicy = (returnPolicies as ReturnPolicy[])[0];
 
@@ -141,6 +149,23 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
     }));
 
     product = mapProductToComponentFormat(apiProduct, mappedReviews, companyId);
+
+    // Filter applicable promo codes for this product
+    const now = new Date();
+    const activePromos = publicPromos.filter((p) => {
+      if (!p.isActive) return false;
+      if (p.startsAt && new Date(p.startsAt) > now) return false;
+      if (p.expiresAt && new Date(p.expiresAt) < now) return false;
+      return true;
+    });
+
+    promos = activePromos.filter((p) => {
+      if (!Array.isArray(p.productIds) || p.productIds.length === 0) {
+        return true; // global promo
+      }
+      return p.productIds.includes(apiProduct.id);
+    });
+
     returnPolicyContent = returnPolicy?.content || "";
   } catch (error) {
     console.error("Error fetching product:", error);
@@ -172,7 +197,7 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
 
               {/* product details */}
               <div className="rounded-2xl border border-pink-100 bg-white/90 p-4 md:p-5 lg:p-6">
-                <ProductDetails product={product} />
+                <ProductDetails product={product} promos={promos} />
               </div>
             </div>
 
