@@ -12,6 +12,7 @@ import {
   getPublicPromocodes,
   PromoCode,
   getProduct,
+  getProductBySlug,
   getSystemUserByCompanyId,
 } from "../../lib/api-services";
 import { API_CONFIG } from "../../lib/api-config";
@@ -68,7 +69,7 @@ const CheckoutContent = () => {
 
   // Fetch product from query params and promo code
   useEffect(() => {
-    const productId = searchParams.get("productId");
+    const rawProductId = searchParams.get("productId");
     const companyId =
       searchParams.get("companyId") ||
       userSession?.companyId ||
@@ -81,12 +82,20 @@ const CheckoutContent = () => {
       setPromoCode(promoFromQuery);
     }
 
-    if (productId && companyId) {
+    if (rawProductId && companyId) {
       const fetchQueryProduct = async () => {
         try {
-          const product = await getProduct(parseInt(productId), companyId);
-          // Calculate final price (considering discount)
-          const finalPrice = product.discountPrice || product.price;
+          // Support both numeric IDs and slug/SKU values for productId
+          const isNumericId = /^[0-9]+$/.test(rawProductId);
+          const product = isNumericId
+            ? await getProduct(Number(rawProductId), companyId)
+            : await getProductBySlug(rawProductId, companyId);
+
+          // Calculate final price (prioritizing flash sale, then discount)
+          const finalPrice =
+            (product as any).flashSellPrice ??
+            product.discountPrice ??
+            product.price;
           setQueryProduct({
             id: 0, // Temporary ID for query product
             product: {
@@ -352,6 +361,8 @@ const CheckoutContent = () => {
           if (!p.isActive) return false;
           if (p.startsAt && new Date(p.startsAt) > now) return false;
           if (p.expiresAt && new Date(p.expiresAt) < now) return false;
+          // Respect minimum order amount for current subtotal
+          if (p.minOrderAmount && subtotal < p.minOrderAmount) return false;
           return true;
         });
 
@@ -365,6 +376,13 @@ const CheckoutContent = () => {
         });
 
         setAvailablePromos(relevantPromos);
+
+        // If user didn't choose any code yet, auto-select the first applicable promo
+        if (!promo && !promoCode && relevantPromos.length > 0) {
+          const autoPromo = relevantPromos[0];
+          setPromoCode(autoPromo.code);
+          setPromo(autoPromo);
+        }
       } catch (error) {
         console.error("Failed to load promo codes", error);
         setAvailablePromos([]);
