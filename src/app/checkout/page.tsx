@@ -361,8 +361,6 @@ const CheckoutContent = () => {
           if (!p.isActive) return false;
           if (p.startsAt && new Date(p.startsAt) > now) return false;
           if (p.expiresAt && new Date(p.expiresAt) < now) return false;
-          // Respect minimum order amount for current subtotal
-          if (p.minOrderAmount && subtotal < p.minOrderAmount) return false;
           return true;
         });
 
@@ -377,9 +375,14 @@ const CheckoutContent = () => {
 
         setAvailablePromos(relevantPromos);
 
-        // If user didn't choose any code yet, auto-select the first applicable promo
+        // If user didn't choose any code yet, auto-select a promo
         if (!promo && !promoCode && relevantPromos.length > 0) {
-          const autoPromo = relevantPromos[0];
+          // Prefer a promo that already meets min order requirement (if any)
+          const autoPromo =
+            relevantPromos.find(
+              (p) => !p.minOrderAmount || subtotal >= p.minOrderAmount,
+            ) || relevantPromos[0];
+
           setPromoCode(autoPromo.code);
           setPromo(autoPromo);
         }
@@ -392,7 +395,7 @@ const CheckoutContent = () => {
     };
 
     fetchPromos();
-  }, [searchParams, userSession?.companyId, items]);
+  }, [searchParams, userSession?.companyId, items, subtotal]);
 
   const handleOrder = async () => {
     if (!userSession?.accessToken || !userSession?.userId) {

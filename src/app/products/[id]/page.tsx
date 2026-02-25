@@ -65,11 +65,22 @@ interface ProductProps {
 }
 
 // Helper function to map REST API product to component format
-function mapProductToComponentFormat(apiProduct: Product, reviews: Review[], companyId: string): ProductProps {
-  // Calculate discount percentage
-  const off = apiProduct.discountPrice && apiProduct.price
-    ? Math.round(((apiProduct.price - apiProduct.discountPrice) / apiProduct.price) * 100)
-    : 0;
+function mapProductToComponentFormat(
+  apiProduct: Product,
+  reviews: Review[],
+  companyId: string,
+): ProductProps {
+  // Determine effective selling price: flash sell > discount > base
+  const effectiveDiscountPrice =
+    (apiProduct as any).flashSellPrice ??
+    apiProduct.discountPrice ??
+    apiProduct.price;
+
+  // Calculate discount percentage based on effective discount price
+  const off =
+    effectiveDiscountPrice && apiProduct.price && effectiveDiscountPrice < apiProduct.price
+      ? Math.round(((apiProduct.price - effectiveDiscountPrice) / apiProduct.price) * 100)
+      : 0;
 
   // Map images
   const images: ImageProps[] = apiProduct.images?.map((img: { url: string; alt?: string }, index: number) => ({
@@ -105,7 +116,14 @@ function mapProductToComponentFormat(apiProduct: Product, reviews: Review[], com
     documentId: apiProduct.id.toString(),
     off,
     price: Number(apiProduct.price),
-    discountPrice: apiProduct.discountPrice ? Number(apiProduct.discountPrice) : undefined,
+    // Use flash sell price if present; otherwise fall back to normal discount
+    discountPrice:
+      (apiProduct as any).flashSellPrice !== undefined &&
+      (apiProduct as any).flashSellPrice !== null
+        ? Number((apiProduct as any).flashSellPrice)
+        : apiProduct.discountPrice
+          ? Number(apiProduct.discountPrice)
+          : undefined,
     title: apiProduct.name,
     total_sale: 0, // Not available in REST API
     categories,
