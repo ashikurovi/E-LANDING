@@ -58,13 +58,13 @@ const Tab: React.FC<ProductProps> = ({ product, returnPolicyContent }) => {
   const items: TabsProps["items"] = [
     {
       key: "1",
-      label: "Description",
+      label: "বর্ণনা",
       children: <Description description={product?.description} />,
     },
 
     {
       key: "2",
-      label: "Reviews",
+      label: "রিভিউ",
       children: (
         <Reviews
           reviews={product?.reviews}
@@ -75,7 +75,7 @@ const Tab: React.FC<ProductProps> = ({ product, returnPolicyContent }) => {
     },
     {
       key: "3",
-      label: "Return Policies",
+      label: "রিটার্ন নীতিমালা",
       children: <ReturnPolicies content={returnPolicyContent} />,
     },
   ];

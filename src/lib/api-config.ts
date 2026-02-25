@@ -3,7 +3,7 @@
  */
 
 export const API_CONFIG = {
-  baseURL: "https://squadcart-backend.up.railway.app",
+  baseURL: "https://e-api-omega.vercel.app",
   companyId: "COMP-000001",
 };
 

@@ -5,24 +5,15 @@ import Link from "next/link";
 import React from "react";
 
 const HeroCarousel: React.FC = async () => {
-  let banners: Banner[] = [];
-
-  try {
-    banners = await getBanners('COMP-000001');
-  } catch (error) {
-    console.error("Failed to load banners:", error);
-    // banners will remain empty array
-  }
-
-  // Filter only active banners
-  const activeBanners = banners.filter((banner: Banner) => banner.isActive);
+  const banners: Banner[] = await getBanners("COMP-000001").catch(() => []);
+  const activeBanners = (banners ?? []).filter((banner: Banner) => banner.isActive);
 
   if (activeBanners.length === 0) {
     return null;
   }
 
   return (
-    <section className="max-w-7xl mx-auto">
+    <section className="max-w-7xl lg:mt-3 mt-0 mx-auto">
       <EmblaCarousel dotButtons autoplay>
         {activeBanners?.map((banner: Banner) => (
           <div

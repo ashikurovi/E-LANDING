@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { CiSearch } from "react-icons/ci";
 import { FaBars, FaXmark } from "react-icons/fa6";
@@ -9,11 +9,44 @@ import Logo from "../../public/images/logo.png";
 import { cn } from "../utils/cn";
 import ProfileDropDown from "./drop down/PrfofileDropDown";
 import CartDrawer from "./shopping cart/CartDrawer";
+import { useAuth } from "../context/AuthContext";
+import { API_CONFIG } from "../lib/api-config";
+import { getSystemUserByCompanyId } from "../lib/api-services";
+
+const RESELLER_PERMISSION = "RESELLER";
 
 const Header = () => {
+  const { userSession } = useAuth();
   const [toggle, setToggle] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [logoSrc, setLogoSrc] = useState<string | null>(null);
   const router = useRouter();
+
+
+
+  const companyId = useMemo(
+    () => userSession?.companyId || API_CONFIG.companyId,
+    [userSession?.companyId],
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    const loadLogo = async () => {
+      if (!companyId) return;
+      try {
+        const user = await getSystemUserByCompanyId(companyId);
+        if (mounted && user?.companyLogo) {
+          setLogoSrc(user.companyLogo);
+        }
+      } catch (error) {
+        console.error("Failed to load company logo for header:", error);
+      }
+    };
+    loadLogo();
+    return () => {
+      mounted = false;
+    };
+  }, [companyId]);
 
   const handleSearch = () => {
     const query = searchTerm.trim();
@@ -28,7 +61,11 @@ const Header = () => {
       <div className=" max-w-7xl px-5 mx-auto flex items-center justify-between gap-5 py-2">
         <Link href="/" className=" cursor-pointer">
           <div>
-            <Image src={Logo} alt="logo" width={100} />
+            {logoSrc ? (
+              <Image src={logoSrc} alt="logo" width={100} height={40} unoptimized />
+            ) : (
+              <Image src={Logo} alt="logo" width={100} />
+            )}
           </div>
         </Link>
 
@@ -76,10 +113,10 @@ const Header = () => {
                 শপ
               </Link>
               <Link
-                href="/about-us"
+                href="/order-tracking"
                 className=" text-lg font-medium px-3 py-2 hover:text-primary transition-all ease-linear duration-200"
               >
-                আমাদের সম্পর্কে
+                অর্ডার ট্র্যাকিং
               </Link>
               <Link
                 href="/contact-us"
@@ -92,6 +129,12 @@ const Header = () => {
                 className=" text-lg font-medium px-3 py-2 hover:text-primary transition-all ease-linear duration-200"
               >
                 ফ্ল্যাশ সেল
+              </Link>
+              <Link
+                href="/reseller"
+                className=" text-lg font-medium px-3 py-2 hover:text-primary transition-all ease-linear duration-200"
+              >
+                রিসেলার
               </Link>
             </ul>
           </div>
@@ -132,21 +175,21 @@ const Header = () => {
           </Link>
           <Link
             onClick={() => setToggle(!toggle)}
-            href="/"
+            href="/products"
             className=" text-lg font-medium px-5 py-2 hover:text-primary transition-all ease-linear duration-200 hover:bg-primary/5"
           >
             শপ
           </Link>
           <Link
             onClick={() => setToggle(!toggle)}
-            href="/register"
+            href="/order-tracking"
             className=" text-lg font-medium px-5 py-2 hover:text-primary transition-all ease-linear duration-200 hover:bg-primary/5"
           >
-            আমাদের সম্পর্কে
+            অর্ডার ট্র্যাকিং
           </Link>
           <Link
             onClick={() => setToggle(!toggle)}
-            href="/"
+            href="/contact-us"
             className=" text-lg font-medium px-5 py-2 hover:text-primary transition-all ease-linear duration-200 hover:bg-primary/5"
           >
             যোগাযোগ
@@ -157,6 +200,13 @@ const Header = () => {
             className=" text-lg font-medium px-5 py-2 hover:text-primary transition-all ease-linear duration-200 hover:bg-primary/5"
           >
             ফ্ল্যাশ সেল
+          </Link>
+          <Link
+            onClick={() => setToggle(!toggle)}
+            href="/reseller"
+            className=" text-lg font-medium px-5 py-2 hover:text-primary transition-all ease-linear duration-200 hover:bg-primary/5"
+          >
+            রিসেলার
           </Link>
         </ul>
       </div>

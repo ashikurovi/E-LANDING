@@ -6,10 +6,15 @@ import { Suspense } from "react";
 import FlashSale from "./_components/Flash Sale/FlashSale";
 import TopProduct from "./_components/Top Products/TopProduct";
 import TrendingProducts from "./_components/TrendingProducts";
+import ThemeLoader from "../components/shared/ThemeLoader";
 
 export default function Home() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <Suspense
+      fallback={
+        <ThemeLoader fullPage message="হোম পেইজ লোড হচ্ছে, একটু অপেক্ষা করুন..." />
+      }
+    >
       <main>
         <HeroCarousel />
         <Category />

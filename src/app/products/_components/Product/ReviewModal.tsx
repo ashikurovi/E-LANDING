@@ -25,17 +25,17 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ productId, companyId, onSubmi
       setIsModalOpen(true);
       return;
     }
-    toast("Please login to write a review", { icon: "🔒" });
+    toast("রিভিউ লিখতে আগে অনুগ্রহ করে লগইন করুন", { icon: "🔒" });
   };
 
   const handleSubmit = async () => {
     if (!rating || !review.trim()) {
-      toast.error("Please provide both a rating and a review.");
+      toast.error("অনুগ্রহ করে রেটিং এবং রিভিউ দুটোই প্রদান করুন।");
       return;
     }
 
     if (!userSession?.accessToken) {
-      toast.error("You must be logged in to submit a review.");
+      toast.error("রিভিউ সাবমিট করতে হলে আপনাকে লগইন থাকতে হবে।");
       return;
     }
 
@@ -47,13 +47,13 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ productId, companyId, onSubmi
         companyId || userSession.companyId || API_CONFIG.companyId
       );
       onSubmitted?.(created);
-      toast.success("Review submitted successfully!");
+      toast.success("রিভিউ সফলভাবে সাবমিট হয়েছে!");
       setIsModalOpen(false);
       setRating(0);
       setReview("");
     } catch (error) {
       console.error("Failed to submit review", error);
-      toast.error("Failed to submit review. Please try again.");
+      toast.error("রিভিউ সাবমিট করতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
     } finally {
       setSubmitting(false);
     }
@@ -65,10 +65,10 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ productId, companyId, onSubmi
         onClick={showModal}
         className="max-w-max border border-primary hover:bg-primary hover:text-white transition-all duration-200 ease-linear px-2.5 py-1.5 rounded-full sm:text-sm text-xs"
       >
-        Write a review
+        রিভিউ লিখুন
       </button>
       <Modal
-        title="Write a product review"
+        title="পণ্যের রিভিউ লিখুন"
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={[
@@ -79,13 +79,13 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ productId, companyId, onSubmi
             disabled={!rating || !review.trim()}
             loading={submitting}
           >
-            Submit
+            সাবমিট
           </Button>,
         ]}
       >
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <h2 className="font-bold">Your Rating</h2>
+            <h2 className="font-bold">আপনার রেটিং</h2>
             <Rate
               style={{ fontSize: "1.2rem" }}
               allowHalf={false}
@@ -101,7 +101,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ productId, companyId, onSubmi
               rows={5}
               value={review}
               onChange={(e) => setReview(e.target.value)}
-              placeholder="Write your review here..."
+              placeholder="এখানে আপনার রিভিউ লিখুন..."
               autoFocus
             />
           </div>

@@ -34,24 +34,38 @@ const TopBar = () => {
       <div>
         <Select
           labelInValue
-          value={{ value: currentSort, label: currentSort }}
-          style={{ width: 200 }}
+          value={{
+            value: currentSort,
+            label:
+              currentSort === "Sort by popularity"
+                ? "জনপ্রিয়তার ভিত্তিতে"
+                : currentSort === "Sort by average rating"
+                  ? "গড় রেটিং অনুযায়ী"
+                  : currentSort === "Sort by latest"
+                    ? "সর্বশেষ পণ্য আগে"
+                    : currentSort === "Sort by price: low to high"
+                      ? "দাম কম থেকে বেশি"
+                      : currentSort === "Sort by price: high to low"
+                        ? "দাম বেশি থেকে কম"
+                        : "ডিফল্ট সাজানো",
+          }}
+          style={{ width: 220 }}
           onChange={handleChange}
           options={[
-            { value: "Default Sorting", label: "Default Sorting" },
-            { value: "Sort by popularity", label: "Sort by popularity" },
+            { value: "Default Sorting", label: "ডিফল্ট সাজানো" },
+            { value: "Sort by popularity", label: "জনপ্রিয়তার ভিত্তিতে" },
             {
               value: "Sort by average rating",
-              label: "Sort by average rating",
+              label: "গড় রেটিং অনুযায়ী",
             },
-            { value: "Sort by latest", label: "Sort by latest" },
+            { value: "Sort by latest", label: "সর্বশেষ পণ্য আগে" },
             {
               value: "Sort by price: low to high",
-              label: "Sort by price: low to high",
+              label: "দাম কম থেকে বেশি",
             },
             {
               value: "Sort by price: high to low",
-              label: "Sort by price: high to low",
+              label: "দাম বেশি থেকে কম",
             },
           ]}
         />

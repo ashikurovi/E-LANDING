@@ -44,15 +44,20 @@ const ForYou = async () => {
               discountPrice: product.discountPrice,
               thumbnail: product.thumbnail,
               images: product.images?.map(img => ({ name: img.alt || 'Product image', url: img.url })) || [],
+              description: product.description,
+              shortDescription: product.description,
               reviews: [],
             }} />
           </div>
         ))}
       </div>
       <div className="flex items-center justify-center">
-        <h1 className="  mt-5 text-center bg-primary hover:bg-pink-700 max-w-max text-white px-10 py-2 rounded cursor-pointer">
+        <Link
+          href={"/products"}
+          className="mt-5 text-center bg-primary hover:bg-pink-700 max-w-max text-white px-10 py-2 rounded cursor-pointer"
+        >
           আরও দেখুন
-        </h1>
+        </Link>
       </div>
     </section>
   );

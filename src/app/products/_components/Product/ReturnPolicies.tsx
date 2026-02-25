@@ -6,7 +6,7 @@ const ReturnPolicies = ({ content }: ReturnPoliciesProps) => {
   if (!content) {
     return (
       <div className="text-gray-600 text-sm">
-        Return policy information is not available right now.
+        রিটার্ন নীতিমালা সংক্রান্ত তথ্য এখনই উপলব্ধ নয়।
       </div>
     );
   }

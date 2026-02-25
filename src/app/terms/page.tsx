@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FiChevronDown,
   FiCreditCard,
   FiFileText,
   FiShield,
 } from "react-icons/fi";
+import { getTerms } from "@/lib/api-services";
+import type { PolicyPage } from "@/types/policy";
 
 const faqs = [
   {
@@ -28,7 +30,35 @@ const faqs = [
 ];
 
 const TermsPage = () => {
-  const [openFaq, setOpenFaq] = useState<number | null>(null); // ← fixed here
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [termsContent, setTermsContent] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadTerms = async () => {
+      try {
+        const data: PolicyPage[] = await getTerms();
+        if (!isMounted) return;
+        if (Array.isArray(data) && data.length > 0 && data[0]?.content) {
+          setTermsContent(data[0].content);
+        }
+      } catch (error) {
+        console.error("Failed to load terms content:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadTerms();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-primary/5">
@@ -103,7 +133,17 @@ const TermsPage = () => {
         </header>
 
         <section className="rounded-xl bg-white border border-gray-200 px-6 py-8 md:px-8 md:py-9 shadow-[0_4px_12px_rgba(15,23,42,0.08)] space-y-8 text-gray-800">
-          <article className="prose max-w-none prose-sm sm:prose-base text-gray-800 flex flex-col gap-4">
+          {isLoading && !termsContent && (
+            <p className="text-sm text-gray-500">টার্মস & কন্ডিশন লোড হচ্ছে...</p>
+          )}
+
+          {termsContent ? (
+            <article
+              className="prose max-w-none prose-sm sm:prose-base text-gray-800"
+              dangerouslySetInnerHTML={{ __html: termsContent }}
+            />
+          ) : (
+            <article className="prose max-w-none prose-sm sm:prose-base text-gray-800 flex flex-col gap-4">
             <section>
               <h2>১. একাউন্ট তৈরি ও ইউজারের দায়িত্ব</h2>
               <p>
@@ -300,6 +340,7 @@ const TermsPage = () => {
               </p>
             </section>
           </article>
+          )}
         </section>
 
         <section className="space-y-5">

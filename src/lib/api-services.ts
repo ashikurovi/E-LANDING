@@ -43,6 +43,21 @@ export interface Banner {
     updatedAt: string;
 }
 
+export interface TopProductsItem {
+    id: number;
+    title: string;
+    desc: string;
+    image: string;
+    isActive: boolean;
+    order: number;
+}
+
+export interface TopProductsSection {
+    leftImage: string | null;
+    rightImage: string | null;
+    carouselItems: TopProductsItem[];
+}
+
 export interface ApiResponse<T> {
     statusCode: number;
     message?: string;
@@ -75,10 +90,12 @@ export interface PromoCode {
     expiresAt?: string;
     isActive: boolean;
     companyId: string;
+    // Optional list of product IDs this promo applies to
+    productIds?: number[];
 }
 
 /**
- * Get terms & conditions
+ * Get terms & conditions (public endpoint for storefront)
  */
 export async function getTerms(companyId?: string): Promise<PolicyPage[]> {
     try {
@@ -87,11 +104,15 @@ export async function getTerms(companyId?: string): Promise<PolicyPage[]> {
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<PolicyPage[]> | PolicyPage[]>(
-            getApiUrl(`/trems-condetions?${params.toString()}`),
+            getApiUrl(`/trems-condetions/public?${params.toString()}`),
         );
 
         const payload: ApiResponse<PolicyPage[]> | PolicyPage[] = response.data;
-        const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload && Array.isArray(payload.data)) ? payload.data : [];
+        const data = Array.isArray(payload)
+            ? payload
+            : (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data))
+            ? payload.data
+            : [];
         return Array.isArray(data) ? data : [];
     } catch (error: unknown) {
         console.error("Error fetching terms:", error);
@@ -100,7 +121,7 @@ export async function getTerms(companyId?: string): Promise<PolicyPage[]> {
 }
 
 /**
- * Get privacy policy
+ * Get privacy policy (public endpoint for storefront)
  */
 export async function getPrivacyPolicies(companyId?: string): Promise<PolicyPage[]> {
     try {
@@ -109,11 +130,15 @@ export async function getPrivacyPolicies(companyId?: string): Promise<PolicyPage
         if (companyIdParam) params.append("companyId", companyIdParam);
 
         const response = await axios.get<ApiResponse<PolicyPage[]> | PolicyPage[]>(
-            getApiUrl(`/privecy-policy?${params.toString()}`),
+            getApiUrl(`/privecy-policy/public?${params.toString()}`),
         );
 
         const payload: ApiResponse<PolicyPage[]> | PolicyPage[] = response.data;
-        const data = Array.isArray(payload) ? payload : (payload && typeof payload === 'object' && 'data' in payload && Array.isArray(payload.data)) ? payload.data : [];
+        const data = Array.isArray(payload)
+            ? payload
+            : (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data))
+            ? payload.data
+            : [];
         return Array.isArray(data) ? data : [];
     } catch (error: unknown) {
         console.error("Error fetching privacy policy:", error);
@@ -161,6 +186,34 @@ export async function getSystemUserByCompanyId(
         }
         return null;
     }
+}
+
+/**
+ * Create a new system user (e.g. reseller/company)
+ */
+export async function createSystemUser(
+    payload: {
+        name: string;
+        email: string;
+        companyName: string;
+        companyId: string;
+        companyLogo?: string | null;
+        phone?: string | null;
+        branchLocation?: string | null;
+    },
+    token?: string,
+): Promise<SystemUser> {
+    const response = await axios.post<ApiResponse<SystemUser> | SystemUser>(
+        getApiUrl("/systemuser"),
+        payload,
+        token ? { headers: getApiHeaders(token) } : undefined,
+    );
+
+    const data = response.data;
+    if (data && typeof data === "object" && "data" in data) {
+        return (data as ApiResponse<SystemUser>).data;
+    }
+    return data as SystemUser;
 }
 
 /**
@@ -275,11 +328,11 @@ export async function getProductsByCategory(
         if (categoryName) params.append("categories", categoryName);
         if (categoryId) params.append("categoryId", categoryId.toString());
 
-        const response = await axios.get<ApiResponse<Product[]>>(
+        const response = await axios.get<ApiResponse<Product[]> | Product[]>(
             // Use public endpoint to avoid auth/guards (theme/storefront)
             getApiUrl(`/products/public/category?${params.toString()}`),
         );
-        const payload = response.data;
+        const payload: ApiResponse<Product[]> | Product[] = response.data;
         if (Array.isArray(payload)) return payload as unknown as Product[];
         if (payload && typeof payload === "object" && "data" in payload && Array.isArray(payload.data)) return payload.data as Product[];
         return [];
@@ -353,7 +406,7 @@ export async function getProductBySlug(slug: string, companyId?: string): Promis
 }
 
 /**
- * Get trending products
+ * Get trending products (public). Uses fetch for Server Components; never throws.
  */
 export async function getTrendingProducts(
     days?: number,
@@ -362,44 +415,17 @@ export async function getTrendingProducts(
 ): Promise<Product[]> {
     try {
         const params = new URLSearchParams();
-        if (days) params.append("days", days.toString());
-        if (limit) params.append("limit", limit.toString());
-        const companyIdParam = companyId || API_CONFIG.companyId;
-        if (companyIdParam) params.append("companyId", companyIdParam);
-
-        const response = await axios.get<ApiResponse<Product[]>>(
-            getApiUrl(`/products/trending?${params.toString()}`),
-        );
-        return response.data.data;
-    } catch (error: unknown) {
-        console.error("Error fetching trending products:", error);
-        const err = error as {
-            code?: string;
-            message?: string;
-            cause?: { code?: string } | AggregateError;
-            name?: string;
-            errors?: unknown[];
-        };
-        // Handle various connection errors including AggregateError
-        const isConnectionError =
-            err.code === 'ECONNREFUSED' ||
-            err.code === 'ETIMEDOUT' ||
-            err.code === 'ENOTFOUND' ||
-            err.message?.includes('ECONNREFUSED') ||
-            err.message?.includes('ETIMEDOUT') ||
-            err.message?.includes('ENOTFOUND') ||
-            err.message?.includes('Network Error') ||
-            err.message?.includes('fetch failed') ||
-            err.message?.includes('AggregateError') ||
-            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
-            err.name === 'AggregateError' ||
-            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
-
-        if (isConnectionError) {
-            console.warn("Backend server is not running or not accessible. Please start the backend server.");
-            return [];
-        }
-        // For other errors, still return empty array to prevent app crash
+        params.set("companyId", companyId || API_CONFIG.companyId);
+        if (days != null) params.set("days", String(days));
+        if (limit != null) params.set("limit", String(limit));
+        const url = getApiUrl(`/products/trending?${params.toString()}`);
+        const res = await fetch(url, { next: { revalidate: 60 } });
+        if (!res.ok) return [];
+        const json = await res.json();
+        const data = json?.data;
+        return Array.isArray(data) ? data : [];
+    } catch {
+        console.warn("Trending products: backend not accessible, using empty list.");
         return [];
     }
 }
@@ -639,6 +665,31 @@ export async function getPromocodes(token: string, companyId?: string): Promise<
 }
 
 /**
+ * Public promo codes for storefront/checkout (no auth required)
+ */
+export async function getPublicPromocodes(companyId?: string): Promise<PromoCode[]> {
+    try {
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        if (!companyIdParam) return [];
+        const params = new URLSearchParams();
+        params.append("companyId", companyIdParam);
+        const response = await axios.get<ApiResponse<PromoCode[]> | PromoCode[]>(
+            getApiUrl(`/promocode/public?${params.toString()}`),
+        );
+        const payload: ApiResponse<PromoCode[]> | PromoCode[] = response.data;
+        const data = Array.isArray(payload)
+            ? payload
+            : (payload && typeof payload === "object" && "data" in payload)
+            ? (payload as ApiResponse<PromoCode[]>).data
+            : [];
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error("Error fetching public promocodes:", error);
+        return [];
+    }
+}
+
+/**
  * Orders
  */
 export async function createOrder(
@@ -668,49 +719,70 @@ export async function createOrder(
 }
 
 /**
- * Get all banners
+ * Get all banners (public endpoint). Uses fetch so it is safe in Server Components; never throws.
  */
 export async function getBanners(companyId?: string): Promise<Banner[]> {
     try {
-        const params = new URLSearchParams();
         const companyIdParam = companyId || 'COMP-000001';
-        if (companyIdParam) params.append("companyId", companyIdParam);
-
-        const response = await axios.get<ApiResponse<Banner[]>>(
-            getApiUrl(`/banners?${params.toString()}`),
-
-        );
-        return response.data.data;
-    } catch (error: unknown) {
-        console.error("Error fetching banners:", error);
-        const err = error as {
-            code?: string;
-            message?: string;
-            cause?: { code?: string } | AggregateError;
-            name?: string;
-            errors?: unknown[];
-        };
-        // Handle various connection errors including AggregateError
-        const isConnectionError =
-            err.code === 'ECONNREFUSED' ||
-            err.code === 'ETIMEDOUT' ||
-            err.code === 'ENOTFOUND' ||
-            err.message?.includes('ECONNREFUSED') ||
-            err.message?.includes('ETIMEDOUT') ||
-            err.message?.includes('ENOTFOUND') ||
-            err.message?.includes('Network Error') ||
-            err.message?.includes('fetch failed') ||
-            err.message?.includes('AggregateError') ||
-            (err.cause && (err.cause as { code?: string }).code === 'ECONNREFUSED') ||
-            err.name === 'AggregateError' ||
-            (err.name === 'AggregateError' && err.errors && Array.isArray(err.errors));
-
-        if (isConnectionError) {
-            console.warn("Backend server is not running or not accessible. Please start the backend server.");
-            return [];
-        }
-        // For other errors, still return empty array to prevent app crash
+        const url = getApiUrl(`/banners/public?${new URLSearchParams({ companyId: companyIdParam })}`);
+        const res = await fetch(url, { next: { revalidate: 60 } });
+        if (!res.ok) return [];
+        const json = await res.json();
+        const data = json?.data;
+        return Array.isArray(data) ? data : [];
+    } catch {
+        console.warn("Banners: backend not accessible, using empty list.");
         return [];
     }
+}
+
+/**
+ * Get top products section (public). Uses fetch so it is safe in Server Components; never throws.
+ */
+export async function getTopProducts(companyId?: string): Promise<TopProductsSection | null> {
+    try {
+        const companyIdParam = companyId || API_CONFIG.companyId;
+        const url = getApiUrl(`/top-products/public?${new URLSearchParams({ companyId: companyIdParam })}`);
+        const res = await fetch(url, { next: { revalidate: 60 } });
+        if (!res.ok) return null;
+        const json = await res.json();
+        const data = json?.data;
+        if (!data || typeof data !== "object") return null;
+        return {
+            leftImage: data.leftImage ?? null,
+            rightImage: data.rightImage ?? null,
+            carouselItems: Array.isArray(data.carouselItems) ? data.carouselItems : [],
+        };
+    } catch {
+        console.warn("Top products: backend not accessible, using null.");
+        return null;
+    }
+}
+
+/**
+ * Update system user (e.g. reseller/company profile) by ID
+ */
+export async function updateSystemUser(
+    id: number,
+    payload: Partial<SystemUser>,
+    token?: string,
+    companyId?: string,
+): Promise<SystemUser> {
+    const companyIdParam = companyId || API_CONFIG.companyId;
+    const url = companyIdParam
+        ? getApiUrl(`/systemuser/${id}?companyId=${companyIdParam}`)
+        : getApiUrl(`/systemuser/${id}`);
+
+    const response = await axios.patch<ApiResponse<SystemUser> | SystemUser>(
+        url,
+        payload,
+        token ? { headers: getApiHeaders(token) } : undefined,
+    );
+
+    const data = response.data;
+    if (data && typeof data === "object" && "data" in data) {
+        return (data as ApiResponse<SystemUser>).data;
+    }
+    return data as SystemUser;
 }
 

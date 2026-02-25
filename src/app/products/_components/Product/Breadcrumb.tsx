@@ -7,10 +7,10 @@ const BreadCrumb = ({ title }: { title: string }) => {
       <Breadcrumb
         items={[
           {
-            title: <Link href="/">Home</Link>,
+            title: <Link href="/">হোম</Link>,
           },
           {
-            title: <Link href="/products">Products</Link>,
+            title: <Link href="/products">পণ্যসমূহ</Link>,
           },
           {
             title: <p className=" line-clamp-1">{title}</p>,

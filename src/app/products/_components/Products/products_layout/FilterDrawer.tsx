@@ -19,10 +19,10 @@ const FilterDrawer: React.FC = () => {
     <>
       <Button type="primary" onClick={showDrawer}>
         <BsFilterLeft size={23} />
-        Filters
+        ফিল্টার
       </Button>
       <Drawer
-        title="Advanced Filters"
+        title="অ্যাডভান্সড ফিল্টার"
         placement="left"
         onClose={onClose}
         open={open}

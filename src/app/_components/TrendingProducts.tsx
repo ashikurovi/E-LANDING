@@ -3,16 +3,10 @@ import EmblaCarousel from "../../components/shared/EmblaCarousel";
 import ProductCard from "../../components/ui/ProductCard";
 
 const TrendingProducts = async () => {
-  let products: Product[] = [];
+  const products: Product[] = await getTrendingProducts(30, 10, "COMP-000001").catch(() => []);
+  const list = products ?? [];
 
-  try {
-    products = await getTrendingProducts(30, 10, 'COMP-000001');
-  } catch (error) {
-    console.error("Failed to load trending products:", error);
-    // products will remain empty array
-  }
-
-  if (products.length === 0) {
+  if (list.length === 0) {
     return null;
   }
 
@@ -23,7 +17,7 @@ const TrendingProducts = async () => {
       </h1>
       <div>
         <EmblaCarousel dragFree arrowButtons>
-          {products.map((product) => (
+          {list.map((product) => (
             <div
               key={product.id || product.sku}
               className="[flex:0_0_65%] min-[400px]:[flex:0_0_50%]  min-[500px]:[flex:0_0_45%] sm:[flex:0_0_35%] md:[flex:0_0_30%] min-[880px]:[flex:0_0_27%] lg:[flex:0_0_19%] flex flex-col justify-between gap-3 py-3 cursor-pointer select-none"
@@ -38,6 +32,8 @@ const TrendingProducts = async () => {
                 discountPrice: product.discountPrice,
                 thumbnail: product.thumbnail,
                 images: product.images?.map(img => ({ name: img.alt || 'Product image', url: img.url })) || [],
+                description: product.description,
+                shortDescription: product.description,
                 reviews: [],
               }} />
             </div>

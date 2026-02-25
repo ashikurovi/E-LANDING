@@ -151,17 +151,6 @@ const CustomerInfo = ({
               />
               <span>ক্যাশ অন ডেলিভারি</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="prepaid"
-                checked={paymentMethod === "prepaid"}
-                onChange={() => setPaymentMethod?.("prepaid")}
-                className="accent-primary"
-              />
-              <span>অগ্রিম (Bkash/Nagad)</span>
-            </label>
           </div>
         </div>
 

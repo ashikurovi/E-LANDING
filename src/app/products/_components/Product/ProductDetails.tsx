@@ -201,7 +201,7 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
             defaultValue={calculateAverageRating(product?.reviews)}
           />
           <p className="text-xs sm:text-sm text-gray-600">
-            ({product?.reviews.length} reviews)
+            ({product?.reviews.length} টি রিভিউ)
           </p>
         </div>
       </div>
@@ -270,20 +270,20 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
           href={"/product/111"}
           className=" flex items-center gap-1 hover:text-primary transition-all"
         >
-          <FaRegQuestionCircle /> <span>Ask a question</span>
+          <FaRegQuestionCircle /> <span>প্রশ্ন করুন</span>
         </Link>
         <Link
           href={"/product/111"}
           className=" flex items-center gap-1 hover:text-primary transition-all"
         >
-          <FaTruckFast /> <span>Delivery & Return</span>
+          <FaTruckFast /> <span>ডেলিভারি ও রিটার্ন</span>
         </Link>
         <Link
           href={"/product/111"}
           className=" flex items-center gap-1 hover:text-primary transition-all"
         >
           <GoShareAndroid />
-          <span> Share</span>
+          <span> শেয়ার করুন</span>
         </Link>
       </div>
       <div className="grid min-[820px]:grid-cols-2 md:grid-cols-1 min-[500px]:grid-cols-2 grid-cols-1 grid-rows-2 min-[500px]:grid-rows-1 md:grid-rows-2 min-[820px]:grid-rows-1 gap-3 text-sm sm:text-base">
@@ -292,8 +292,8 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
             <FaRegClock size={20} />
           </div>
           <p>
-            Estimate delivery times:
-            <strong> 2-3 days</strong>
+            আনুমানিক ডেলিভারি সময়:
+            <strong> ২-৩ দিন</strong>
           </p>
         </div>
         <div className="flex flex-col items-center justify-center text-center border border-pink-100 bg-pink-50/40 px-5 py-3 rounded-xl">
@@ -301,8 +301,8 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
             <TbTruckReturn size={23} />
           </div>
           <p>
-            Return within <strong>20 days</strong> of purchase. Duties & taxes
-            are non-refunable
+            পণ্য কেনার পর <strong>২০ দিনের</strong> মধ্যে রিটার্ন করা যাবে।
+            শুল্ক ও ট্যাক্স ফিরতযোগ্য নয়।
           </p>
         </div>
       </div>
@@ -311,7 +311,7 @@ const ProductDetails: React.FC<ProductProps> = ({ product }) => {
           <div className="text-lg sm:text-xl text-green-600">
             <RiShieldCheckFill />
           </div>
-          <p className="text-sm sm:text-base">Guaranted Safe Checkout</p>
+          <p className="text-sm sm:text-base">নিরাপদ পেমেন্টের নিশ্চয়তা</p>
         </div>
         <div className="flex gap-3">
           <div className="text-3xl bg-gray-100 px-3 text-blue-800 rounded-lg">

@@ -1,8 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const CountDown = () => {
-  const [timeLeft, setTimeLeft] = useState(3600 + 34 * 60 + 21); // Example: 1 hour, 34 minutes, and 21 seconds
+interface CountDownProps {
+  initialSecondsLeft: number;
+}
+
+const CountDown = ({ initialSecondsLeft }: CountDownProps) => {
+  const [timeLeft, setTimeLeft] = useState<number>(
+    initialSecondsLeft > 0 ? initialSecondsLeft : 0,
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {

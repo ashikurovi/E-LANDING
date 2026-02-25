@@ -9,9 +9,10 @@ import CustomerInfo from "./_components/CustomerInfo";
 import toast from "react-hot-toast";
 import {
   createOrder,
-  getPromocodes,
+  getPublicPromocodes,
   PromoCode,
   getProduct,
+  getSystemUserByCompanyId,
 } from "../../lib/api-services";
 import { API_CONFIG } from "../../lib/api-config";
 
@@ -49,6 +50,7 @@ const CheckoutContent = () => {
       totalPrice: number;
     }>
   >([]);
+  const [companyPhone, setCompanyPhone] = useState<string | null>(null);
   const [queryProduct, setQueryProduct] = useState<{
     id: number;
     product: {
@@ -99,6 +101,16 @@ const CheckoutContent = () => {
       setQueryProduct(null);
     }
   }, [searchParams, userSession?.companyId]);
+
+  // Fetch system user (store) contact for checkout help text
+  useEffect(() => {
+    const companyId =
+      userSession?.companyId || API_CONFIG.companyId;
+    if (!companyId) return;
+    getSystemUserByCompanyId(companyId).then((user) => {
+      if (user?.phone) setCompanyPhone(user.phone);
+    });
+  }, [userSession?.companyId]);
 
   // Prefill user info when logged in
   useEffect(() => {
@@ -226,19 +238,19 @@ const CheckoutContent = () => {
   const applyPromoCore = async (code: string) => {
     const trimmed = code.trim();
     if (!trimmed) return;
-    if (!userSession?.accessToken) {
-      toast.error("Please login to apply promo code");
-      router.push("/login");
+    const companyId =
+      searchParams.get("companyId") ||
+      userSession?.companyId ||
+      API_CONFIG.companyId;
+    if (!companyId) {
+      toast.error("Company information missing");
       return;
     }
     try {
       setPromoLoading(true);
       let promos: PromoCode[] = availablePromos;
       if (!promos.length) {
-        promos = await getPromocodes(
-          userSession.accessToken,
-          userSession.companyId || API_CONFIG.companyId,
-        );
+        promos = await getPublicPromocodes(companyId);
         setAvailablePromos(promos);
       }
       const now = new Date();
@@ -270,6 +282,19 @@ const CheckoutContent = () => {
         setPromo(null);
         return;
       }
+
+      // Ensure promo is applicable to at least one product in the cart, if productIds restriction exists
+      if (Array.isArray(match.productIds) && match.productIds.length > 0) {
+        const itemProductIds = items.map((i) => i.product.id);
+        const applicable = match.productIds.some((id) =>
+          itemProductIds.includes(id),
+        );
+        if (!applicable) {
+          toast.error("এই কুপন আপনার নির্বাচিত প্রোডাক্টে প্রযোজ্য নয়");
+          setPromo(null);
+          return;
+        }
+      }
       setPromoCode(match.code);
       setPromo(match);
       toast.success("Promo applied");
@@ -294,16 +319,17 @@ const CheckoutContent = () => {
   // Prefetch available promos for auto-select buttons
   useEffect(() => {
     const fetchPromos = async () => {
-      if (!userSession?.accessToken) {
+      const companyId =
+        searchParams.get("companyId") ||
+        userSession?.companyId ||
+        API_CONFIG.companyId;
+      if (!companyId) {
         setAvailablePromos([]);
         return;
       }
       try {
         setAvailablePromosLoading(true);
-        const promos = await getPromocodes(
-          userSession.accessToken,
-          userSession.companyId || API_CONFIG.companyId,
-        );
+        const promos = await getPublicPromocodes(companyId);
         const now = new Date();
         const activePromos = promos.filter((p) => {
           if (!p.isActive) return false;
@@ -311,7 +337,17 @@ const CheckoutContent = () => {
           if (p.expiresAt && new Date(p.expiresAt) < now) return false;
           return true;
         });
-        setAvailablePromos(activePromos);
+
+        // Further filter promos to those applicable to current items (if productIds is set)
+        const itemProductIds = items.map((i) => i.product.id);
+        const relevantPromos = activePromos.filter((p) => {
+          if (!Array.isArray(p.productIds) || p.productIds.length === 0) {
+            return true; // global promo
+          }
+          return p.productIds.some((id) => itemProductIds.includes(id));
+        });
+
+        setAvailablePromos(relevantPromos);
       } catch (error) {
         console.error("Failed to load promo codes", error);
         setAvailablePromos([]);
@@ -321,7 +357,7 @@ const CheckoutContent = () => {
     };
 
     fetchPromos();
-  }, [userSession?.accessToken, userSession?.companyId]);
+  }, [searchParams, userSession?.companyId, items]);
 
   const handleOrder = async () => {
     if (!userSession?.accessToken || !userSession?.userId) {
@@ -426,6 +462,7 @@ const CheckoutContent = () => {
           </div>
           <div className="min-[820px]:col-span-2 min-[950px]:col-span-1 order-first min-[820px]:order-none md:sticky md:top-24 self-start">
             <CheckoutCart
+              contactPhone={companyPhone}
               items={items}
               subtotal={subtotal}
               discount={discount}

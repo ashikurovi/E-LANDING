@@ -63,13 +63,14 @@ const ShopByCategory: React.FC = () => {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  if (loading) return <p>Loading categories...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!categories || categories.length === 0) return <p>No categories found.</p>;
+  if (loading) return <p>ক্যাটাগরি লোড হচ্ছে...</p>;
+  if (error) return <p>ত্রুটি: {error}</p>;
+  if (!categories || categories.length === 0)
+    return <p>কোনো ক্যাটাগরি পাওয়া যায়নি।</p>;
 
   return (
     <div className="space-y-2">
-      <h2 className="text-sm font-semibold text-gray-900">Shop by category</h2>
+      <h2 className="text-sm font-semibold text-gray-900">ক্যাটাগরি অনুযায়ী পণ্য</h2>
       <Checkbox.Group value={checkedValues} onChange={handleChange}>
         <div className="flex flex-col gap-1">
           {categories.map((category: Category) => (

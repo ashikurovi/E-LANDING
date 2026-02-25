@@ -1,12 +1,13 @@
 "use client";
 
 import { useAuth } from "../../../context/AuthContext";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, FormEvent } from "react";
 import axios from "axios";
 import { getApiUrl, getApiHeaders } from "../../../lib/api-config";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { FiPackage, FiTruck } from "react-icons/fi";
 import Link from "next/link";
+import ThemeLoader from "../../../components/shared/ThemeLoader";
 
 interface OrderItem {
   id: number;
@@ -29,6 +30,26 @@ interface Order {
   customerAddress?: string;
   createdAt: string;
   items: OrderItem[];
+   shippingTrackingId?: string;
+   shippingProvider?: string;
+}
+
+interface TrackingStatusHistoryEntry {
+  id: number;
+  orderId: number;
+  previousStatus?: string | null;
+  newStatus: string;
+  comment?: string | null;
+  createdAt: string;
+}
+
+interface TrackingOrderStatus {
+  orderId: number;
+  status: string;
+  message?: string;
+  trackingId?: string;
+  shippingProvider?: string;
+  statusHistory?: TrackingStatusHistoryEntry[];
 }
 
 const getStatusColor = (status: string) => {
@@ -48,6 +69,20 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const getStatusMessage = (status: string) => {
+  const s = status.toLowerCase();
+  const map: Record<string, string> = {
+    pending: "Your order has been received and is awaiting confirmation.",
+    processing: "Your order is being prepared for shipment.",
+    paid: "Payment received. Your order is being processed.",
+    shipped: "Your order has been shipped and is on its way.",
+    delivered: "Your order has been delivered successfully.",
+    cancelled: "This order has been cancelled.",
+    refunded: "This order has been refunded.",
+  };
+  return map[s] ?? "Your order status is being updated.";
+};
+
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
@@ -64,6 +99,11 @@ const Orders = () => {
   const [cancellingOrderId, setCancellingOrderId] = useState<number | null>(
     null,
   );
+  const [trackingId, setTrackingId] = useState("");
+  const [trackingResult, setTrackingResult] =
+    useState<TrackingOrderStatus | null>(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [trackingError, setTrackingError] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -126,21 +166,55 @@ const Orders = () => {
     }
   };
 
+  const handleTrackOrder = async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmedId = trackingId.trim();
+    if (!trimmedId) return;
+
+    try {
+      setTrackingLoading(true);
+      setTrackingError(null);
+      setTrackingResult(null);
+
+      const response = await axios.get(
+        getApiUrl(`/orders/track/${encodeURIComponent(trimmedId)}`),
+      );
+
+      const apiData = response.data?.data;
+      if (apiData) {
+        setTrackingResult({
+          orderId: apiData.orderId,
+          status: apiData.status,
+          message: apiData.message,
+          trackingId: apiData.trackingId,
+          shippingProvider: apiData.shippingProvider,
+          statusHistory: apiData.statusHistory ?? [],
+        });
+      } else {
+        setTrackingError(
+          "অর্ডার খুঁজে পাওয়া যায়নি। ট্র্যাকিং আইডি আবার চেক করুন।",
+        );
+      }
+    } catch (error: unknown) {
+      console.error("Error tracking order:", error);
+      const axiosError = error as {
+        response?: { data?: { message?: string; error?: string } };
+      };
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        axiosError.response?.data?.error ||
+        "অর্ডার খুঁজে পাওয়া যায়নি। ট্র্যাকিং আইডি আবার চেক করুন।";
+      setTrackingError(errorMessage);
+    } finally {
+      setTrackingLoading(false);
+    }
+  };
+
   if (loading) {
     return (
-      <section className="w-full flex justify-center items-center min-h-[320px]">
-        <div className="max-w-md w-full text-center space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-1 border border-pink-100">
-            <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
-            <span className="text-[11px] font-medium text-pink-700">
-              Loading your orders
-            </span>
-          </div>
-          <p className="text-sm text-gray-600">
-            আপনার সাম্প্রতিক অর্ডারগুলো লোড হচ্ছে, একটু অপেক্ষা করুন।
-          </p>
-        </div>
-      </section>
+      <ThemeLoader
+        message="আপনার সাম্প্রতিক অর্ডারগুলো লোড হচ্ছে, একটু অপেক্ষা করুন।"
+      />
     );
   }
 
@@ -217,6 +291,87 @@ const Orders = () => {
             </div>
           </div>
         </div>
+
+        <form
+          onSubmit={handleTrackOrder}
+          className="mt-4 grid grid-cols-1 sm:grid-cols-[minmax(0,_2fr)_auto] gap-2 items-center"
+        >
+          <input
+            type="text"
+            value={trackingId}
+            onChange={(e) => setTrackingId(e.target.value)}
+            placeholder="ট্র্যাকিং আইডি লিখুন"
+            className="w-full rounded-full border border-pink-200 bg-white/90 px-4 py-2 text-xs sm:text-sm text-gray-900 placeholder:text-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent"
+          />
+          <button
+            type="submit"
+            disabled={trackingLoading || !trackingId.trim()}
+            className="inline-flex items-center justify-center rounded-full bg-white/90 px-4 py-2 text-xs sm:text-sm font-semibold text-pink-600 hover:bg-white disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          >
+            {trackingLoading ? "ট্র্যাক করা হচ্ছে..." : "অর্ডার ট্র্যাক করুন"}
+          </button>
+        </form>
+
+        {trackingError && (
+          <p className="mt-2 text-[11px] sm:text-xs text-red-100">
+            {trackingError}
+          </p>
+        )}
+
+        {trackingResult && (
+          <div className="mt-3 rounded-xl bg-white/10 px-3 py-2 text-[11px] sm:text-xs space-y-1">
+            <p>
+              <span className="text-pink-100/80">Tracking ID:</span>{" "}
+              <span className="font-semibold">
+                {trackingResult.trackingId || trackingId}
+              </span>
+            </p>
+            <p>
+              <span className="text-pink-100/80">Status:</span>{" "}
+              <span className="font-semibold">
+                {trackingResult.status?.toUpperCase()}
+              </span>
+            </p>
+            {trackingResult.message && (
+              <p className="text-pink-100">{trackingResult.message}</p>
+            )}
+            {trackingResult.shippingProvider && (
+              <p>
+                <span className="text-pink-100/80">Provider:</span>{" "}
+                <span className="font-semibold">
+                  {trackingResult.shippingProvider}
+                </span>
+              </p>
+            )}
+            <p>
+              <span className="text-pink-100/80">Order ID:</span>{" "}
+              <span className="font-semibold">#{trackingResult.orderId}</span>
+            </p>
+
+            {trackingResult.statusHistory &&
+              trackingResult.statusHistory.length > 0 && (
+                <div className="mt-2 border-t border-pink-100/30 pt-2">
+                  <p className="text-[10px] font-semibold text-pink-50 mb-1">
+                    স্ট্যাটাস হিস্টোরি
+                  </p>
+                  <ul className="space-y-1">
+                    {trackingResult.statusHistory.map((entry) => (
+                      <li key={entry.id} className="flex flex-col">
+                        <span className="font-medium">
+                          {formatDate(entry.createdAt)} —{" "}
+                          {entry.newStatus.toUpperCase()}
+                        </span>
+                                <span className="text-pink-100/80">
+                                  {entry.comment ||
+                                    getStatusMessage(entry.newStatus)}
+                                </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+          </div>
+        )}
       </div>
       <div className="flex flex-col gap-4">
         {orders.map((order) => (

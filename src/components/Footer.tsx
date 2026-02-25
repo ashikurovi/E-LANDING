@@ -165,12 +165,6 @@ const Footer = () => {
               >
                 সংগ্রহ
               </Link>
-              <Link
-                href="/"
-                className=" hover:text-primary transition-all ease-linear duration-150"
-              >
-                আমাদের সম্পর্কে
-              </Link>
               {/* <Link
                 href="/"
                 className=" hover:text-primary transition-all ease-linear duration-150"

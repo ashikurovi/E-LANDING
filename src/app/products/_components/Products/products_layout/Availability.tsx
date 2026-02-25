@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const OPTIONS = [
-  { label: "In Stock", value: "in-stock" },
-  { label: "Upcoming", value: "upcoming" },
-  { label: "Out of Stock", value: "out-of-stock" },
+  { label: "স্টকে আছে", value: "in-stock" },
+  { label: "আসছে শীঘ্রই", value: "upcoming" },
+  { label: "স্টকে নেই", value: "out-of-stock" },
 ];
 
 const Availability: React.FC = () => {
@@ -41,7 +41,7 @@ const Availability: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <h2 className="text-sm font-semibold text-gray-900">Availability</h2>
+      <h2 className="text-sm font-semibold text-gray-900">অবস্থিতি</h2>
       <Checkbox.Group value={checkedValues} onChange={handleChange}>
         <div className="flex flex-col gap-1">
           {OPTIONS.map((option) => (

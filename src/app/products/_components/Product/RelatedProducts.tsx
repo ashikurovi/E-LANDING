@@ -23,6 +23,8 @@ interface ProductProps {
   images: ImageProps[];
   reviews: ReviewProps[];
   variant: VariantProps[];
+  description?: string;
+  shortDescription?: string;
 }
 
 // Helper function to map REST API product to component format
@@ -51,6 +53,8 @@ function mapProductToCardFormat(apiProduct: Product): ProductProps {
     images,
     reviews: [],
     variant,
+    description: apiProduct.description,
+    shortDescription: apiProduct.description,
   };
 }
 
@@ -83,7 +87,7 @@ const RelatedProducts = async ({ id }: { id: string }) => {
   return (
     <section className=" max-w-7xl mx-auto  md:pt-10 pt-5 ">
       <h1 className=" sm:text-2xl text-xl font-bold text-primary">
-        Related Products
+        সম্পর্কিত পণ্যসমূহ
       </h1>
       <div>
         <EmblaCarousel dragFree arrowButtons>

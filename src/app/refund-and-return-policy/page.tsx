@@ -1,8 +1,39 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { FiCheckCircle, FiClock, FiRefreshCw, FiXCircle } from "react-icons/fi";
+import { getRefundPolicies } from "@/lib/api-services";
+import type { ReturnPolicy } from "@/types/return-policy";
 
 const RefundPolicyPage = () => {
+  const [policyContent, setPolicyContent] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPolicy = async () => {
+      try {
+        const data: ReturnPolicy[] = await getRefundPolicies();
+        if (!isMounted) return;
+        if (Array.isArray(data) && data.length > 0 && data[0]?.content) {
+          setPolicyContent(data[0].content);
+        }
+      } catch (error) {
+        console.error("Failed to load refund policy content:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadPolicy();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   return (
     <main className="max-w-5xl mx-auto sm:px-5 px-3 py-10 space-y-10">
       <header className="space-y-3 text-center md:text-left">
@@ -65,7 +96,17 @@ const RefundPolicyPage = () => {
       </section>
 
       <section className="rounded-2xl bg-white border border-gray-200 px-6 py-8 md:px-8 md:py-9 shadow-sm space-y-8 text-gray-800">
-        <article className="prose max-w-none prose-sm sm:prose-base text-gray-800 flex flex-col gap-4">
+        {isLoading && !policyContent && (
+          <p className="text-sm text-gray-500">রিফান্ড পলিসি লোড হচ্ছে...</p>
+        )}
+
+        {policyContent ? (
+          <article
+            className="prose max-w-none prose-sm sm:prose-base text-gray-800"
+            dangerouslySetInnerHTML={{ __html: policyContent }}
+          />
+        ) : (
+          <article className="prose max-w-none prose-sm sm:prose-base text-gray-800 flex flex-col gap-4">
           <section>
             <h2>১. রিটার্ন করার সময়সীমা (Return Window)</h2>
             <p>
@@ -307,6 +348,7 @@ const RefundPolicyPage = () => {
             </p>
           </section>
         </article>
+        )}
       </section>
     </main>
   );

@@ -515,19 +515,6 @@ const ContactUs = () => {
             </div>
           </div>
         </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-20 text-center">
-          <p className="text-gray-700 text-lg">
-            {` যা খুঁজছেন তা পাচ্ছেন না?`}
-            <Link
-              href="#"
-              className="font-bold hover:opacity-80 transition-opacity ml-1 text-primary"
-            >
-              আমাদের FAQ দেখুন
-            </Link>
-          </p>
-        </div>
       </div>
 
       <style>{`

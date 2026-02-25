@@ -34,11 +34,11 @@ const Category = async () => {
                 min-[820px]:[flex:0_0_15%]
                 lg:[flex:0_0_13%] min-[1170px]:[flex:0_0_10%]  sm:w-28 w-16 flex flex-col justify-between gap-1 rounded-lg  overflow-hidden relative cursor-pointer select-none bg-[#F3F3F3] sm:p-2 p-1 group/category "
               >
-                {category.image && (
+                {(category.photo || category.image?.url) && (
                   <div className=" bg-red-300 rounded-lg overflow-hidden ">
                     <Image
-                      src={category.image.url}
-                      alt={category.image.alt || category.name}
+                      src={category.photo || category.image!.url}
+                      alt={category.image?.alt || category.name}
                       width={500}
                       height={500}
                       className="  aspect-[7/6] group-hover/category:scale-[1.05] transition-all duration-300 ease-linear "

@@ -4,6 +4,8 @@ import formatteeNumber from "../../../utils/formatteNumber";
 import { PromoCode } from "../../../lib/api-services";
 
 interface CheckoutCartProps {
+  /** Contact phone from system user (store admin). Shown as "যেকোনো সমস্যায় নির্দ্বিধায় যোগাযোগ করুন- {phone}" */
+  contactPhone?: string | null;
   items: {
     id: number;
     product: { id: number; name: string; thumbnail?: string; images?: { url: string; alt?: string }[] };
@@ -27,6 +29,7 @@ interface CheckoutCartProps {
 }
 
 const CheckoutCart = ({
+  contactPhone,
   items,
   subtotal,
   discount,
@@ -102,7 +105,7 @@ const CheckoutCart = ({
       </div>
 
       <p className=" font-medium text-center">
-        যেকোনো সমস্যায় নির্দ্বিধায় যোগাযোগ করুন- 01774617452
+        যেকোনো সমস্যায় নির্দ্বিধায় যোগাযোগ করুন- {contactPhone?.trim() || "01774617452"}
       </p>
     </section>
   );
